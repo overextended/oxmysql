@@ -1,5 +1,4 @@
 const path = require('path');
-const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = {
     mode: "production",
@@ -16,11 +15,10 @@ module.exports = {
         ],
     },
     resolve: {
-        extensions: ['.ts'],
+        extensions: ['.ts', '.js'],
     },
     output: {
         filename: 'oxmysql.js',
         path: path.resolve(__dirname, 'dist'),
     },
-    plugins: [new ESLintPlugin()],
 };
