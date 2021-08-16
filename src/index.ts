@@ -14,7 +14,7 @@ global.exports(
         callback(result[0]);
       })
       .catch((error) => {
-        callback(false);
+        setImmediate(() => callback(false));
         console.log(error);
       });
   }
@@ -30,10 +30,10 @@ global.exports(
     pool
       .execute(query, parameters)
       .then((result) => {
-        callback(result[0][0]);
+        setImmediate(() => callback(result[0][0]));
       })
       .catch((error) => {
-        callback(false);
+        setImmediate(() => callback(false));
         console.log(error);
       });
   }
@@ -49,10 +49,10 @@ global.exports(
     pool
       .execute(query, parameters)
       .then((result) => {
-        callback(Object.values(result[0][0])[0]);
+        setImmediate(() => callback(Object.values(result[0][0])[0]));
       })
       .catch((error) => {
-        callback(false);
+        setImmediate(() => callback(false));
         console.log(error);
       });
   }
@@ -68,10 +68,10 @@ global.exports(
     pool
       .execute(query, parameters)
       .then((result) => {
-        callback(<OkPacket>result[0]);
+        setImmediate(() => callback(<OkPacket>result[0]));
       })
       .catch((error) => {
-        callback(false);
+        setImmediate(() => callback(false));
         console.log(error);
       });
   }
