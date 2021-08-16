@@ -11,7 +11,7 @@ global.exports(
     pool
       .execute(query, parameters)
       .then((result) => {
-        setImmediate(() => callback(result[0]));
+        callback(result[0]);
       })
       .catch((error) => {
         callback(false);
