@@ -17,6 +17,7 @@ global.exports(
         callback(false);
         console.log(error);
       });
+    (<any>process)._tickCallback();
   }
 );
 
@@ -36,6 +37,7 @@ global.exports(
         callback(false);
         console.log(error);
       });
+    (<any>process)._tickCallback();
   }
 );
 
@@ -55,6 +57,7 @@ global.exports(
         callback(false);
         console.log(error);
       });
+    (<any>process)._tickCallback();
   }
 );
 
@@ -74,5 +77,6 @@ global.exports(
         callback(false);
         console.log(error);
       });
+    (<any>process)._tickCallback();
   }
 );
