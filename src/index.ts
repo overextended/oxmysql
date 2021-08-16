@@ -1,25 +1,5 @@
-import { QueryError } from "mysql2/promise";
+import { OkPacket, RowDataPacket } from "mysql2/promise";
 import { pool } from "./pool";
-
-const execute = (
-  query: string,
-  callback: (result: any) => void,
-  parameters?: { [key: string]: any }
-) => {
-  const startTime = process.hrtime.bigint();
-
-  pool
-    .execute(query, parameters)
-    .then((result) => {
-      const end = process.hrtime.bigint();
-      console.log(`Query took ${Number(end - startTime) / 1000000} ms!`);
-      callback(result[0]);
-    })
-    .catch((error) => {
-      callback(false);
-      console.log(error);
-    });
-};
 
 global.exports(
   "execute",
@@ -28,6 +8,71 @@ global.exports(
     parameters: { [key: string]: any },
     callback: (result: any) => void
   ) => {
-    execute(query, callback, parameters);
+    pool
+      .execute(query, parameters)
+      .then((result) => {
+        callback(result[0]);
+      })
+      .catch((error) => {
+        callback(false);
+        console.log(error);
+      });
+  }
+);
+
+global.exports(
+  "single",
+  (
+    query: string,
+    parameters: { [key: string]: any },
+    callback: (result: RowDataPacket[] | false) => void
+  ) => {
+    pool
+      .execute(query, parameters)
+      .then((result) => {
+        callback(result[0][0]);
+      })
+      .catch((error) => {
+        callback(false);
+        console.log(error);
+      });
+  }
+);
+
+global.exports(
+  "scalar",
+  (
+    query: string,
+    parameters: { [key: string]: any },
+    callback: (result: unknown) => void
+  ) => {
+    pool
+      .execute(query, parameters)
+      .then((result) => {
+        callback(Object.values(result[0][0])[0]);
+      })
+      .catch((error) => {
+        callback(false);
+        console.log(error);
+      });
+  }
+);
+
+global.exports(
+  "insert",
+  (
+    query: string,
+    parameters: { [key: string]: any },
+    callback: (result: OkPacket | false) => void
+  ) => {
+    pool
+      .execute(query, parameters)
+      .then((result) => {
+        callback(<OkPacket>result[0]);
+      })
+      .catch((error) => {
+        callback(false);
+        console.log(error);
+      });
   }
 );
