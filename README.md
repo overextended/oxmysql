@@ -1,3 +1,3 @@
 # oxmysql (WIP) - not ready for use
 
-Simple and lightweight database wrapper for FiveM using https://github.com/sidorares/node-mysql2
+Database wrapper for FiveM utilising [node-mysql2](https://github.com/sidorares/node-mysql2) offering improved performance and security.
