@@ -1,4 +1,4 @@
-theme: jekyll-theme-hacker
+remote_theme: pmarsceill/just-the-docs
 title: oxmysql
 description: oxmysql is a database wrapper for FiveM.
 show_downloads: true
