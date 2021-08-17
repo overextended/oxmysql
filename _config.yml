@@ -1,4 +1,4 @@
 theme: jekyll-theme-minimal
 title: oxmysql
-description: oxmysql is a database wrapper for FiveM utilising node-mysql2, offering improved performance and security.
+description: oxmysql is a database wrapper for FiveM.
 show_downloads: true
