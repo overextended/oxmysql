@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "target": "ES2017",
-    "module": "commonjs",
-    "types": ["@citizenfx/server", "@types/node"]
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
-}

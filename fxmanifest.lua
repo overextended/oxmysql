@@ -7,4 +7,4 @@ version '1.0.0'
 url 'https://github.com/overextended/oxmysql'
 author 'Dunak'
 
-server_scripts {'dist/oxmysql.js', 'wrapper.lua'}
+server_scripts {'oxmysql.js', 'wrapper.lua'}
