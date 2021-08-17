@@ -35,13 +35,13 @@ exports("fetch", (query, parameters = [], callback = () => { }) => {
 
 exports("single", (query, parameters = [], callback = () => { }) => {
     execute(query, parameters)
-        .then(result => callback(result && result[0] && result[0][0]));
+        .then(result => callback(result && result[0]));
     process._tickCallback();
 });
 
 exports("scalar", (query, parameters = [], callback = () => { }) => {
     execute(query, parameters)
-        .then(result => callback(result && result[0] && result[0][0] && Object.values(result[0][0])[0]));
+        .then(result => callback(result && result[0] && Object.values(result[0])[0]));
     process._tickCallback();
 });
 
