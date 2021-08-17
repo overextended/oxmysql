@@ -2,9 +2,9 @@ fx_version 'cerulean'
 game 'gta5'
 
 name 'oxmysql'
-description 'FiveM MySQL wrapper using faster mysql2'
-version '1.0.0'
+description 'Database wrapper for FiveM utilising node-mysql2 offering improved performance and security.'
+version '0.1.0'
 url 'https://github.com/overextended/oxmysql'
-author 'Dunak'
+author 'overextended'
 
 server_scripts {'oxmysql.js', 'wrapper.lua'}
