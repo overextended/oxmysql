@@ -21,31 +21,31 @@ const execute = async (query, parameters) => {
     }
 }
 
-exports("execute", (query, parameters = [], callback = () => { }) => {
+global.exports("execute", (query, parameters = [], callback = () => { }) => {
     execute(query, parameters)
         .then(result => callback(result && result.affectedRows));
     process._tickCallback()
 });
 
-exports("fetch", (query, parameters = [], callback = () => { }) => {
+global.exports("fetch", (query, parameters = [], callback = () => { }) => {
     execute(query, parameters)
         .then(result => callback(result));
     process._tickCallback();
 });
 
-exports("single", (query, parameters = [], callback = () => { }) => {
+global.exports("single", (query, parameters = [], callback = () => { }) => {
     execute(query, parameters)
         .then(result => callback(result && result[0]));
     process._tickCallback();
 });
 
-exports("scalar", (query, parameters = [], callback = () => { }) => {
+global.exports("scalar", (query, parameters = [], callback = () => { }) => {
     execute(query, parameters)
         .then(result => callback(result && result[0] && Object.values(result[0])[0]));
     process._tickCallback();
 });
 
-exports("insert", (query, parameters = [], callback = () => { }) => {
+global.exports("insert", (query, parameters = [], callback = () => { }) => {
     execute(query, parameters)
         .then(result => callback(result && result.insertId));
     process._tickCallback();
