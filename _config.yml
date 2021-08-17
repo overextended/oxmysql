@@ -3,3 +3,4 @@ title: oxmysql
 description: oxmysql is a database wrapper for FiveM.
 show_downloads: true
 color_scheme: dark
+logo: "/assets/images/ox.png"
