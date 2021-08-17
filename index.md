@@ -12,13 +12,12 @@ TODO
 
 Every executed query is being prepared and stored into cache for faster performance using prepared statements. These statements are also being sanitized from vulnerable SQL injection and accepts two types of parameters:
 
-- Unnamed
 ```lua
-... 'SELECT * FROM `users` WHERE `identifier` = ? AND `group` = ?', { playerIdentifier, playerGroup } ...
+...'SELECT * FROM `users` WHERE `identifier` = ? AND `group` = ?', { playerIdentifier, playerGroup } ...
 ```
-- Named
+
 ```lua
-... 'SELECT * FROM `users` WHERE `identifier` = :id AND `group` = :group', { id = playerIdentifier, group = playerGroup } ...
+...'SELECT * FROM `users` WHERE `identifier` = :id AND `group` = :group', { id = playerIdentifier, group = playerGroup }
 ```
 
 ## Usage
