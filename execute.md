@@ -1,7 +1,7 @@
 # Execute
 Execute a query and returns the number of affected rows.
 
-## Usage
+### Usage
 ```lua
 exports.oxmysql:execute(query, {}, function(affectedRows)
   print('Updated '..affectedRows..' rows')
