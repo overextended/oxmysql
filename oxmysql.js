@@ -22,31 +22,31 @@ const execute = async (query, parameters) => {
 }
 
 global.exports("execute", (query, parameters = [], callback = () => { }) => {
+    ScheduleResourceTick(GetCurrentResourceName());
     execute(query, parameters)
         .then(result => callback(result && result.affectedRows));
-    process._tickCallback()
 });
 
 global.exports("fetch", (query, parameters = [], callback = () => { }) => {
+    ScheduleResourceTick(GetCurrentResourceName());
     execute(query, parameters)
         .then(result => callback(result));
-    process._tickCallback();
 });
 
 global.exports("single", (query, parameters = [], callback = () => { }) => {
+    ScheduleResourceTick(GetCurrentResourceName());
     execute(query, parameters)
         .then(result => callback(result && result[0]));
-    process._tickCallback();
 });
 
 global.exports("scalar", (query, parameters = [], callback = () => { }) => {
+    ScheduleResourceTick(GetCurrentResourceName());
     execute(query, parameters)
         .then(result => callback(result && result[0] && Object.values(result[0])[0]));
-    process._tickCallback();
 });
 
 global.exports("insert", (query, parameters = [], callback = () => { }) => {
+    ScheduleResourceTick(GetCurrentResourceName());
     execute(query, parameters)
         .then(result => callback(result && result.insertId));
-    process._tickCallback();
 });
