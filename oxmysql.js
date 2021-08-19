@@ -4,7 +4,12 @@ const { createPool } = require('mysql2/promise');
 const pool = createPool({
     host: 'localhost',
     user: 'root',
-    database: 'es_extended'
+    password: 'password',
+    database: 'database',
+    charset: 'utf8mb4',
+    multipleStatements: true,
+    namedPlaceholders: true,
+    waitForConnections: true,
 });
 
 const execute = async (query, parameters) => {
