@@ -1,25 +1,46 @@
 /// <reference path="node_modules\@citizenfx\server\index.d.ts" />
 const { createPool } = require('mysql2/promise');
+const { ConnectionStringParser } = require('connection-string-parser');
+
+const connectionStringParser = new ConnectionStringParser({
+    scheme: 'mysql',
+    hosts: []
+});
+
+const connectionString = GetConvar('mysql_connection_string', '');
+
+if(connectionString === '') throw new Error(`Undefined convar mysql_connection_string`);
+
+const config = connectionStringParser.parse(connectionString);
+
+//TODO: semicolor format
+
+const slowQueryWarning = GetConvarInt('mysql_slow_query_warning', 100)
 
 const pool = createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'database',
+    host: config.hosts[0].host,
+    user: config.username,
+    password: config.password,
+    database: config.endpoint,
     charset: 'utf8mb4_unicode_ci',
     multipleStatements: false,
     namedPlaceholders: true,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    ...config.options
 });
 
 const execute = async (query, parameters) => {
     ScheduleResourceTick(GetCurrentResourceName());
     try {
-        console.time(query);
+        const startTime = process.hrtime.bigint();
         const [result] = await pool.execute(query, parameters);
-        console.timeEnd(query);
+        const executionTime = new Number((process.hrtime.bigint() - startTime)) / 1000000
+
+        if(executionTime >= slowQueryWarning)
+            console.warn(`${query} took ${executionTime}ms!`)
+        
         return result;
     } catch (error) {
         return console.error(error.message);

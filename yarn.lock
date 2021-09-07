@@ -7,6 +7,13 @@
   resolved "https://registry.yarnpkg.com/@citizenfx/server/-/server-2.0.4376-1.tgz#6cc9e034bc463a031df40532f278b9f309b7f258"
   integrity sha512-xIqpuSwbyga3ysSJ3NfiDeJ6+L3cEHI+vRF45IjMP3U0E4bMZLGrjoSXBbndDJjd97uPdak3HPZD4/AC0HBnIw==
 
+connection-string-parser@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/connection-string-parser/-/connection-string-parser-1.0.4.tgz#27f1379694fccd7c1c0066db3de0960f9d0dd619"
+  integrity sha512-grmrIHzrZRjn53dwRqJTmtTRVc+gUiIk/tzjUrteN6aLN4l9DR6KE/IsGtjndyAlHhkmKjAHB9p7PJ0cFgO94w==
+  dependencies:
+    tslib "^2.0.0"
+
 denque@^1.4.1:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/denque/-/denque-1.5.0.tgz#773de0686ff2d8ec2ff92914316a47b73b1c73de"
@@ -91,6 +98,11 @@ sqlstring@^2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/sqlstring/-/sqlstring-2.3.2.tgz#cdae7169389a1375b18e885f2e60b3e460809514"
   integrity sha512-vF4ZbYdKS8OnoJAWBmMxCQDkiEBkGQYU7UZPtL8flbDRSNkhaXvRJ279ZtI6M+zDaQovVU4tuRgzK5fVhvFAhg==
+
+tslib@^2.0.0:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
+  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 yallist@^2.1.2:
   version "2.1.2"

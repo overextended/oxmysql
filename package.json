@@ -9,6 +9,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@citizenfx/server": "^2.0.4376-1",
+    "connection-string-parser": "^1.0.4",
     "mysql2": "^2.3.0"
   }
 }
