@@ -1,4 +1,4 @@
-<h2 align='center'>oxmysql (WIP) - not ready for use<p><a href='https://overextended.github.io/oxmysql/'>Documentation</a></p></h2>
+<h2 align='center'>oxmysql<p><a href='https://overextended.github.io/oxmysql/'>Documentation</a></p></h2>
 
 oxmysql is a middleware for FXServer which utilises [node-mysql2](https://github.com/sidorares/node-mysql2) to communicate with a database and respond with the query results.  
 
