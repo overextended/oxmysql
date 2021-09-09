@@ -8,3 +8,4 @@ url 'https://github.com/overextended/oxmysql'
 author 'overextended'
 
 server_scripts {'oxmysql.js', 'wrapper.lua'}
+server_only 'true'
