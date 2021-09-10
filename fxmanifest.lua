@@ -9,3 +9,5 @@ author 'overextended'
 
 server_scripts {'oxmysql.js', 'wrapper.lua'}
 server_only 'true'
+
+provide 'mysql-async' -- alternative version for old mysql-async, also prevents from running old script
