@@ -31,6 +31,30 @@ const pool = createPool({
     ...config.options
 });
 
+/**
+ * Check database connection with .ping()
+ * until the connection is stablished
+ */
+let DbReady = false;
+
+async function checkConnection() {
+    let conn = await pool.getConnection();
+    try {
+        await conn.ping(); /* should raise an error if connection is down? */
+        DbReady = true;
+    }
+    catch {
+        DbReady = false;
+    }
+}
+
+let tick = setTick(async () => {
+    if (!DbReady)
+        await checkConnection();
+    else
+        clearTick(tick);
+});
+
 const execute = async (query, parameters) => {
     ScheduleResourceTick(GetCurrentResourceName());
     try {
@@ -43,36 +67,44 @@ const execute = async (query, parameters) => {
         
         return result;
     } catch (error) {
+        /* QUERY LOG ERRORS */
+        console.log('Error on query:', query);
+        console.log('Params on query:', parameters);
         return console.error(error.message);
     }
 }
 
 global.exports("execute", (query, parameters, callback = () => { }) => {
-    execute(query, parameters).then(result =>
-        callback(result && result.affectedRows)
-    );
+    execute(query, parameters).then(result => {
+        if (typeof callback === 'function')
+            callback(result && result.affectedRows)
+    });
 });
 
 global.exports("fetch", (query, parameters, callback = () => { }) => {
     execute(query, parameters).then(result =>
-        callback(result)
+        { if (typeof callback === 'function') callback(result); }
     );
 });
 
 global.exports("single", (query, parameters, callback = () => { }) => {
     execute(query, parameters).then(result =>
-        callback(result && result[0])
+        { if (typeof callback === 'function')  callback(result && result[0]); }
     );
 });
 
 global.exports("scalar", (query, parameters, callback = () => { }) => {
     execute(query, parameters).then(result =>
-        callback(result && result[0] && Object.values(result[0])[0])
+        { if (typeof callback === 'function') callback(result && result[0] && Object.values(result[0])[0]); }
     );
 });
 
 global.exports("insert", (query, parameters, callback = () => { }) => {
     execute(query, parameters).then(result =>
-        callback(result && result.insertId)
+        { if (typeof callback === 'function') callback(result && result.insertId); }
     );
 });
+
+global.exports("ready", () => {
+    return DbReady
+})
