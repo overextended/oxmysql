@@ -3,7 +3,7 @@ game 'gta5'
 
 name 'oxmysql'
 description 'Database wrapper for FiveM utilising node-mysql2 offering improved performance and security.'
-version '0.1.0'
+version '1.1.0'
 url 'https://github.com/overextended/oxmysql'
 author 'overextended'
 
