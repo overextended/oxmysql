@@ -29,7 +29,6 @@ const pool = createPool({
   database: config.endpoint,
   charset: "utf8mb4_unicode_ci",
   namedPlaceholders: true,
-  typeCast: false,
   ...config.options,
 });
 
@@ -61,8 +60,6 @@ const execute = async (query, parameters) => {
   ScheduleResourceTick(GetCurrentResourceName());
   try {
     const [formattedQuery, formattedParameters] = formatQuery(query, parameters);
-
-    console.log(formattedQuery);
 
     const startTime = process.hrtime.bigint();
     const [result] = await pool.execute(formattedQuery, formattedParameters);
