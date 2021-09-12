@@ -1,15 +1,28 @@
 {
   "name": "oxmysql",
-  "private": "true",
   "version": "1.1.0",
   "main": "oxmysql.js",
   "description": "FiveM MySQL wrapper using faster mysql2",
   "repository": "git@github.com:overextended/oxmysql.git",
   "author": "dunak-debug <19434539+dunak-debug@users.noreply.github.com>",
   "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "postinstall": "patch-package"
+  },
   "dependencies": {
     "@citizenfx/server": "^2.0.4376-1",
     "connection-string-parser": "^1.0.4",
-    "mysql2": "^2.3.0"
+    "mysql2": "^2.3.0",
+    "postinstall-postinstall": "^2.1.0"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^9.0.1",
+    "patch-package": "^6.4.7",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.4.3",
+    "webpack": "^5.52.1",
+    "webpack-cli": "^4.8.0"
   }
 }
