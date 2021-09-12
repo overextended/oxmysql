@@ -1,0 +1,61 @@
+diff --git a/node_modules/named-placeholders/index.js b/node_modules/named-placeholders/index.js
+index 527d723..1a955b4 100644
+--- a/node_modules/named-placeholders/index.js
++++ b/node_modules/named-placeholders/index.js
+@@ -3,7 +3,7 @@
+ // based on code from Brian White @mscdex mariasql library - https://github.com/mscdex/node-mariasql/blob/master/lib/Client.js#L272-L332
+ // License: https://github.com/mscdex/node-mariasql/blob/master/LICENSE
+ 
+-const RE_PARAM = /(?:\?)|(?::(\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g,
++const RE_PARAM = /(?:\?)|(?:[:,@](\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g,
+ DQUOTE = 34,
+ SQUOTE = 39,
+ BSLASH = 92;
+@@ -94,15 +94,27 @@ function createCompiler(config) {
+     if (typeof params == 'undefined')
+       throw new Error('Named query contains placeholders, but parameters object is undefined');
+ 
++    let parsedParams = {}
++
++    for(const key in params) {
++      parsedParams[key.charAt(0) == '@' ? key.substring(1) : key] = params[key]
++    }
++
+     const tokens = tree[1];
+     for (let i=0; i < tokens.length; ++i) {
+-      arr.push(params[tokens[i]]);
++      if(typeof tokens[i] === 'number') {
++        const param = parsedParams[(tokens[i] + 1).toString()];
++        arr.push(param !== undefined ? param : null);
++      } else {
++        arr.push(parsedParams[tokens[i]] !== undefined ? parsedParams[tokens[i]] : null);
++      }
+     }
++
+     return [tree[0], arr];
+   }
+ 
+   function noTailingSemicolon(s) {
+-    if (s.slice(-1) == ':') {
++    if (s.slice(-1) == ':' || s.slice(-1) == '@') {
+       return s.slice(0, -1);
+     }
+     return s;
+@@ -115,7 +127,7 @@ function createCompiler(config) {
+ 
+     let unnamed = noTailingSemicolon(tree[0][0]);
+     for (let i=1; i < tree[0].length; ++i) {
+-      if (tree[0][i-1].slice(-1) == ':') {
++      if (tree[0][i-1].slice(-1) == ':' || tree[0][i-1].slice(-1) == '@') {
+         unnamed += config.placeholder;
+       }
+       unnamed += config.placeholder;
+@@ -124,7 +136,7 @@ function createCompiler(config) {
+ 
+     const last = tree[0][tree[0].length -1];
+     if (tree[0].length == tree[1].length) {
+-      if (last.slice(-1) == ':') {
++      if (last.slice(-1) == ':' || last.slice(-1) == '@') {
+         unnamed += config.placeholder;
+       }
+       unnamed += config.placeholder;
