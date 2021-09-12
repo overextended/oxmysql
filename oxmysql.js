@@ -46,9 +46,11 @@ const formatQuery = (query, params) => {
     query = query.replace(/@(\w+)/g, (raw, match) => `:${match}`);
 
     let newParams = {};
-    Object.keys(params).forEach((param) => {
-      newParams[param.replace("@", "")] = params[param];
-    });
+    if (!params) {
+      Object.keys(params).forEach((param) => {
+        newParams[param.replace("@", "")] = params[param];
+      });
+    }
 
     params = newParams;
   }
