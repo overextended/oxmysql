@@ -55,6 +55,14 @@ const execute = async (query, parameters, prepare = true) => {
   try {
     const startTime = process.hrtime.bigint();
 
+    // FIX WHEN SENDING LUA {nil, something, nil} => [null, something, null] based on count of ? in query
+    // Named placeholders handles this in patch {var1 = nil, var2 = something} => { var1: null, var2: something }
+    if (Array.isArray(parameters) && query.includes("?")) {
+      const requiredParameters = query.match(/\?/g);
+      if (requiredParameters.length !== parameters.length)
+        requiredParameters.forEach((_, index) => (parameters[index] = parameters[index] || null));
+    }
+
     const [result] = prepare
       ? await pool.execute(query, parameters)
       : await pool.query(query, parameters);
@@ -66,8 +74,7 @@ const execute = async (query, parameters, prepare = true) => {
 
     return result;
   } catch (error) {
-    console.error(error.message, debug && query, debug && parameters);
-    return false;
+    console.error(error.message, query, parameters);
   }
 };
 
