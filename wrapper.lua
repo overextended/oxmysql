@@ -6,14 +6,13 @@
 --
 -- @return table with result
 --
-local function executeSync(query, parameters)
+exports('executeSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:execute(query, parameters, function(result)
         p:resolve(result)
-    end)
+    end, GetInvokingResource())
     return Citizen.Await(p)
-end
-exports('executeSync', executeSync)
+end)
 
 ---
 -- Execute query and fetch all result
@@ -23,14 +22,13 @@ exports('executeSync', executeSync)
 --
 -- @return table with result
 --
-local function fetchSync(query, parameters)
+exports('fetchSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:fetch(query, parameters, function(result)
         p:resolve(result)
-    end)
+    end, GetInvokingResource())
     return Citizen.Await(p)
-end
-exports('fetchSync', fetchSync)
+end)
 
 ---
 -- Execute query and fetch first row
@@ -40,14 +38,13 @@ exports('fetchSync', fetchSync)
 --
 -- @return table with result row
 --
-local function singleSync(query, parameters)
+exports('singleSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:single(query, parameters, function(result)
         p:resolve(result)
-    end)
+    end, GetInvokingResource())
     return Citizen.Await(p)
-end
-exports('singleSync', singleSync)
+end)
 
 ---
 -- Execute query and fetch first column of first row 
@@ -57,14 +54,13 @@ exports('singleSync', singleSync)
 --
 -- @return result
 --
-local function scalarSync(query, parameters)
+exports('scalarSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:scalar(query, parameters, function(result)
         p:resolve(result)
-    end)
+    end, GetInvokingResource())
     return Citizen.Await(p)
-end
-exports('scalarSync', scalarSync)
+end)
 
 ---
 -- Insert data and return inserted id
@@ -74,11 +70,10 @@ exports('scalarSync', scalarSync)
 --
 -- @return insert data result
 --
-local function insertSync(query, parameters)
+exports('insertSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:insert(query, parameters, function(result)
         p:resolve(result)
-    end)
+    end, GetInvokingResource())
     return Citizen.Await(p)
-end
-exports('insertSync', insertSync)
+end)

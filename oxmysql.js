@@ -44,16 +44,16 @@ const pool = createPool({
 pool
   .getConnection()
   .then(() => {
-    console.info("Database server connection established.");
+    console.log('^2Database server connection established^0');
   })
   .catch((error) => {
     console.error(error.message);
   });
 
-const execute = async (query, parameters, prepare = true) => {
+const execute = async (query, parameters, prepare = true, resource) => {
   ScheduleResourceTick(resourceName);
   try {
-    const startTime = process.hrtime.bigint();
+    const time = new Date()
 
     // FIX WHEN SENDING LUA {nil, something, nil} => [null, something, null] based on count of ? in query
     // Named placeholders handles this in patch {var1 = nil, var2 = something} => { var1: null, var2: something }
@@ -67,43 +67,45 @@ const execute = async (query, parameters, prepare = true) => {
       ? await pool.execute(query, parameters)
       : await pool.query(query, parameters);
 
-    const executionTime = Number(process.hrtime.bigint() - startTime) / 1e6;
+    const executionTime = new Date()-time;
 
-    if (executionTime >= slowQueryWarning || debug)
-      console.warn(`${query} took ${executionTime}ms!`, parameters);
-
+    if (executionTime >= slowQueryWarning)
+      console.warn(`${resource} took ${executionTime}ms to execute a query!\n^3${query}`,parameters);
+    else (debug)
+      console.log(`^3${resource} took ${executionTime}ms to execute a query!\n^3${query},${parameters}^0`);
+      
     return result;
   } catch (error) {
-    console.error(error.message, query, parameters);
+    console.log(`^1${resource} was unable to execute a query: ${error.message}!\n^1${error.sql}`,parameters,'^0')
   }
 };
 
-global.exports("execute", (query, parameters, callback = () => {}) => {
-  execute(query, parameters, false).then(
+global.exports("execute", (query, parameters, callback = () => {}, resource = GetInvokingResource()) => {
+  execute(query, parameters, false, resource).then(
     (result) => typeof callback === "function" && callback(result || false)
   );
 });
 
-global.exports("insert", (query, parameters, callback = () => {}) => {
-  execute(query, parameters, false).then(
+global.exports("insert", (query, parameters, callback = () => {}, resource = GetInvokingResource()) => {
+  execute(query, parameters, false, resource).then(
     (result) => typeof callback === "function" && callback((result && result.insertId) || false)
   );
 });
 
-global.exports("fetch", (query, parameters, callback = () => {}) => {
-  execute(query, parameters).then(
+global.exports("fetch", (query, parameters, callback = () => {}, resource = GetInvokingResource()) => {
+  execute(query, parameters, true, resource).then(
     (result) => typeof callback === "function" && callback(result || false)
   );
 });
 
-global.exports("single", (query, parameters, callback = () => {}) => {
-  execute(query, parameters).then(
+global.exports("single", (query, parameters, callback = () => {}, resource = GetInvokingResource()) => {
+  execute(query, parameters, true, resource).then(
     (result) => typeof callback === "function" && callback((result && result[0]) || false)
   );
 });
 
-global.exports("scalar", (query, parameters, callback = () => {}) => {
-  execute(query, parameters).then(
+global.exports("scalar", (query, parameters, callback = () => {}, resource = GetInvokingResource()) => {
+  execute(query, parameters, true, resource).then(
     (result) =>
       typeof callback === "function" &&
       callback((result && result[0] && Object.values(result[0])[0]) || false)
