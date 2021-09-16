@@ -106,8 +106,33 @@ global.exports("single", (query, parameters, callback = () => {}, resource = Get
 
 global.exports("scalar", (query, parameters, callback = () => {}, resource = GetInvokingResource()) => {
   execute(query, parameters, true, resource).then(
-    (result) =>
-      typeof callback === "function" &&
-      callback((result && result[0] && Object.values(result[0])[0]) || false)
+    (result) => typeof callback === "function" && callback((result && result[0] && Object.values(result[0])[0]) || false)
   );
 });
+
+/*
+global.exports("executeSync", async(query, parameters) => {
+  const result = await execute(query, parameters, true, GetInvokingResource())
+  return result || false
+});
+
+global.exports("insertSync", async(query, parameters) => {
+  const result = await execute(query, parameters, true, GetInvokingResource())
+  return result && result.insertId || false
+});
+
+global.exports("fetchSync", async(query, parameters) => {
+  const result = await execute(query, parameters, true, GetInvokingResource())
+  return result || false
+});
+
+global.exports("singleSync", async(query, parameters) => {
+  const result = await execute(query, parameters, true, GetInvokingResource())
+  return result && result[0] || false
+});
+
+global.exports("scalarSync", async(query, parameters) => {
+  const result = await execute(query, parameters, true, GetInvokingResource())
+  return result && result[0] && Object.values(result[0])[0] || false
+});
+*/

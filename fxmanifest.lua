@@ -6,6 +6,12 @@ description 'Database wrapper for FiveM utilising node-mysql2 offering improved 
 version '1.2.0'
 url 'https://github.com/overextended/oxmysql'
 author 'overextended'
+use_fxv2_oal 'yes'
+lua54 'yes'
 
-server_scripts {'oxmysql.js', 'wrapper.lua'}
 server_only 'true'
+
+server_scripts {
+	'oxmysql.js',
+	'wrapper.lua'
+}
