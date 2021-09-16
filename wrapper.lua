@@ -1,10 +1,10 @@
 ---
--- Execute query and fetch affected rows
+-- Execute unprepared query and fetch result
 --
 -- @param query tring
 -- @param parameters table
 --
--- @return table with result
+-- @return table with result | false
 --
 exports('executeSync', function(query, parameters)
     local p = promise.new()
@@ -73,6 +73,22 @@ end)
 exports('insertSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:insert(query, parameters, function(result)
+        p:resolve(result)
+    end, GetInvokingResource())
+    return Citizen.Await(p)
+end)
+
+---
+-- Update data and return affected rows
+--
+-- @param query tring
+-- @param parameters table
+--
+-- @return number affected rows
+--
+exports('insertSync', function(query, parameters)
+    local p = promise.new()
+    exports['oxmysql']:update(query, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
