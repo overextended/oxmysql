@@ -38,9 +38,9 @@ jobs:
         id: auto_release
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          title: "Experimental - ${{ github.event.inputs.tag }}"
+          title: "Experimental - ${{ github.event.inputs.tag }} (FOR TESTING PURPOSE)"
           prerelease: true
-          automatic_release_tag: "${{ github.event.inputs.tag }}-alpha"
+          automatic_release_tag: "${{ github.event.inputs.tag }}"
           files: oxmysql-${{ github.event.inputs.tag }}.zip
 
         env:
