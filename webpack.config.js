@@ -7,7 +7,7 @@ const filesToCopy = ["fxmanifest.lua", "wrapper.lua", "README.md", "LICENSE.md"]
 module.exports = {
   mode: "development",
   devtool: "source-map",
-  entry: "./oxmysql.js",
+  entry: "./src/index.js",
   resolve: {
     extensions: [".js"],
   },
