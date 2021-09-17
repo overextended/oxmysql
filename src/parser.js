@@ -39,10 +39,10 @@ const parseParameters = (query, parameters) => {
 
   if (Array.isArray(parameters)) {
     if (parameters.length !== queryParams.length)
-      throw new Error(`Undefined parameter #${parameters.length}`, query, parameters);
+      throw new Error(`Undefined array parameter #${parameters.length}`, query, parameters);
   } else {
     queryParams.forEach((_, i) => {
-      if (parameters[`${i + 1}`] === undefined) throw new FormatError(`Undefined parameter #${i + 1}`, query, parameters);
+      if (parameters[`${i + 1}`] === undefined) throw new FormatError(`Undefined object parameter #${i + 1}`, query, parameters);
     });
   }
 
