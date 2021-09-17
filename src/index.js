@@ -14,29 +14,8 @@ const safeCallback = (callback, result) => {
   else throw new Error(`Undefined callback passed`);
 };
 
-global.exports('execute', (query, parameters, cb, prepare = true, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource, prepare).then((result) => {
-    // Unsuccesful query
-    if (!result) return safeCallback(cb, false);
-
-    // Insert query
-    if (result.insertId !== undefined) return safeCallback(cb, result.insertId);
-
-    // Update query
-    if (result.affectedRows !== undefined) return safeCallback(cb, result.affectedRows);
-
-    if (result.length && result.length === 1) {
-      const values = Object.values(result[0]);
-      // Single query
-      if (values.length === 1) return safeCallback(cb, values[0]);
-
-      // Scalar query
-      return safeCallback(cb, result[0]);
-    }
-
-    // Fetch
-    return safeCallback(cb, result);
-  });
+global.exports('execute', (query, parameters, cb, resource = GetInvokingResource()) => {
+  execute(query, parameters, resource).then((result) => safeCallback(cb, result));
 });
 
 global.exports('insert', (query, parameters, cb, resource = GetInvokingResource()) => {
@@ -61,28 +40,8 @@ global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource(
   );
 });
 
-/*global.exports('executeSync', async (query, parameters, prepare = true) => {
-  const result = await execute(query, parameters, GetInvokingResource(), prepare);
-
-  // Unsuccesful query
-  if (!result) return false;
-
-  // Insert query
-  if (result.insertId !== undefined) return result.insertId;
-
-  // Update query
-  if (result.affectedRows !== undefined) return result.affectedRows;
-
-  if (result.length && result.length === 1) {
-    const values = Object.values(result[0]);
-    // Single query
-    if (values.length === 1) return values[0];
-
-    // Scalar query
-    return result[0];
-  }
-
-  // Fetch
+/*global.exports('executeSync', async (query, parameters) => {
+  const result = await execute(query, parameters, GetInvokingResource());
   return result;
 });
 
