@@ -20,10 +20,10 @@ global.exports('execute', (query, parameters, cb, prepare = true, resource = Get
     if (!result) return safeCallback(cb, false);
 
     // Insert query
-    if (result.insertId) return safeCallback(cb, result.insertId);
+    if (result.insertId !== undefined) return safeCallback(cb, result.insertId);
 
     // Update query
-    if (result.affectedRows) return safeCallback(cb, result.affectedRows);
+    if (result.affectedRows !== undefined) return safeCallback(cb, result.affectedRows);
 
     if (result.length && result.length === 1) {
       const values = Object.values(result[0]);
@@ -68,10 +68,10 @@ global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource(
   if (!result) return false;
 
   // Insert query
-  if (result.insertId) return result.insertId;
+  if (result.insertId !== undefined) return result.insertId;
 
   // Update query
-  if (result.affectedRows) return result.affectedRows;
+  if (result.affectedRows !== undefined) return result.affectedRows;
 
   if (result.length && result.length === 1) {
     const values = Object.values(result[0]);
