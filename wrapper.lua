@@ -86,7 +86,7 @@ end)
 --
 -- @return number affected rows
 --
-exports('insertSync', function(query, parameters)
+exports('updateSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:update(query, parameters, function(result)
         p:resolve(result)
