@@ -42,7 +42,7 @@ const parseParameters = (query, parameters) => {
       throw new Error(`Undefined parameter #${parameters.length}`, query, parameters);
   } else {
     queryParams.forEach((_, i) => {
-      if (!parameters[`${i + 1}`]) throw new FormatError(`Undefined parameter #${i + 1}`, query, parameters);
+      if (parameters[`${i + 1}`] === undefined) throw new FormatError(`Undefined parameter #${i + 1}`, query, parameters);
     });
   }
 
