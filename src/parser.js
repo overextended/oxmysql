@@ -28,7 +28,7 @@ const parseTypes = (field, next) => {
 const parseParameters = (query, parameters) => {
   if (query === undefined) throw new FormatError(`Undefined query passed`);
 
-  if (query.includes('@') || query.includes(':')) return convertNamedPlaceholders(query, parameters);
+  if (query.includes('@') || query.includes(':')) return [query, parameters];
 
   const queryParams = query.match(/\?(?!\?)/g);
 
@@ -39,7 +39,7 @@ const parseParameters = (query, parameters) => {
 
   if (Array.isArray(parameters)) {
     if (parameters.length !== queryParams.length)
-      throw new Error(`Undefined parameter ^3#${parameters.length}^0`, query, parameters);
+      throw new Error(`Undefined parameter #${parameters.length}`, query, parameters);
   } else {
     queryParams.forEach((_, i) => {
       if (!parameters[`${i + 1}`]) throw new FormatError(`Undefined parameter #${i + 1}`, query, parameters);

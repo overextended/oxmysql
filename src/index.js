@@ -1,8 +1,5 @@
 import { pool } from './pool';
 import { execute } from './execute';
-import { format } from 'mysql2';
-import { parseParameters } from './parser';
-
 setImmediate(async () => {
   try {
     await (await pool.getConnection()).ping();
