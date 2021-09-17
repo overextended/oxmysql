@@ -1,5 +1,5 @@
 diff --git a/node_modules/named-placeholders/index.js b/node_modules/named-placeholders/index.js
-index 527d723..1fb4003 100644
+index 527d723..84ee8f3 100644
 --- a/node_modules/named-placeholders/index.js
 +++ b/node_modules/named-placeholders/index.js
 @@ -3,7 +3,7 @@
@@ -11,7 +11,7 @@ index 527d723..1fb4003 100644
  DQUOTE = 34,
  SQUOTE = 39,
  BSLASH = 92;
-@@ -94,15 +94,25 @@ function createCompiler(config) {
+@@ -94,15 +94,24 @@ function createCompiler(config) {
      if (typeof params == 'undefined')
        throw new Error('Named query contains placeholders, but parameters object is undefined');
  
@@ -24,10 +24,8 @@ index 527d723..1fb4003 100644
 +
      const tokens = tree[1];
      for (let i=0; i < tokens.length; ++i) {
--      arr.push(params[tokens[i]]);
-+      const param = params[tokens[i]];
-+      if(!param) console.warn(`Parameter ${tokens[i]} has NULL value (Sending nil from lua?)`, tree);
-+      arr.push(param || null);
++      if(!params[tokens[i]]) throw new Error(`Undefined parameter ${tokens[i]}`);
+       arr.push(params[tokens[i]]);
      }
 +
      return [tree[0], arr];
@@ -39,7 +37,7 @@ index 527d723..1fb4003 100644
        return s.slice(0, -1);
      }
      return s;
-@@ -115,7 +125,7 @@ function createCompiler(config) {
+@@ -115,7 +124,7 @@ function createCompiler(config) {
  
      let unnamed = noTailingSemicolon(tree[0][0]);
      for (let i=1; i < tree[0].length; ++i) {
@@ -48,7 +46,7 @@ index 527d723..1fb4003 100644
          unnamed += config.placeholder;
        }
        unnamed += config.placeholder;
-@@ -124,7 +134,7 @@ function createCompiler(config) {
+@@ -124,7 +133,7 @@ function createCompiler(config) {
  
      const last = tree[0][tree[0].length -1];
      if (tree[0].length == tree[1].length) {
