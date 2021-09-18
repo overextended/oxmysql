@@ -1,5 +1,6 @@
 import { pool } from './pool';
 import { execute } from './execute';
+
 setImmediate(async () => {
   try {
     await (await pool.getConnection()).ping();
