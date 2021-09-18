@@ -25,10 +25,10 @@ const execute = async (query, parameters, resource) => {
   } catch (error) {
     console.log(
       `^1[ERROR] ${resource} was unable to execute a query!
-      ${error.message}
-      ${error.sql || `${query} ${JSON.stringify(parameters)}`}^0`
+        ${error.message}
+        ${error.sql || `${query} ${JSON.stringify(parameters)}`}^0`
     );
-    console.trace(error);
+    //console.trace(error);
   }
 };
 

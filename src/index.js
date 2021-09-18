@@ -5,39 +5,43 @@ setImmediate(async () => {
     await (await pool.getConnection()).ping();
     console.log(`^2Database server connection established!^0`);
   } catch (error) {
-    console.log(`^3Databae server connection establishing error! [${error.code}]\n${error.message}^0`);
+    console.log(`^3Unable to establish a connection to the database! [${error.code}]\n${error.message}^0`);
   }
 });
 
-const safeCallback = (callback, result) => {
+const safeCallback = (callback, result, error) => {
   if (typeof callback === 'function') return callback(result || false);
-  else throw new Error(`Undefined callback passed`);
+  else return console.log(`^1[ERROR] ${error[0]} was unable to execute a query, callback function was undefined!\n        ^1 ${error[1]}^0`);
 };
 
 global.exports('execute', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) => safeCallback(cb, result));
+  execute(query, parameters, resource).then((result) =>
+    safeCallback(cb, result, !cb && [resource, query]));
 });
 
 global.exports('insert', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) => safeCallback(cb, result && result.insertId));
+  execute(query, parameters, resource).then((result) =>
+    safeCallback(cb, result && result.insertId, !cb && [resource, query]));
 });
 
 global.exports('update', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) => safeCallback(cb, result && result.affectedRows));
+  execute(query, parameters, resource).then((result) =>
+    safeCallback(cb, result && result.affectedRows, !cb && [resource, query]));
 });
 
 global.exports('fetch', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) => safeCallback(cb, result));
+  execute(query, parameters, resource).then((result) =>
+    safeCallback(cb, result, !cb && [resource, query]));
 });
 
 global.exports('single', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) => safeCallback(cb, result && result[0]));
+  execute(query, parameters, resource).then((result) =>
+    safeCallback(cb, result && result[0], !cb && [resource, query]));
 });
 
 global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result && result[0] && Object.values(result[0])[0])
-  );
+    safeCallback(cb, result && result[0] && Object.values(result[0])[0], !cb && [resource, query]));
 });
 
 /*global.exports('executeSync', async (query, parameters) => {
