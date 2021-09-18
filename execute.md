@@ -4,11 +4,17 @@ Execute a query and returns an array of all results. This is synonymous with the
 ### Usage
 ```lua
 exports.oxmysql:execute(query, {}, function(result)
-  print(result[1]['column1'], result[1]['column2'], result[2]['column1'], result[2]['column2'])
+  print(result[1].column1, result[2].column1)
 end)
-print('I will be printed before query result')
-```
-```lua
+
 local result = exports.oxmysql:executeSync(query, {})
-print(result[1]['column1'], result[1]['column2'], result[2]['column1'], result[2]['column2'])
+print(result[1].column1, result[2].column1)
+```
+```js
+exports.oxmysql.execute(query, {}, (result) => {
+  console.log(result[1].column1, result[2].column1)
+})
+
+const result = await exports.oxmysql.executeSync(query, {})
+console.log(result[1].column1, result[2].column1)
 ```
