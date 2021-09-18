@@ -7,13 +7,13 @@ const resourceName = GetCurrentResourceName() || 'oxmysql';
 const execute = async (query, parameters, resource) => {
   ScheduleResourceTick(resourceName);
   try {
-    const time = process.hrtime.bigint();
+    const time = debug? process.hrtime.bigint() : Date.now();
 
     [query, parameters] = parseParameters(query, parameters);
 
     const [result] = await pool.query(query, parameters);
 
-    const executionTime = Number(process.hrtime.bigint() - time) / 1e6;
+    const executionTime = debug? Number(process.hrtime.bigint() - time) / 1e6 : Date.now() - time;
 
     if (executionTime >= slowQueryWarning || debug)
       console.log(
