@@ -11,7 +11,7 @@ setImmediate(async () => {
 
 const safeCallback = (callback, result, error) => {
   if (typeof callback === 'function') return callback(result || false);
-  else return console.log(`^1[ERROR] ${error[0]} was unable to execute a query, callback function was undefined!\n        ^1 ${error[1]}^0`);
+  else return console.log(`^3[WARNING] ${error[0]} executed a query, but no callback function was defined!\n        ^3 ${error[1]}^0`);
 };
 
 global.exports('execute', (query, parameters, cb, resource = GetInvokingResource()) => {
