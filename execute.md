@@ -1,5 +1,5 @@
-# Fetch
-Execute a query and returns the results of all rows and columns.
+# Execute
+Execute a query and returns an array of all results. This is synonymous with the deprecated fetch.
 
 ### Usage
 ```lua
