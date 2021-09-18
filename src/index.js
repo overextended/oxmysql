@@ -44,32 +44,34 @@ global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource(
     safeCallback(cb, result && result[0] && Object.values(result[0])[0], !cb && [resource, query]));
 });
 
-/*global.exports('executeSync', async (query, parameters) => {
-  const result = await execute(query, parameters, GetInvokingResource());
-  return result;
-});
+if (!GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
+  global.exports('executeSync', async (query, parameters) => {
+    const result = await execute(query, parameters, GetInvokingResource());
+    return result;
+  });
 
-global.exports('insertSync', async (query, parameters) => {
-  const result = await execute(query, parameters, GetInvokingResource());
-  return result && result.insertId;
-});
+  global.exports('insertSync', async (query, parameters) => {
+    const result = await execute(query, parameters, GetInvokingResource());
+    return result && result.insertId;
+  });
 
-global.exports('updateSync', async (query, parameters) => {
-  const result = await execute(query, parameters, GetInvokingResource());
-  return result && result.affectedRows;
-});
+  global.exports('updateSync', async (query, parameters) => {
+    const result = await execute(query, parameters, GetInvokingResource());
+    return result && result.affectedRows;
+  });
 
-global.exports('fetchSync', async (query, parameters) => {
-  const result = await execute(query, parameters, GetInvokingResource());
-  return result;
-});
+  global.exports('fetchSync', async (query, parameters) => {
+    const result = await execute(query, parameters, GetInvokingResource());
+    return result;
+  });
 
-global.exports('singleSync', async (query, parameters) => {
-  const result = await execute(query, parameters, GetInvokingResource());
-  return result && result[0];
-});
+  global.exports('singleSync', async (query, parameters) => {
+    const result = await execute(query, parameters, GetInvokingResource());
+    return result && result[0];
+  });
 
-global.exports('scalarSync', async (query, parameters) => {
-  const result = await execute(query, parameters, GetInvokingResource());
-  return result && result[0] && Object.values(result[0])[0];
-});*/
+  global.exports('scalarSync', async (query, parameters) => {
+    const result = await execute(query, parameters, GetInvokingResource());
+    return result && result[0] && Object.values(result[0])[0];
+  });
+}

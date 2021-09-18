@@ -1,7 +1,7 @@
 ---
 -- Execute unprepared query and fetch result
 --
--- @param query tring
+-- @param query string
 -- @param parameters table
 --
 -- @return table with result | false
@@ -17,7 +17,7 @@ end)
 ---
 -- Execute query and fetch all result
 --
--- @param query tring
+-- @param query string
 -- @param parameters table
 --
 -- @return table with result
@@ -33,7 +33,7 @@ end)
 ---
 -- Execute query and fetch first row
 --
--- @param query tring
+-- @param query string
 -- @param parameters table
 --
 -- @return table with result row
@@ -49,7 +49,7 @@ end)
 ---
 -- Execute query and fetch first column of first row 
 --
--- @param query tring
+-- @param query string
 -- @param parameters table
 --
 -- @return result
@@ -65,7 +65,7 @@ end)
 ---
 -- Insert data and return inserted id
 --
--- @param query tring
+-- @param query string
 -- @param parameters table
 --
 -- @return insert data result
@@ -81,7 +81,7 @@ end)
 ---
 -- Update data and return affected rows
 --
--- @param query tring
+-- @param query string
 -- @param parameters table
 --
 -- @return number affected rows
