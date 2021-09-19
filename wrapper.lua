@@ -102,11 +102,10 @@ end)
 --
 -- @return boolean
 --
-exports('transactionSync', function(queries, parameters, logErrors)
-    if logErrors == nil then; logErrors = true; if type(parameters) == "boolean" then; logErrors = parameters; end; end
+exports('transactionSync', function(queries, parameters)
     local p = promise.new()
     exports['oxmysql']:transaction(queries, parameters, function(result)
         p:resolve(result)
-    end, logErrors, GetInvokingResource())
+    end, GetInvokingResource())
     return Citizen.Await(p)
 end)
