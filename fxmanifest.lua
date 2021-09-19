@@ -1,5 +1,5 @@
 fx_version 'cerulean'
-game 'gta5'
+game 'common'
 
 name 'oxmysql'
 description 'Database wrapper for FiveM utilising node-mysql2 offering improved performance and security.'
