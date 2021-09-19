@@ -13,13 +13,13 @@ const transaction = async (queries, parameters, resource) => {
     const fullQuery = parseParametersTransaction(queries, parameters);
     const transactionAmount = fullQuery.length;
 
-    await pool.query('START TRANSACTION');
+    await connection.beginTransaction();
 
     for (let i = 0; i < transactionAmount; i++) {
-      await pool.query(fullQuery[i].query, fullQuery[i].params);
+      await connection.query(fullQuery[i].query, fullQuery[i].params);
     };
 
-    await pool.query('COMMIT');
+    await connection.commit();
 
     const executionTime = debug ? Number(process.hrtime.bigint() - time) / 1e6 : Date.now() - time;
 
@@ -31,7 +31,7 @@ const transaction = async (queries, parameters, resource) => {
 
     return true;
   } catch (error) {
-    pool.query('ROLLBACK');
+    await connection.rollback();
     console.log(
       `^1[ERROR] ${resource} was unable to execute a transaction!
             ${error.message}
