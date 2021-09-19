@@ -6,6 +6,7 @@ const resourceName = GetCurrentResourceName() || 'oxmysql';
 
 const transaction = async (queries, parameters, resource) => {
   ScheduleResourceTick(resourceName);
+  const connection = await pool.getConnection();
   try {
     const time = debug ? process.hrtime.bigint() : Date.now();
 
@@ -38,6 +39,8 @@ const transaction = async (queries, parameters, resource) => {
     );
     debug && console.trace(error);
     return false;
+  } finally {
+    await connection.release();
   }
 }
 
