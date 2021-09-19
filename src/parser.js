@@ -49,4 +49,22 @@ const parseParameters = (query, parameters) => {
   return [query, parameters];
 };
 
-export { parseParameters, parseTypes };
+const parseParametersTransaction = (queries, parameters) => {
+  //https://github.com/GHMatti/ghmattimysql/blob/37f1d2ae5c53f91782d168fe81fba80512d3c46d/packages/ghmattimysql/src/server/utility/sanitizeTransactionInput.ts#L5
+  
+  const cleanedTransactions = queries.map( (query) => {
+    let params;
+
+    if (typeof query === 'string' || typeof query === 'number') {
+      [query, params] = parseParameters(query, (parameters === undefined) ? [] : parameters);
+      return { query: query, params: params };
+    }
+
+    [query, params] = parseParameters(query.query, query.values);
+    return { query: query, params: params };
+  });
+
+  return cleanedTransactions;
+};
+
+export { parseParameters, parseTypes, parseParametersTransaction };
