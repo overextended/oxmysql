@@ -60,7 +60,7 @@ const parseParametersTransaction = (queries, parameters) => {
       return { query: query, params: params };
     }
 
-    [query, params] = parseParameters(query.query, query.values);
+    [query, params] = parseParameters(query.query, (query.values === undefined) ? query.parameters : query.values);
     return { query: query, params: params };
   });
 
