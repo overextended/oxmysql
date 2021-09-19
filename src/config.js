@@ -15,4 +15,22 @@ if (Object.keys(config).length === 0)
 const slowQueryWarning = GetConvarInt('mysql_slow_query_warning', 100);
 const debug = GetConvar('mysql_debug', 'false') === 'true';
 
-export { config, slowQueryWarning, debug };
+let isolationLevel;
+switch (GetConvarInt('mysql_transaction_isolation_level', 2)) {
+  case 1:
+    isolationLevel = 'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ';
+    break;
+  case 2:
+    isolationLevel = 'SET TRANSACTION ISOLATION LEVEL READ COMMITTED';
+    break;
+  case 3:
+    isolationLevel = 'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED';
+    break;
+  case 4:
+    isolationLevel = 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
+    break;
+  default:
+    break;
+};
+
+export { config, slowQueryWarning, debug, isolationLevel };

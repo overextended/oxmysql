@@ -1,6 +1,7 @@
 import { pool } from './pool';
 import { execute } from './execute';
 import { transaction } from './transaction';
+import { isolationLevel } from './config';
 
 setImmediate(async () => {
   try {
@@ -11,7 +12,7 @@ setImmediate(async () => {
   }
 
   try {
-    await pool.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+    await pool.query(isolationLevel);
   } catch (error) {
     console.log(`^3Unable to set transaction isolation level!^0`);
   }
