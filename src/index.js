@@ -9,6 +9,12 @@ setImmediate(async () => {
   } catch (error) {
     console.log(`^3Unable to establish a connection to the database! [${error.code}]\n${error.message}^0`);
   }
+
+  try {
+    await pool.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+  } catch (error) {
+    console.log(`^3Unable to set transaction isolation level!^0`);
+  }
 });
 
 const safeCallback = (callback, result, resource, query) => {
