@@ -4,7 +4,7 @@ import { slowQueryWarning, debug } from './config';
 
 const resourceName = GetCurrentResourceName() || 'oxmysql';
 
-const transaction = async (queries, parameters, resource) => {
+const transaction = async (queries, parameters, logErrors, resource) => {
   ScheduleResourceTick(resourceName);
   const connection = await pool.getConnection();
   try {
@@ -26,17 +26,18 @@ const transaction = async (queries, parameters, resource) => {
     if (executionTime >= slowQueryWarning * transactionAmount || debug)
       console.log(
         `^3[${debug ? 'DEBUG' : 'WARNING'}] ${resource} took ${executionTime}ms to execute a transaction!
-                ${query} ${JSON.stringify(parameters)}^0`
+        ${query} ${JSON.stringify(parameters)}^0`
       );
 
     return true;
   } catch (error) {
     await connection.rollback();
-    console.log(
-      `^1[ERROR] ${resource} was unable to execute a transaction!
-            ${error.message}
-            ${error.sql || `${queries} ${JSON.stringify(parameters)}`}^0`
-    );
+    if (logErrors)
+      console.log(
+        `^1[ERROR] ${resource} was unable to execute a transaction!
+        ${error.message}
+        ${error.sql || `${queries} ${JSON.stringify(parameters)}`}^0`
+      );
     debug && console.trace(error);
     return false;
   } finally {

@@ -54,11 +54,13 @@ global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource(
     safeCallback(cb, result && result[0] && Object.values(result[0])[0], resource, query));
 });
 
-global.exports('transaction', (queries, parameters, cb, resource = GetInvokingResource()) => {
-  transaction(queries, parameters, resource).then((result) => {
+global.exports('transaction', (queries, parameters, cb, logErrors = true, resource = GetInvokingResource()) => {
+  const shoudLogErrors = (typeof cb === 'boolean' ? cb : logErrors);
+  const resourceName = (typeof logErrors === 'string' ? logErrors : resource);
+  transaction(queries, parameters, shoudLogErrors, resourceName).then((result) => {
     if (typeof parameters === 'function')
       cb = parameters;
-    safeCallback(cb, result, resource, queries);
+    safeCallback(cb, result, resourceName, queries);
   });
 });
 
@@ -93,8 +95,8 @@ if (!GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
     return result && result[0] && Object.values(result[0])[0];
   });
 
-  global.exports('transactionSync', async (queries, parameters) => {
-    const result = await transaction(queries, parameters, GetInvokingResource());
+  global.exports('transactionSync', async (queries, parameters, logErrors = true) => {
+    const result = await transaction(queries, parameters, logErrors, GetInvokingResource());
     return result;
   });
 }
