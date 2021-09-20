@@ -1,5 +1,6 @@
 import { pool } from './pool';
 import { execute } from './execute';
+import { debug } from './config';
 
 setImmediate(async () => {
   try {
@@ -12,8 +13,8 @@ setImmediate(async () => {
 
 const safeCallback = (callback, result, resource, query) => {
   if (typeof callback === 'function')
-    return callback(result || false);
-  else if (callback)
+    return callback(result);
+  else if (debug)
     return console.log(`^3[WARNING] ${resource} executed a query, but no callback function was defined!\n        ^3 ${query}^0`);
 };
 
