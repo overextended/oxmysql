@@ -28,6 +28,8 @@ const parseTypes = (field, next) => {
 const parseParameters = (query, parameters) => {
   if (query === undefined) throw new FormatError(`Undefined query passed`);
 
+  if(typeof parameters === 'function') return [query, []];
+
   if (query.includes('@') || query.includes(':')) return [query, parameters];
 
   const queryParams = query.match(/\?(?!\?)/g);

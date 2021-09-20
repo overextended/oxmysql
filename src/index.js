@@ -1,7 +1,7 @@
 import { pool } from './pool';
 import { execute } from './execute';
 import { transaction } from './transaction';
-import { isolationLevel } from './config';
+import { debug, isolationLevel } from './config';
 
 setImmediate(async () => {
   try {
@@ -14,39 +14,39 @@ setImmediate(async () => {
 
 const safeCallback = (callback, result, resource, query) => {
   if (typeof callback === 'function')
-    return callback(result || false);
-  else if (callback)
+    return callback(result);
+  else if (debug)
     return console.log(`^3[WARNING] ${resource} executed a query, but no callback function was defined!\n        ^3 ${query}^0`);
 };
 
 global.exports('execute', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result, resource, query));
+    safeCallback(cb || parameters, result, resource, query));
 });
 
 global.exports('insert', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result && result.insertId, resource, query));
+    safeCallback(cb || parameters, result && result.insertId, resource, query));
 });
 
 global.exports('update', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) => 
-    safeCallback(cb, result && result.affectedRows, resource, query));
+    safeCallback(cb || parameters, result && result.affectedRows, resource, query));
 });
 
 global.exports('fetch', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result, resource, query));
+    safeCallback(cb || parameters, result, resource, query));
 });
 
 global.exports('single', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result && result[0], resource, query));
+    safeCallback(cb || parameters, result && result[0], resource, query));
 });
 
 global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result && result[0] && Object.values(result[0])[0], resource, query));
+    safeCallback(cb || parameters, result && result[0] && Object.values(result[0])[0], resource, query));
 });
 
 global.exports('transaction', (queries, parameters, cb, resource = GetInvokingResource()) => {
