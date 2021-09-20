@@ -3,6 +3,12 @@ Some hideous benchmarking commands and their results.
 ## Lua
 `Low: 0.3569ms | High: 13.2664ms | Avg: 0.45843701ms | Total: 4584.3701ms (10000 queries)`
 ```lua
+local lmprof = require 'lmprof'
+local profiler = lmprof.create("time")
+	:set_option("load_stack", true)
+	:set_option("mismatch", true)
+	:calibrate()
+
 local val = 10000
 RegisterCommand('luasync', function()
 	local queryTimesLocal = {}
