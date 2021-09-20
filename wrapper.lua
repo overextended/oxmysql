@@ -93,3 +93,19 @@ exports('updateSync', function(query, parameters)
     end, GetInvokingResource())
     return Citizen.Await(p)
 end)
+
+---
+-- Execute a transaction and return boolean depending on success
+--
+-- @param queries table
+-- @param parameters table
+--
+-- @return boolean
+--
+exports('transactionSync', function(queries, parameters)
+    local p = promise.new()
+    exports['oxmysql']:transaction(queries, parameters, function(result)
+        p:resolve(result)
+    end, GetInvokingResource())
+    return Citizen.Await(p)
+end)

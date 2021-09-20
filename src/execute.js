@@ -1,8 +1,6 @@
 import { pool } from './pool';
 import { parseParameters } from './parser';
-import { slowQueryWarning, debug } from './config';
-
-const resourceName = GetCurrentResourceName() || 'oxmysql';
+import { slowQueryWarning, debug, resourceName } from './config';
 
 const execute = async (query, parameters, resource) => {
   ScheduleResourceTick(resourceName);
