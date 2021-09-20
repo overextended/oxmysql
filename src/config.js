@@ -15,23 +15,20 @@ if (Object.keys(config).length === 0)
 const slowQueryWarning = GetConvarInt('mysql_slow_query_warning', 100);
 const debug = GetConvar('mysql_debug', 'false') === 'true';
 
-let isolationLevel;
-switch (GetConvarInt('mysql_transaction_isolation_level', 2)) {
-  case 1:
-    isolationLevel = 'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ';
-    break;
-  case 2:
-    isolationLevel = 'SET TRANSACTION ISOLATION LEVEL READ COMMITTED';
-    break;
-  case 3:
-    isolationLevel = 'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED';
-    break;
-  case 4:
-    isolationLevel = 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
-    break;
-  default:
-    break;
-};
+const isolationLevel = (() => {
+  switch (GetConvarInt('mysql_transaction_isolation_level', 2)) {
+    case 1:
+      return 'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ';
+    case 2:
+      return 'SET TRANSACTION ISOLATION LEVEL READ COMMITTED';
+    case 3:
+      return 'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED';
+    case 4:
+      return 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
+    default:
+      return 'SET TRANSACTION ISOLATION LEVEL READ COMMITTED';
+  };
+})();
 
 const resourceName = GetCurrentResourceName() || 'oxmysql';
 

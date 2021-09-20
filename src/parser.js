@@ -28,7 +28,7 @@ const parseTypes = (field, next) => {
 const parseParameters = (query, parameters) => {
   if (query === undefined) throw new FormatError(`Undefined query passed`);
 
-  if(typeof parameters === 'function') return [query, []];
+  if (typeof parameters === 'function') return [query, []];
 
   if (query.includes('@') || query.includes(':')) return [query, parameters];
 
@@ -41,32 +41,31 @@ const parseParameters = (query, parameters) => {
 
   if (Array.isArray(parameters)) {
     if (parameters.length !== queryParams.length)
-      throw new Error(`Undefined array parameter #${parameters.length}`, query, parameters);
+      throw new Error(`Undefined array parameter #${parameters.length + 1}`, query, parameters);
   } else {
     queryParams.forEach((_, i) => {
-      if (parameters[`${i + 1}`] === undefined) throw new FormatError(`Undefined object parameter #${i + 1}`, query, parameters);
+      if (parameters[`${i + 1}`] === undefined)
+        throw new FormatError(`Undefined object parameter #${i + 1}`, query, parameters);
     });
   }
 
   return [query, parameters];
 };
 
-const parseParametersTransaction = (queries, parameters) => {
+const parseTransaction = (queries, parameters) => {
   //https://github.com/GHMatti/ghmattimysql/blob/37f1d2ae5c53f91782d168fe81fba80512d3c46d/packages/ghmattimysql/src/server/utility/sanitizeTransactionInput.ts#L5
-  
-  const cleanedTransactions = queries.map( (query) => {
-    let params;
 
-    if (typeof query === 'string') {
-      [query, params] = parseParameters(query, parameters || []);
-      return { query: query, params: params };
-    }
+  if (!Array.isArray(queries)) throw new Error(`Transaction queries must be array type`);
 
-    [query, params] = parseParameters(query.query, query.parameters || query.values || []);
-    return { query: query, params: params };
+  const parsedTransaction = queries.map((query) => {
+    const [parsedQuery, parsedParameters] = parseParameters(
+      typeof query === 'object' ? query.query : query,
+      (typeof query === 'object' && (query.parameters || query.values)) || parameters || []
+    );
+    return { query: parsedQuery, params: parsedParameters };
   });
 
-  return cleanedTransactions;
+  return parsedTransaction;
 };
 
-export { parseParameters, parseTypes, parseParametersTransaction };
+export { parseTypes, parseParameters, parseTransaction };

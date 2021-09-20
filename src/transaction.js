@@ -1,6 +1,13 @@
 import { pool } from './pool';
-import { parseParametersTransaction } from './parser';
+import { parseTransaction } from './parser';
 import { slowQueryWarning, debug, resourceName } from './config';
+
+const transactionError = (queries, parameters) =>
+  `${queries
+    .map((query) =>
+      typeof query === 'string' ? query : `${query.query} ${JSON.stringify(query.values || query.parameters || [])}`
+    )
+    .join('\n')}\n${JSON.stringify(parameters)}`;
 
 const transaction = async (queries, parameters, resource) => {
   ScheduleResourceTick(resourceName);
@@ -8,14 +15,14 @@ const transaction = async (queries, parameters, resource) => {
   try {
     const time = debug ? process.hrtime.bigint() : Date.now();
 
-    const fullQuery = parseParametersTransaction(queries, parameters);
+    const fullQuery = parseTransaction(queries, parameters);
     const transactionAmount = fullQuery.length;
 
     await connection.beginTransaction();
 
     for (let i = 0; i < transactionAmount; i++) {
       await connection.query(fullQuery[i].query, fullQuery[i].params);
-    };
+    }
 
     await connection.commit();
 
@@ -23,8 +30,9 @@ const transaction = async (queries, parameters, resource) => {
 
     if (executionTime >= slowQueryWarning * transactionAmount || debug)
       console.log(
-        `^3[${debug ? 'DEBUG' : 'WARNING'}] ${resource} took ${executionTime}ms to execute a transaction!
-                ${queries} ${JSON.stringify(parameters)}^0`
+        `^3[${
+          debug ? 'DEBUG' : 'WARNING'
+        }] ${resource} took ${executionTime}ms to execute a transaction!\n${transactionError(queries, parameters)}^0`
       );
 
     return true;
@@ -33,12 +41,12 @@ const transaction = async (queries, parameters, resource) => {
     console.log(
       `^1[ERROR] ${resource} was unable to execute a transaction!
             ${error.message}
-            ${error.sql || `${queries} ${JSON.stringify(parameters)}`}^0`
+            ${error.sql || `${transactionError(queries, parameters)}`}^0`
     );
     debug && console.trace(error);
   } finally {
     connection.release();
   }
-}
+};
 
 export { transaction };

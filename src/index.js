@@ -51,9 +51,7 @@ global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource(
 
 global.exports('transaction', (queries, parameters, cb, resource = GetInvokingResource()) => {
   transaction(queries, parameters, resource).then((result) => {
-    if (typeof parameters === 'function')
-      cb = parameters;
-    safeCallback(cb, result, resource, queries);
+    safeCallback(cb || parameters, result || false, resource, debug && JSON.stringify(queries));
   });
 });
 
