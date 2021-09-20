@@ -97,7 +97,7 @@ end)
 ---
 -- Execute a transaction and return boolean depending on success
 --
--- @param queries string
+-- @param queries table
 -- @param parameters table
 --
 -- @return boolean

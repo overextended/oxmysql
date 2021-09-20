@@ -55,12 +55,12 @@ const parseParametersTransaction = (queries, parameters) => {
   const cleanedTransactions = queries.map( (query) => {
     let params;
 
-    if (typeof query === 'string' || typeof query === 'number') {
-      [query, params] = parseParameters(query, (parameters === undefined) ? [] : parameters);
+    if (typeof query === 'string') {
+      [query, params] = parseParameters(query, parameters || []);
       return { query: query, params: params };
     }
 
-    [query, params] = parseParameters(query.query, (query.values === undefined) ? query.parameters : query.values);
+    [query, params] = parseParameters(query.query, query.parameters || query.values || []);
     return { query: query, params: params };
   });
 

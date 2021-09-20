@@ -33,4 +33,6 @@ switch (GetConvarInt('mysql_transaction_isolation_level', 2)) {
     break;
 };
 
-export { config, slowQueryWarning, debug, isolationLevel };
+const resourceName = GetCurrentResourceName() || 'oxmysql';
+
+export { config, slowQueryWarning, debug, isolationLevel, resourceName };

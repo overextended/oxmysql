@@ -5,16 +5,10 @@ import { isolationLevel } from './config';
 
 setImmediate(async () => {
   try {
-    await (await pool.getConnection()).ping();
+    await pool.query(isolationLevel);
     console.log(`^2Database server connection established!^0`);
   } catch (error) {
     console.log(`^3Unable to establish a connection to the database! [${error.code}]\n${error.message}^0`);
-  }
-
-  try {
-    await pool.query(isolationLevel);
-  } catch (error) {
-    console.log(`^3Unable to set transaction isolation level!^0`);
   }
 });
 
