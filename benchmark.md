@@ -1,7 +1,7 @@
-Some hideous benchmarking commands and their results.
+Some hideous benchmarking commands and their results. Lua performance falls slightly behind due to overhead from cross-language communication.
 
 ## Lua
-`Low: 0.3569ms | High: 13.2664ms | Avg: 0.45843701ms | Total: 4584.3701ms (10000 queries)`
+`Low: 0.2955ms | High: 16.7566ms | Avg: 0.36956378ms | Total: 3695.6378ms (10000 queries)`
 ```lua
 local lmprof = require 'lmprof'
 local profiler = lmprof.create("time")
@@ -37,7 +37,7 @@ end)
 
 
 ## Javascript
-`Low: 0.3462ms | High: 13.4404ms | Avg: 0.43639137999999783ms | Total: 4363.913799999978ms (10000 queries)`
+`Low: 0.2831ms | High: 5.1899ms | Avg: 0.3349578800000005ms | Total: 3349.578800000005ms (10000 queries)`
 ```js
 const val = 10000
 RegisterCommand('jssync', async() => {
