@@ -20,32 +20,32 @@ const safeCallback = (callback, result, resource, query) => {
 
 global.exports('execute', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result, resource, query));
+    safeCallback(typeof parameters === 'function' ? parameters : cb, result, resource, query));
 });
 
 global.exports('insert', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result && result.insertId, resource, query));
+    safeCallback(typeof parameters === 'function' ? parameters : cb, result && result.insertId, resource, query));
 });
 
 global.exports('update', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) => 
-    safeCallback(cb, result && result.affectedRows, resource, query));
+    safeCallback(typeof parameters === 'function' ? parameters : cb, result && result.affectedRows, resource, query));
 });
 
 global.exports('fetch', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result, resource, query));
+    safeCallback(typeof parameters === 'function' ? parameters : cb, result, resource, query));
 });
 
 global.exports('single', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result && result[0], resource, query));
+    safeCallback(typeof parameters === 'function' ? parameters : cb, result && result[0], resource, query));
 });
 
 global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb, result && result[0] && Object.values(result[0])[0], resource, query));
+    safeCallback(typeof parameters === 'function' ? parameters : cb, result && result[0] && Object.values(result[0])[0], resource, query));
 });
 
 if (!GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
