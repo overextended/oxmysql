@@ -2,11 +2,9 @@ const path = require("path");
 const { DefinePlugin, IgnorePlugin } = require("webpack");
 const CopyPlugin = require("copy-webpack-plugin");
 
-const filesToCopy = ["fxmanifest.lua", "wrapper.lua", "README.md", "LICENSE.md"];
-
 module.exports = {
   mode: "development",
-  devtool: "source-map",
+  devtool: "eval-source-map",
   entry: "./src/index.js",
   resolve: {
     extensions: [".js"],
@@ -18,7 +16,7 @@ module.exports = {
       contextRegExp: /./,
     }),
     new CopyPlugin({
-      patterns: filesToCopy,
+      patterns: ["fxmanifest.lua", "wrapper.lua", "README.md", "LICENSE.md"],
     }),
   ],
   output: {
