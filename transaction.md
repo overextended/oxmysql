@@ -1,6 +1,6 @@
 # Transactions
 
-A transaction executes multiple queries and commit them only if all succeed. If one fails, none of the queries are commited. The return value is a `boolean`, which is the result of the transaction.
+A transaction executes multiple queries and commits them only if all succeed. If one fails, none of the queries are committed. The return value is a `boolean`, which is the result of the transaction.
 
 ## Usage
 
@@ -18,7 +18,7 @@ This is useful for transactions where the queries do not share many SQL variable
 local queries = {
     { query = 'INSERT INTO `test` (id) VALUES (:someid)', values = { ['someid'] = 1 } },
     { query = 'INSERT INTO `test` (id) VALUES (:someid)', values = { ['someid'] = 2 } }
-} -- NOTE, the 'values' tables can be named 'parameters' here for MySQL-Async compatability.
+} -- NOTE, the 'values' tables can be named 'parameters' here for MySQL-Async compatibility.
 
 -- Async
 exports.oxmysql:transaction(queries, function(result) 
@@ -36,7 +36,7 @@ print(result)
 const queries = [
     { query = 'INSERT INTO `test` (id) VALUES (:someid)', values = { someid = 1 } },
     { query = 'INSERT INTO `test` (id) VALUES (:someid)', values = { someid = 2 } }
-] // NOTE, the 'values' objects can be named 'parameters' here for MySQL-Async compatability.
+] // NOTE, the 'values' objects can be named 'parameters' here for MySQL-Async compatibility.
 
 // Async
 exports.oxmysql.transaction(queries, (result) => {
