@@ -4,6 +4,7 @@ import { parseTypes } from './parser';
 
 export const pool = createPool({
   host: config.hosts[0].host || 'localhost',
+  port: config.hosts[0].port || 3306,
   user: config.username || 'root',
   password: config.password || '',
   database: config.endpoint || 'es_extended',
