@@ -1,4 +1,6 @@
 import { ConnectionStringParser } from 'connection-string-parser';
+import versionCheck from 'github-version-checker';
+import currentVersion from '../package.json';
 
 const connectionString = GetConvar('mysql_connection_string', '');
 
@@ -33,3 +35,21 @@ const isolationLevel = (() => {
 const resourceName = GetCurrentResourceName() || 'oxmysql';
 
 export { config, slowQueryWarning, debug, isolationLevel, resourceName };
+
+setImmediate(async () => {
+  const versionCheckConfig = {
+    repo: 'oxmysql',
+    owner: 'overextended',
+    currentVersion: currentVersion.version,
+    latest: true
+  };
+
+  try {
+    const update = await versionCheck(versionCheckConfig);
+    if (update) {
+      console.log(`^3Your version of oxmysql is outdated (v${versionCheckConfig.currentVersion})! Please update to the latest version (${update.name}) here: \nhttps://github.com/overextended/oxmysql/releases/latest`);
+    }
+  } catch (e) {
+    console.log(`^3Could not fetch updates for oxmysql!^0\n${e}`);
+  }
+});
