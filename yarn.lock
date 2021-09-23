@@ -571,6 +571,19 @@ get-stream@^6.0.0:
   resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-6.0.1.tgz#a262d8eef67aced57c2852ad6167526a43cbf7b7"
   integrity sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==
 
+github-graphql-client@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/github-graphql-client/-/github-graphql-client-1.0.0.tgz#d5acacc31bb9f6b77e5c502812e90c844f727bca"
+  integrity sha1-1ayswxu59rd+XFAoEukMhE9ye8o=
+
+github-version-checker@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/github-version-checker/-/github-version-checker-2.2.0.tgz#08a2b52f9ef9cd3dd05b898537750a91b73facec"
+  integrity sha512-Ttj/Uzg++TGfycfn5ga8BfMJ8QYB1+DhG24rtasrN8tHYWgqqrEMAQ52y2qGnPNWzSF8AUdjm6dBcoPdUhKhDQ==
+  dependencies:
+    github-graphql-client "^1.0.0"
+    semver "^5.5.1"
+
 glob-parent@^5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-5.1.2.tgz#869832c58034fe68a4093c17dc15e8340d8401c4"
@@ -1120,7 +1133,7 @@ schema-utils@^3.0.0, schema-utils@^3.1.0, schema-utils@^3.1.1:
     ajv "^6.12.5"
     ajv-keywords "^3.5.2"
 
-semver@^5.5.0, semver@^5.6.0:
+semver@^5.5.0, semver@^5.5.1, semver@^5.6.0:
   version "5.7.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.1.tgz#a954f931aeba508d307bbf069eff0c01c96116f7"
   integrity sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==
