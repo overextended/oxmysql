@@ -7,7 +7,7 @@ index 527d723..f47b591 100644
  // License: https://github.com/mscdex/node-mariasql/blob/master/LICENSE
  
 -const RE_PARAM = /(?:\?)|(?::(\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g,
-+const RE_PARAM = /(?:\?)|(?:[:,@](\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g,
++const RE_PARAM = /(?:\?)|(?:[:@](\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g,
  DQUOTE = 34,
  SQUOTE = 39,
  BSLASH = 92;
