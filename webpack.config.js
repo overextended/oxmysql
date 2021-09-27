@@ -3,8 +3,7 @@ const { DefinePlugin, IgnorePlugin } = require("webpack");
 const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-  mode: "development",
-  devtool: "eval-source-map",
+  mode: "production",
   entry: "./src/index.js",
   resolve: {
     extensions: [".js"],
