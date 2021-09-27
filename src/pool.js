@@ -9,6 +9,7 @@ export const pool = createPool({
   password: config.password || '',
   database: config.endpoint || 'es_extended',
   charset: 'utf8mb4_unicode_ci',
+  connectTimeout: 30000,
   ...config.options,
   namedPlaceholders: true,
   typeCast: parseTypes,
