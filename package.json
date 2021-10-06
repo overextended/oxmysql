@@ -1,6 +1,6 @@
 {
   "name": "oxmysql",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "main": "oxmysql.js",
   "description": "FiveM MySQL wrapper using faster mysql2",
   "repository": "git@github.com:overextended/oxmysql.git",
