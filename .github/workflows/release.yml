@@ -32,6 +32,8 @@ jobs:
       - name: Bundle files
         run: |
           mv dist oxmysql
+          mkdir oxmysql/lib
+          mv lib/MySQL.lua oxmysql/lib/MySQL.lua
           zip -r oxmysql-${{ env.RELEASE_VERSION }}.zip oxmysql
 
       - name: Create Release
