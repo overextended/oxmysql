@@ -4,46 +4,45 @@
 
 local Ox = exports.oxmysql
 local Resource = GetCurrentResourceName()
-
-local function safeParameters(parameters)
-	if not parameters or next(parameters) == nil then
-		return {[''] = ''}
-	end
-	assert(type(parameters) == 'table', 'Parameters must be a table')
-    return parameters
-end
 local Store = {}
+
+local function safeArgs(query, parameters, cb)
+	if type(query) == 'number' then query = Store[query] end
+	assert(type(query) == 'string', ('A string was expected for the query, but instead received %s'):format(query))
+	if cb then
+		assert(type(cb) == 'function', ('A callback function was expected, but instead received %s'):format(cb))
+	end
+	local type = parameters and type(parameters)
+	if type and type ~= 'table' and type ~= 'function' then
+		assert(nil, ('A %s was expected, but instead received %s'):format(cb and 'table' or 'function', parameters))
+	end
+	return query, parameters, cb
+end
 
 MySQL = {
 	Async = {
 		execute = function(query, parameters, cb)
-			assert(type(query) == 'string', 'The SQL Query must be a string')
-			Ox:update(query, safeParameters(parameters), cb)
+			Ox:update(safeArgs(query, parameters, cb))
 		end,
 
 		fetchAll = function(query, parameters, cb)
-			assert(type(query) == 'string', 'The SQL Query must be a string')
-			Ox:execute(query, safeParameters(parameters), cb)
+			Ox:execute(safeArgs(query, parameters, cb))
 		end,
 
 		fetchScalar = function(query, parameters, cb)
-			assert(type(query) == 'string', 'The SQL Query must be a string')
-			Ox:scalar(query, safeParameters(parameters), cb)
+			Ox:scalar(safeArgs(query, parameters, cb))
 		end,
 
 		fetchSingle = function(query, parameters, cb)
-			assert(type(query) == 'string', 'The SQL Query must be a string')
-			Ox:single(query, safeParameters(parameters), cb)
+			Ox:single(safeArgs(query, parameters, cb))
 		end,
 
 		insert = function(query, parameters, cb)
-			assert(type(query) == 'string', 'The SQL Query must be a string')
-			Ox:insert(query, safeParameters(parameters), cb)
+			Ox:insert(safeArgs(query, parameters, cb))
 		end,
 
 		transaction = function(query, parameters, cb)
-			assert(type(query) == 'string', 'The SQL Query must be a string')
-			Ox:transaction(query, safeParameters(parameters), cb)
+			Ox:transaction(safeArgs(query, parameters, cb))
 		end,
 
 		store = function(query, cb)
@@ -56,72 +55,54 @@ MySQL = {
 
 	Sync = {
 		execute = function(query, parameters)
-			if type(query) == 'number' then
-				query = Store[query]
-			end
-			assert(type(query) == 'string', 'The SQL Query must be a string')
+			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:update(query, safeParameters(parameters), function(result)
+			Ox:update(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
 		end,
 
 		fetchAll = function(query, parameters)
-			if type(query) == 'number' then
-				query = Store[query]
-			end
-			assert(type(query) == 'string', 'The SQL Query must be a string')
+			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:execute(query, safeParameters(parameters), function(result)
+			Ox:execute(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
 		end,
 
 		fetchScalar = function(query, parameters)
-			if type(query) == 'number' then
-				query = Store[query]
-			end
-			assert(type(query) == 'string', 'The SQL Query must be a string')
+			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:scalar(query, safeParameters(parameters), function(result)
+			Ox:scalar(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
 		end,
 
 		fetchSingle = function(query, parameters)
-			if type(query) == 'number' then
-				query = Store[query]
-			end
-			assert(type(query) == 'string', 'The SQL Query must be a string')
+			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:scalar(query, safeParameters(parameters), function(result)
+			Ox:scalar(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
 		end,
 
 		insert = function(query, parameters)
-			if type(query) == 'number' then
-				query = Store[query]
-			end
-			assert(type(query) == 'string', 'The SQL Query must be a string')
+			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:scalar(query, safeParameters(parameters), function(result)
+			Ox:scalar(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
 		end,
 
 		transaction = function(query, parameters)
-			if type(query) == 'number' then
-				query = Store[query]
-			end
-			assert(type(query) == 'string', 'The SQL Query must be a string')
+			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:scalar(query, safeParameters(parameters), function(result)
+			Ox:scalar(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
