@@ -47,7 +47,7 @@ exports('singleSync', function(query, parameters)
 end)
 
 ---
--- Execute query and fetch first column of first row 
+-- Execute query and fetch first column of first row
 --
 -- @param query string
 -- @param parameters table
