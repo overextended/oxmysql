@@ -22,11 +22,11 @@ end
 MySQL = {
 	Async = {
 		execute = function(query, parameters, cb)
-			Ox:update(safeArgs(query, parameters, cb))
+			Ox:execute(safeArgs(query, parameters, cb))
 		end,
 
 		fetchAll = function(query, parameters, cb)
-			Ox:execute(safeArgs(query, parameters, cb))
+			Ox:fetch(safeArgs(query, parameters, cb))
 		end,
 
 		fetchScalar = function(query, parameters, cb)
@@ -57,7 +57,7 @@ MySQL = {
 		execute = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:update(query, parameters, function(result)
+			Ox:execute(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
@@ -66,7 +66,7 @@ MySQL = {
 		fetchAll = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:execute(query, parameters, function(result)
+			Ox:fetch(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
@@ -84,7 +84,7 @@ MySQL = {
 		fetchSingle = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:scalar(query, parameters, function(result)
+			Ox:single(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
@@ -93,7 +93,7 @@ MySQL = {
 		insert = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:scalar(query, parameters, function(result)
+			Ox:insert(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
@@ -102,7 +102,7 @@ MySQL = {
 		transaction = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
-			Ox:scalar(query, parameters, function(result)
+			Ox:transaction(query, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
