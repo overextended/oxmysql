@@ -20,31 +20,39 @@ local function safeArgs(query, parameters, cb)
 end
 
 MySQL = {
+	-- @retval	Result is sent as an argument to the callback function
 	Async = {
+		-- @retval	Number of affected rows
 		execute = function(query, parameters, cb)
 			Ox:update(safeArgs(query, parameters, cb))
 		end,
 
+		-- @retval	Fetch all query results
 		fetchAll = function(query, parameters, cb)
 			Ox:execute(safeArgs(query, parameters, cb))
 		end,
 
+		-- @retval	Returns a single result from a column
 		fetchScalar = function(query, parameters, cb)
 			Ox:scalar(safeArgs(query, parameters, cb))
 		end,
 
+		-- @retval	Returns the first row
 		fetchSingle = function(query, parameters, cb)
 			Ox:single(safeArgs(query, parameters, cb))
 		end,
 
+		-- @retval	Returns the id of the newly inserted row
 		insert = function(query, parameters, cb)
 			Ox:insert(safeArgs(query, parameters, cb))
 		end,
 
+		-- @retval	Returns true/false when the given queries are executed
 		transaction = function(query, parameters, cb)
 			Ox:transaction(safeArgs(query, parameters, cb))
 		end,
 
+		-- @retval	Returns an integer for referencing a query string
 		store = function(query, cb)
 			assert(type(query) == 'string', 'The SQL Query must be a string')
 			local store = #Store+1
@@ -53,7 +61,9 @@ MySQL = {
 		end,
 	},
 
+	-- @retval	Result is returned to a variable
 	Sync = {
+		-- @retval	Number of affected rows
 		execute = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
@@ -63,6 +73,7 @@ MySQL = {
 			return Citizen.Await(promise)
 		end,
 
+		-- @retval	Fetch all query results
 		fetchAll = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
@@ -72,6 +83,7 @@ MySQL = {
 			return Citizen.Await(promise)
 		end,
 
+		-- @retval	Returns a single result from a column
 		fetchScalar = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
@@ -81,6 +93,7 @@ MySQL = {
 			return Citizen.Await(promise)
 		end,
 
+		-- @retval	Returns the first row
 		fetchSingle = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
@@ -90,6 +103,7 @@ MySQL = {
 			return Citizen.Await(promise)
 		end,
 
+		-- @retval	Returns the id of the newly inserted row
 		insert = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
@@ -99,6 +113,7 @@ MySQL = {
 			return Citizen.Await(promise)
 		end,
 
+		-- @retval	Returns true/false when the given queries are executed
 		transaction = function(query, parameters)
 			query, parameters = safeArgs(query, parameters)
 			local promise = promise.new()
@@ -108,6 +123,7 @@ MySQL = {
 			return Citizen.Await(promise)
 		end,
 
+		-- @retval	Returns an integer for referencing a query string
 		store = function(query, parameters)
 			assert(type(query) == 'string', 'The SQL Query must be a string')
 			local store = #Store+1
