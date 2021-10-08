@@ -1,5 +1,4 @@
 import { createPool } from 'mysql2/promise';
-import { debug } from './config';
 import { parseTypes } from './parser';
 import { ConnectionStringParser } from 'connection-string-parser';
 
@@ -35,8 +34,6 @@ const createConnection = () => {
       database: options.endpoint || options.database || 'es_extended',
       charset: 'utf8mb4_unicode_ci',
       connectTimeout: 30000,
-      trace: debug || false,
-      debug: debug || false,
       ...options.options,
       namedPlaceholders: true,
       typeCast: parseTypes,
@@ -59,8 +56,6 @@ const createConnection = () => {
       database: options.endpoint || 'es_extended',
       charset: 'utf8mb4_unicode_ci',
       connectTimeout: 30000,
-      trace: debug || false,
-      debug: debug || false,
       ...options.options,
       namedPlaceholders: true,
       typeCast: parseTypes,

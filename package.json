@@ -1,8 +1,8 @@
 {
   "name": "oxmysql",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "main": "oxmysql.js",
-  "description": "FiveM MySQL wrapper using faster mysql2",
+  "description": "node-mysql2 resource for Cfx",
   "repository": "git@github.com:overextended/oxmysql.git",
   "author": "dunak-debug <19434539+dunak-debug@users.noreply.github.com>",
   "license": "GPL-3.0-or-later",
