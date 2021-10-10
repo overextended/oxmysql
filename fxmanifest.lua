@@ -9,8 +9,6 @@ author 'overextended'
 use_fxv2_oal 'yes'
 lua54 'yes'
 
-server_only 'true'
-
 server_scripts {
 	'oxmysql.js',
 	'wrapper.lua'
