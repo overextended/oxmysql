@@ -1,7 +1,4 @@
 import { FormatError } from './errors';
-import * as createCompiler from 'named-placeholders';
-
-const convertNamedPlaceholders = createCompiler();
 
 const parseTypes = (field, next) => {
   //https://github.com/GHMatti/ghmattimysql/blob/37f1d2ae5c53f91782d168fe81fba80512d3c46d/packages/ghmattimysql/src/server/utility/typeCast.ts#L3
@@ -37,16 +34,20 @@ const parseParameters = (query, parameters) => {
   if (queryParams === null) return [query, []];
 
   if (parameters === undefined)
-    throw new FormatError(`Placeholders was defined in query but no parameters provided!`, query);
+    throw new FormatError(`Placeholders were defined, but query received no parameters!`, query);
 
   if (Array.isArray(parameters)) {
-    if (parameters.length !== queryParams.length)
-      throw new Error(`Undefined array parameter #${parameters.length + 1}`, query, parameters);
+    if (parameters.length === 0) return [query, [null]];
+    if (parameters.length !== queryParams.length) {
+      throw new Error(`Undefined query parameter #${parameters.length + 1}`, query, parameters);
+    }
   } else {
-    queryParams.forEach((_, i) => {
-      if (parameters[`${i + 1}`] === undefined)
-        throw new FormatError(`Undefined object parameter #${i + 1}`, query, parameters);
+    let arr = [];
+    Object.entries(parameters).forEach((entry) => {
+      const [key, value] = entry;
+      arr[key - 1] = value;
     });
+    return [query, arr];
   }
 
   return [query, parameters];

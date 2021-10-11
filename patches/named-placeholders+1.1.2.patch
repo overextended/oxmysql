@@ -1,5 +1,5 @@
 diff --git a/node_modules/named-placeholders/index.js b/node_modules/named-placeholders/index.js
-index 527d723..f47b591 100644
+index 527d723..e50595d 100644
 --- a/node_modules/named-placeholders/index.js
 +++ b/node_modules/named-placeholders/index.js
 @@ -3,7 +3,7 @@
@@ -11,23 +11,13 @@ index 527d723..f47b591 100644
  DQUOTE = 34,
  SQUOTE = 39,
  BSLASH = 92;
-@@ -94,15 +94,24 @@ function createCompiler(config) {
-     if (typeof params == 'undefined')
-       throw new Error('Named query contains placeholders, but parameters object is undefined');
+@@ -96,13 +96,13 @@ function createCompiler(config) {
  
-+    for(const key in params) {
-+      if(key.charAt(0) === '@' || key.charAt(0) === ':') {
-+        params[key.substring(1)] = params[key];
-+        delete params[key];
-+      }
-+    }
-+
      const tokens = tree[1];
      for (let i=0; i < tokens.length; ++i) {
-+      if(params[tokens[i]] === undefined) throw new Error(`Undefined parameter ${tokens[i]}`);
-       arr.push(params[tokens[i]]);
+-      arr.push(params[tokens[i]]);
++      arr.push(params[tokens[i]] === undefined ? null : params[tokens[i]]);
      }
-+
      return [tree[0], arr];
    }
  
@@ -37,7 +27,7 @@ index 527d723..f47b591 100644
        return s.slice(0, -1);
      }
      return s;
-@@ -115,7 +124,7 @@ function createCompiler(config) {
+@@ -115,7 +115,7 @@ function createCompiler(config) {
  
      let unnamed = noTailingSemicolon(tree[0][0]);
      for (let i=1; i < tree[0].length; ++i) {
@@ -46,7 +36,7 @@ index 527d723..f47b591 100644
          unnamed += config.placeholder;
        }
        unnamed += config.placeholder;
-@@ -124,7 +133,7 @@ function createCompiler(config) {
+@@ -124,7 +124,7 @@ function createCompiler(config) {
  
      const last = tree[0][tree[0].length -1];
      if (tree[0].length == tree[1].length) {
