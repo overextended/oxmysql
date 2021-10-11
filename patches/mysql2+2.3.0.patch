@@ -1,0 +1,453 @@
+diff --git a/node_modules/mysql2/lib/commands/execute.js b/node_modules/mysql2/lib/commands/execute.js
+index d5c2d8a..8ab7304 100644
+--- a/node_modules/mysql2/lib/commands/execute.js
++++ b/node_modules/mysql2/lib/commands/execute.js
+@@ -85,10 +85,10 @@ class Execute extends Command {
+     if (!packet.isEOF()) {
+       return connection.protocolError('Expected EOF packet');
+     }
+-    this._rowParser = this.buildParserFromFields(
++    this._rowParser = new (this.buildParserFromFields(
+       this._fields[this._resultIndex],
+       connection
+-    );
++    ))();
+     return Execute.prototype.row;
+   }
+ }
+diff --git a/node_modules/mysql2/lib/commands/query.js b/node_modules/mysql2/lib/commands/query.js
+index 344b4ab..91424ee 100644
+--- a/node_modules/mysql2/lib/commands/query.js
++++ b/node_modules/mysql2/lib/commands/query.js
+@@ -9,7 +9,6 @@ const Command = require('./command.js');
+ const Packets = require('../packets/index.js');
+ const getTextParser = require('../parsers/text_parser.js');
+ const ServerStatus = require('../constants/server_status.js');
+-const CharsetToEncoding = require('../constants/charset_encodings.js');
+ 
+ const EmptyPacket = new Packets.Packet(0, Buffer.allocUnsafe(4), 0, 4);
+ 
+@@ -44,7 +43,8 @@ class Query extends Command {
+     throw new Error(err);
+   }
+ 
+-  start(packet, connection) {
++  /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
++  start(_packet, connection) {
+     if (connection.config.debug) {
+       // eslint-disable-next-line
+       console.log('        Sending query command: %s', this.sql);
+@@ -212,7 +212,7 @@ class Query extends Command {
+     if (this._receivedFieldsCount === this._fieldCount) {
+       const fields = this._fields[this._resultIndex];
+       this.emit('fields', fields);
+-      this._rowParser = getTextParser(fields, this.options, connection.config);
++      this._rowParser = new (getTextParser(fields, this.options, connection.config))();
+       return Query.prototype.fieldsEOF;
+     }
+     return Query.prototype.readField;
+@@ -226,7 +226,8 @@ class Query extends Command {
+     return this.row;
+   }
+ 
+-  row(packet) {
++  /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
++  row(packet, _connection) {
+     if (packet.isEOF()) {
+       const status = packet.eofStatusFlags();
+       const moreResults = status & ServerStatus.SERVER_MORE_RESULTS_EXISTS;
+@@ -238,11 +239,10 @@ class Query extends Command {
+     }
+     let row;
+     try {
+-      row = new this._rowParser(
++      row = this._rowParser.next(
+         packet,
+         this._fields[this._resultIndex],
+-        this.options,
+-        CharsetToEncoding
++        this.options
+       );
+     } catch (err) {
+       this._localStreamError = err;
+diff --git a/node_modules/mysql2/lib/connection.js b/node_modules/mysql2/lib/connection.js
+index 47970e9..f802e2e 100644
+--- a/node_modules/mysql2/lib/connection.js
++++ b/node_modules/mysql2/lib/connection.js
+@@ -540,7 +540,6 @@ class Connection extends EventEmitter {
+     } else {
+       cmdQuery = Connection.createQuery(sql, values, cb, this.config);
+     }
+-    this._resolveNamedPlaceholders(cmdQuery);
+     const rawSql = this.format(cmdQuery.sql, cmdQuery.values !== undefined ? cmdQuery.values : []);
+     cmdQuery.sql = rawSql;
+     return this.addCommand(cmdQuery);
+diff --git a/node_modules/mysql2/lib/packets/column_definition.js b/node_modules/mysql2/lib/packets/column_definition.js
+index b17782b..cfaa43a 100644
+--- a/node_modules/mysql2/lib/packets/column_definition.js
++++ b/node_modules/mysql2/lib/packets/column_definition.js
+@@ -45,8 +45,10 @@ class ColumnDefinition {
+     this.characterSet = packet.readInt16();
+     this.encoding = CharsetToEncoding[this.characterSet];
+     this.name = StringParser.decode(
+-      this._buf.slice(_nameStart, _nameStart + _nameLength),
+-      this.encoding === 'binary' ? this._clientEncoding : this.encoding
++      this._buf,
++      this.encoding === 'binary' ? this._clientEncoding : this.encoding,
++      _nameStart, 
++      _nameStart + _nameLength
+     );
+     this.columnLength = packet.readInt32();
+     this.columnType = packet.readInt8();
+@@ -112,10 +114,20 @@ const addString = function(name) {
+     get: function() {
+       const start = this[`_${name}Start`];
+       const end = start + this[`_${name}Length`];
+-      return StringParser.decode(
+-        this._buf.slice(start, end),
+-        this.encoding === 'binary' ? this._clientEncoding : this.encoding
++      const val = StringParser.decode(
++        this._buf,
++        this.encoding === 'binary' ? this._clientEncoding : this.encoding,
++        start, 
++        end
+       );
++      Object.defineProperty(this, name, {
++        value: val,
++        writable: false,
++        configurable: false,
++        enumerable: false
++      });
++
++      return val;
+     }
+   });
+ };
+diff --git a/node_modules/mysql2/lib/packets/packet.js b/node_modules/mysql2/lib/packets/packet.js
+index 90233c9..811b251 100644
+--- a/node_modules/mysql2/lib/packets/packet.js
++++ b/node_modules/mysql2/lib/packets/packet.js
+@@ -385,8 +385,10 @@ class Packet {
+     // TODO: Use characterSetCode to get proper encoding
+     // https://github.com/sidorares/node-mysql2/pull/374
+     return StringParser.decode(
+-      this.buffer.slice(this.offset - len, this.offset),
+-      encoding
++      this.buffer,
++      encoding,
++      this.offset - len,
++      this.offset
+     );
+   }
+ 
+@@ -405,7 +407,7 @@ class Packet {
+       end = end + 1; // TODO: handle OOB check
+     }
+     this.offset = end + 1;
+-    return StringParser.decode(this.buffer.slice(start, end), encoding);
++    return StringParser.decode(this.buffer, encoding, start, end);
+   }
+ 
+   // TODO reuse?
+@@ -419,8 +421,10 @@ class Packet {
+     }
+     this.offset += len;
+     return StringParser.decode(
+-      this.buffer.slice(this.offset - len, this.offset),
+-      encoding
++      this.buffer,
++      encoding,
++      this.offset - len, 
++      this.offset
+     );
+   }
+ 
+diff --git a/node_modules/mysql2/lib/parsers/binary_parser.js b/node_modules/mysql2/lib/parsers/binary_parser.js
+index d20c87c..bbd2959 100644
+--- a/node_modules/mysql2/lib/parsers/binary_parser.js
++++ b/node_modules/mysql2/lib/parsers/binary_parser.js
+@@ -74,7 +74,7 @@ function readCodeFor(field, config, options, fieldNum) {
+       if (field.characterSet === Charsets.BINARY) {
+         return 'packet.readLengthCodedBuffer();';
+       }
+-      return `packet.readLengthCodedString(CharsetToEncoding[fields[${fieldNum}].characterSet])`;
++      return `packet.readLengthCodedString(fields[${fieldNum}].encoding)`;
+   }
+ }
+ 
+@@ -87,12 +87,16 @@ function compile(fields, options, config) {
+   /* eslint-disable no-spaced-func */
+   /* eslint-disable no-unexpected-multiline */
+ 
+-  parserFn('(function(){')(
+-    'return function BinaryRow(packet, fields, options, CharsetToEncoding) {'
+-  );
++  parserFn('(function(){');
++  parserFn('return class BinaryRow {');
++  parserFn('constructor() {');
++  parserFn('}');
+ 
++  parserFn('next(packet, fields, options) {');
+   if (options.rowsAsArray) {
+     parserFn(`const result = new Array(${fields.length});`);
++  } else {
++    parserFn("const result = {};");
+   }
+ 
+   const resultTables = {};
+@@ -104,7 +108,7 @@ function compile(fields, options, config) {
+     }
+     resultTablesArray = Object.keys(resultTables);
+     for (i = 0; i < resultTablesArray.length; i++) {
+-      parserFn(`this[${helpers.srcEscape(resultTablesArray[i])}] = {};`);
++      parserFn(`result[${helpers.srcEscape(resultTablesArray[i])}] = {};`);
+     }
+   }
+ 
+@@ -125,16 +129,16 @@ function compile(fields, options, config) {
+ 
+     if (typeof options.nestTables === 'string') {
+       tableName = helpers.srcEscape(fields[i].table);
+-      lvalue = `this[${helpers.srcEscape(
++      lvalue = `result[${helpers.srcEscape(
+         fields[i].table + options.nestTables + fields[i].name
+       )}]`;
+     } else if (options.nestTables === true) {
+       tableName = helpers.srcEscape(fields[i].table);
+-      lvalue = `this[${tableName}][${fieldName}]`;
++      lvalue = `result[${tableName}][${fieldName}]`;
+     } else if (options.rowsAsArray) {
+       lvalue = `result[${i.toString(10)}]`;
+     } else {
+-      lvalue = `this[${helpers.srcEscape(fields[i].name)}]`;
++      lvalue = `result[${helpers.srcEscape(fields[i].name)}]`;
+     }
+ 
+     // TODO: this used to be an optimisation ( if column marked as NOT_NULL don't include code to check null
+@@ -158,10 +162,8 @@ function compile(fields, options, config) {
+     }
+   }
+ 
+-  if (options.rowsAsArray) {
+-    parserFn('return result;');
+-  }
+-
++  parserFn('return result;');
++  parserFn('}');
+   parserFn('};')('})()');
+ 
+   /* eslint-enable no-trailing-spaces */
+diff --git a/node_modules/mysql2/lib/parsers/parser_cache.js b/node_modules/mysql2/lib/parsers/parser_cache.js
+index 2fa8cf0..509b5c6 100644
+--- a/node_modules/mysql2/lib/parsers/parser_cache.js
++++ b/node_modules/mysql2/lib/parsers/parser_cache.js
+@@ -20,13 +20,7 @@ function keyFromFields(type, fields, options, config) {
+     `/${options.dateStrings}`;
+   for (let i = 0; i < fields.length; ++i) {
+     const field = fields[i];
+-    res += `/${field.name}:${field.columnType}:${field.flags}:${
+-      field.characterSet
+-    }`;
+-
+-    if (options.nestTables) {
+-      res += `:${field.table}`
+-    }
++    res += `/${field.name}:${field.columnType}:${field.length}:${field.schema}:${field.table}:${field.flags}:${field.characterSet}`;
+   }
+   return res;
+ }
+diff --git a/node_modules/mysql2/lib/parsers/string.js b/node_modules/mysql2/lib/parsers/string.js
+index 0739f17..5523fb2 100644
+--- a/node_modules/mysql2/lib/parsers/string.js
++++ b/node_modules/mysql2/lib/parsers/string.js
+@@ -2,14 +2,14 @@
+ 
+ const Iconv = require('iconv-lite');
+ 
+-exports.decode = function(buffer, encoding, options) {
++exports.decode = function(buffer, encoding, start, end, options) {
+   if (Buffer.isEncoding(encoding)) {
+-    return buffer.toString(encoding);
++    return buffer.toString(encoding, start, end);
+   }
+ 
+   const decoder = Iconv.getDecoder(encoding, options || {});
+ 
+-  const res = decoder.write(buffer);
++  const res = decoder.write(buffer.slice(start, end));
+   const trail = decoder.end();
+ 
+   return trail ? res + trail : res;
+diff --git a/node_modules/mysql2/lib/parsers/text_parser.js b/node_modules/mysql2/lib/parsers/text_parser.js
+index eb777d8..8bde10b 100644
+--- a/node_modules/mysql2/lib/parsers/text_parser.js
++++ b/node_modules/mysql2/lib/parsers/text_parser.js
+@@ -70,27 +70,6 @@ function readCodeFor(type, charset, encodingExpr, config, options) {
+ }
+ 
+ function compile(fields, options, config) {
+-  // node-mysql typeCast compatibility wrapper
+-  // see https://github.com/mysqljs/mysql/blob/96fdd0566b654436624e2375c7b6604b1f50f825/lib/protocol/packets/Field.js
+-  function wrap(field, type, packet, encoding) {
+-    return {
+-      type: type,
+-      length: field.columnLength,
+-      db: field.schema,
+-      table: field.table,
+-      name: field.name,
+-      string: function() {
+-        return packet.readLengthCodedString(encoding);
+-      },
+-      buffer: function() {
+-        return packet.readLengthCodedBuffer();
+-      },
+-      geometry: function() {
+-        return packet.parseGeometryValue();
+-      }
+-    };
+-  }
+-
+   // use global typeCast if current query doesn't specify one
+   if (
+     typeof config.typeCast === 'function' &&
+@@ -100,77 +79,110 @@ function compile(fields, options, config) {
+   }
+ 
+   const parserFn = genFunc();
+-  let i = 0;
+ 
+   /* eslint-disable no-trailing-spaces */
+   /* eslint-disable no-spaced-func */
+   /* eslint-disable no-unexpected-multiline */
+   parserFn('(function () {')(
+-    'return function TextRow(packet, fields, options, CharsetToEncoding) {'
++    'return class TextRow {'
+   );
+ 
+-  if (options.rowsAsArray) {
+-    parserFn(`const result = new Array(${fields.length})`);
++  // constructor method
++  parserFn('constructor() {');
++  // node-mysql typeCast compatibility wrapper
++  // see https://github.com/mysqljs/mysql/blob/96fdd0566b654436624e2375c7b6604b1f50f825/lib/protocol/packets/Field.js
++  if (typeof options.typeCast === 'function') {
++    parserFn('const _this = this;');
++    for(let i=0; i<fields.length; ++i) {
++      const field = fields[i];
++      const encodingExpr = helpers.srcEscape(field.encoding);
++      const readCode = readCodeFor(
++        fields[i].columnType,
++        fields[i].characterSet,
++        encodingExpr,
++        config,
++        options
++      );
++      parserFn(`this.wrap${i} = {
++        type: ${helpers.srcEscape(typeNames[field.columnType])},
++        length: ${helpers.srcEscape(field.columnLength)},
++        db: ${helpers.srcEscape(field.schema)},
++        table: ${helpers.srcEscape(field.table)},
++        name: ${helpers.srcEscape(field.name)},
++        string: function() {
++          return _this.packet.readLengthCodedString(${encodingExpr});
++        },
++        buffer: function() {
++          return _this.packet.readLengthCodedBuffer();
++        },
++        geometry: function() {
++          return _this.packet.parseGeometryValue();
++        },
++        readNext: function() {
++          return _this.${readCode};
++        }
++      };`);
++    }
+   }
++  parserFn('}');
+ 
+-  if (typeof options.typeCast === 'function') {
+-    parserFn(`const wrap = ${wrap.toString()}`);
++    // next method
++  parserFn('next(packet, fields, options) {');
++  parserFn("this.packet = packet;");
++  if (options.rowsAsArray) {
++    parserFn(`const result = new Array(${fields.length});`);
++  } else {
++    parserFn("const result = {};");
+   }
+ 
+   const resultTables = {};
+   let resultTablesArray = [];
+ 
+   if (options.nestTables === true) {
+-    for (i = 0; i < fields.length; i++) {
++    for (let i = 0; i < fields.length; i++) {
+       resultTables[fields[i].table] = 1;
+     }
+     resultTablesArray = Object.keys(resultTables);
+-    for (i = 0; i < resultTablesArray.length; i++) {
+-      parserFn(`this[${helpers.srcEscape(resultTablesArray[i])}] = {};`);
++    for (let i = 0; i < resultTablesArray.length; i++) {
++      parserFn(`result[${helpers.srcEscape(resultTablesArray[i])}] = {};`);
+     }
+   }
+ 
+   let lvalue = '';
+   let fieldName = '';
+-  for (i = 0; i < fields.length; i++) {
++  for (let i = 0; i < fields.length; i++) {
+     fieldName = helpers.srcEscape(fields[i].name);
+     parserFn(`// ${fieldName}: ${typeNames[fields[i].columnType]}`);
+     if (typeof options.nestTables === 'string') {
+-      lvalue = `this[${helpers.srcEscape(
++      lvalue = `result[${helpers.srcEscape(
+         fields[i].table + options.nestTables + fields[i].name
+       )}]`;
+     } else if (options.nestTables === true) {
+-      lvalue = `this[${helpers.srcEscape(fields[i].table)}][${fieldName}]`;
++      lvalue = `result[${helpers.srcEscape(fields[i].table)}][${fieldName}]`;
+     } else if (options.rowsAsArray) {
+       lvalue = `result[${i.toString(10)}]`;
+     } else {
+-      lvalue = `this[${fieldName}]`;
++      lvalue = `result[${fieldName}]`;
+     }
+-    const encodingExpr = `CharsetToEncoding[fields[${i}].characterSet]`;
+-    const readCode = readCodeFor(
+-      fields[i].columnType,
+-      fields[i].characterSet,
+-      encodingExpr,
+-      config,
+-      options
+-    );
+     if (typeof options.typeCast === 'function') {
+-      parserFn(
+-        `${lvalue} = options.typeCast(wrap(fields[${i}], ${helpers.srcEscape(
+-          typeNames[fields[i].columnType]
+-        )}, packet, ${encodingExpr}), function() { return ${readCode};})`
+-      );
++      parserFn(`${lvalue} = options.typeCast(this.wrap${i}, this.wrap${i}.readNext);`);
+     } else if (options.typeCast === false) {
+       parserFn(`${lvalue} = packet.readLengthCodedBuffer();`);
+     } else {
++      const encodingExpr = `fields[${i}].encoding`;
++      const readCode = readCodeFor(
++        fields[i].columnType,
++        fields[i].characterSet,
++        encodingExpr,
++        config,
++        options
++      );
+       parserFn(`${lvalue} = ${readCode};`);
+     }
+   }
+ 
+-  if (options.rowsAsArray) {
+-    parserFn('return result;');
+-  }
+-
++  parserFn('return result;');
++  parserFn('}');
+   parserFn('};')('})()');
+ 
+   /* eslint-enable no-trailing-spaces */
