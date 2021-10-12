@@ -38,8 +38,11 @@ const parseParameters = (query, parameters) => {
 
   if (Array.isArray(parameters)) {
     if (parameters.length === 0) return [query, [null]];
-    if (parameters.length !== queryParams.length) {
-      throw new Error(`Undefined query parameter #${parameters.length + 1}`, query, parameters);
+    const diff = queryParams.length - parameters.length
+    if (diff > 0) {
+      for (let i=0; i < diff; i++) {
+        parameters[queryParams.length+i] = null
+      }
     }
   } else {
     let arr = [];
