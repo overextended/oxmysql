@@ -15,8 +15,8 @@
     "@citizenfx/server": "^2.0.4780-1",
     "connection-string-parser": "^1.0.4",
     "github-version-checker": "^2.2.0",
-    "mysql2": "^2.3.0",
-    "postinstall-postinstall": "^2.1.0"
+    "mysql2": "https://github.com/overextended/node-mysql2.git",
+    "postinstall-postinstall": "^2.1.0" 
   },
   "devDependencies": {
     "copy-webpack-plugin": "^9.0.1",
