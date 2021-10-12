@@ -13,7 +13,7 @@ const parseTypes = (field, next) => {
         ? new Date(field.string() + ' 00:00:00').getTime()
         : new Date(field.string()).getTime();
     case 'TINY':
-      if (field.length === 1) return field.string() === '1';
+      if (field.length == 1) return field.string() === '1';
       else return next();
     case 'BIT':
       return field.buffer()[0] === 1;
