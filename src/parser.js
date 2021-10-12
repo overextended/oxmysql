@@ -36,6 +36,14 @@ const parseParameters = (query, parameters) => {
   if (parameters === undefined)
     throw new FormatError(`Placeholders were defined, but query received no parameters!`, query);
 
+  if (!Array.isArray(parameters)) {
+    let arr = [];
+    Object.entries(parameters).forEach((entry) => {
+      const [key, value] = entry;
+      arr[key - 1] = value;
+    });
+    parameters = arr
+  }
   if (Array.isArray(parameters)) {
     if (parameters.length === 0) return [query, [null]];
     const diff = queryParams.length - parameters.length
@@ -44,14 +52,7 @@ const parseParameters = (query, parameters) => {
         parameters[queryParams.length+i] = null
       }
     }
-  } else {
-    let arr = [];
-    Object.entries(parameters).forEach((entry) => {
-      const [key, value] = entry;
-      arr[key - 1] = value;
-    });
-    return [query, arr];
-  }
+  } 
 
   return [query, parameters];
 };
