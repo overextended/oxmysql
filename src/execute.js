@@ -5,13 +5,10 @@ import { slowQueryWarning, debug, resourceName } from './config';
 const execute = async (query, parameters, resource) => {
   ScheduleResourceTick(resourceName);
   try {
-    const time = debug ? process.hrtime.bigint() : Date.now();
 
     [query, parameters] = parseParameters(query, parameters);
 
-    const [result] = await pool.query(query, parameters);
-
-    const executionTime = debug ? Number(process.hrtime.bigint() - time) / 1e6 : Date.now() - time;
+    const [rows, _, executionTime] = await pool.query(query, parameters);
 
     if (executionTime >= slowQueryWarning || debug)
       console.log(
@@ -19,7 +16,7 @@ const execute = async (query, parameters, resource) => {
         ${query} ${JSON.stringify(parameters)}^0`
       );
 
-    return result;
+    return rows;
   } catch (error) {
     console.log(
       `^1[ERROR] ${resource} was unable to execute a query!
