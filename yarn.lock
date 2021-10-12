@@ -881,7 +881,7 @@ minimist@^1.2.0:
 
 "mysql2@https://github.com/overextended/node-mysql2.git":
   version "2.3.0"
-  resolved "https://github.com/overextended/node-mysql2.git#694e1003732f048c91a2ab99f7a7667d88a02549"
+  resolved "https://github.com/overextended/node-mysql2.git#0bd156905d3093d33dddbde10adf1ca8ede18680"
   dependencies:
     denque "^2.0.1"
     generate-function "^2.3.1"
