@@ -35,7 +35,7 @@ setImmediate(async () => {
     const update = await versionCheck(versionCheckConfig);
     if (update) {
       console.log(
-        `^3Your version of oxmysql is outdated (v${versionCheckConfig.currentVersion})! Please update to the latest version (${update.name}) here: \nhttps://github.com/overextended/oxmysql/releases/latest`
+        `^3Your version of oxmysql is outdated (v${versionCheckConfig.currentVersion})! Please update to the latest version (${update.name}) here: \nhttps://github.com/overextended/oxmysql/releases/latest^0`
       );
     }
   } catch (e) {
