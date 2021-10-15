@@ -1,6 +1,6 @@
 {
   "name": "oxmysql",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "main": "oxmysql.js",
   "description": "node-mysql2 resource for Cfx",
   "repository": "git@github.com:overextended/oxmysql.git",
@@ -12,7 +12,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@citizenfx/server": "^2.0.4780-1",
+    "@citizenfx/server": "^2.0.4793-1",
     "connection-string-parser": "^1.0.4",
     "github-version-checker": "^2.2.0",
     "mysql2": "https://github.com/overextended/node-mysql2.git",
