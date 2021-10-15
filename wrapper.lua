@@ -1,4 +1,7 @@
--- @retval	Fetch all query results
+---@param query string
+---@param parameters? table|function
+---@return integer result
+---returns number of rows updated by the executed query
 exports('executeSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:execute(query, parameters, function(result)
@@ -7,7 +10,11 @@ exports('executeSync', function(query, parameters)
     return Citizen.Await(p)
 end)
 
--- @retval	Fetch all query results (leftover for compatibility, same as execute)
+---@deprecated true
+---@param query string
+---@param parameters? table|function
+---@return table result
+---returns array of matching rows or result data
 exports('fetchSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:fetch(query, parameters, function(result)
@@ -16,7 +23,10 @@ exports('fetchSync', function(query, parameters)
     return Citizen.Await(p)
 end)
 
--- @retval	Returns the first row
+---@param query string
+---@param parameters? table|function
+---@return table result
+---returns table containing key value pairs
 exports('singleSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:single(query, parameters, function(result)
@@ -25,7 +35,10 @@ exports('singleSync', function(query, parameters)
     return Citizen.Await(p)
 end)
 
--- @retval	Returns a single result from a column
+---@param query string
+---@param parameters? table|function
+---@return integer|string
+---returns value of the first column of a single row
 exports('scalarSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:scalar(query, parameters, function(result)
@@ -34,7 +47,10 @@ exports('scalarSync', function(query, parameters)
     return Citizen.Await(p)
 end)
 
--- @retval	Returns the id of the newly inserted row
+---@param query string
+---@param parameters? table|function
+---@return table result
+---returns the last inserted id
 exports('insertSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:insert(query, parameters, function(result)
@@ -43,7 +59,10 @@ exports('insertSync', function(query, parameters)
     return Citizen.Await(p)
 end)
 
--- @retval	Number of affected rows
+---@param query string
+---@param parameters? table|function
+---@return integer result
+---returns number of rows updated by the executed query
 exports('updateSync', function(query, parameters)
     local p = promise.new()
     exports['oxmysql']:update(query, parameters, function(result)
@@ -52,7 +71,10 @@ exports('updateSync', function(query, parameters)
     return Citizen.Await(p)
 end)
 
--- @retval	Returns true/false when the given queries are executed
+---@param queries table
+---@param parameters? table|function
+---@return boolean result
+---returns true when the transaction has succeeded
 exports('transactionSync', function(queries, parameters)
     local p = promise.new()
     exports['oxmysql']:transaction(queries, parameters, function(result)

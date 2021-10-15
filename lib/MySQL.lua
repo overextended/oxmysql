@@ -6,9 +6,13 @@ local Ox = exports.oxmysql
 local Resource = GetCurrentResourceName()
 local Store = {}
 
-local function safeArgs(query, parameters, cb)
+local function safeArgs(query, parameters, cb, transaction)
 	if type(query) == 'number' then query = Store[query] end
-	assert(type(query) == 'string', ('A string was expected for the query, but instead received %s'):format(query))
+	if transaction then
+		assert(type(query) == 'table', ('A table was expected for the transaction, but instead received %s'):format(query))
+	else
+		assert(type(query) == 'string', ('A string was expected for the query, but instead received %s'):format(query))
+	end
 	if cb then
 		assert(type(cb) == 'function', ('A callback function was expected, but instead received %s'):format(cb))
 	end
@@ -67,13 +71,13 @@ MySQL = {
 			Ox:insert(safeArgs(query, parameters, cb))
 		end,
 
-		---@param query string
+		---@param queries table
 		---@param parameters? table|function
 		---@param cb? function
 		---@return boolean result
 		---returns true when the transaction has succeeded
-		transaction = function(query, parameters, cb)
-			Ox:transaction(safeArgs(query, parameters, cb))
+		transaction = function(queries, parameters, cb)
+			Ox:transaction(safeArgs(queries, parameters, cb, true))
 		end,
 
 		---@param query string
@@ -155,14 +159,14 @@ MySQL = {
 			return Citizen.Await(promise)
 		end,
 
-		---@param query string
+		---@param queries table
 		---@param parameters? table|function
 		---@return boolean result
 		---returns true when the transaction has succeeded
-		transaction = function(query, parameters)
-			query, parameters = safeArgs(query, parameters)
+		transaction = function(queries, parameters)
+			queries, parameters = safeArgs(queries, parameters, true)
 			local promise = promise.new()
-			Ox:transaction(query, parameters, function(result)
+			Ox:transaction(queries, parameters, function(result)
 				promise:resolve(result)
 			end, Resource)
 			return Citizen.Await(promise)
