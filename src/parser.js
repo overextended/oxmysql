@@ -42,17 +42,18 @@ const parseParameters = (query, parameters) => {
       const [key, value] = entry;
       arr[key - 1] = value;
     });
-    parameters = arr
+    parameters = arr;
   }
   if (Array.isArray(parameters)) {
-    if (parameters.length === 0) return [query, [null]];
-    const diff = queryParams.length - parameters.length
-    if (diff > 0) {
-      for (let i=0; i < diff; i++) {
-        parameters[queryParams.length+i] = null
-      }
+    if (parameters.length === 0) {
+      for (let i = 0; i < queryParams.length; i++) parameters[i] = null;
+      return [query, parameters];
     }
-  } 
+    const diff = queryParams.length - parameters.length;
+    if (diff > 0) {
+      for (let i = 0; i < diff; i++) parameters[queryParams.length + i] = null;
+    }
+  }
 
   return [query, parameters];
 };
