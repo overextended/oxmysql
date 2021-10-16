@@ -33,8 +33,8 @@ const parseParameters = (query, parameters) => {
   if (query.includes('@') || query.includes(':')) {
     const obj = parameters.length !== 0 ? parameters : (() => {
       let obj = {};
-      const [_, paramName] = convertNamedPlaceholders.parse(query);
-      for (let i = 0; i < paramName.length; i++) obj[paramName[i]] = null;
+      const [_, paramNames] = convertNamedPlaceholders.parse(query);
+      for (let i = 0; i < paramNames.length; i++) obj[paramNames[i]] = null;
       return obj;
     })();
 
