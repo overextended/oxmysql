@@ -1,5 +1,5 @@
 diff --git a/node_modules/named-placeholders/index.js b/node_modules/named-placeholders/index.js
-index 527d723..1ac61d5 100644
+index 527d723..f63ce28 100644
 --- a/node_modules/named-placeholders/index.js
 +++ b/node_modules/named-placeholders/index.js
 @@ -3,7 +3,7 @@
@@ -7,7 +7,7 @@ index 527d723..1ac61d5 100644
  // License: https://github.com/mscdex/node-mariasql/blob/master/LICENSE
  
 -const RE_PARAM = /(?:\?)|(?::(\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g,
-+const RE_PARAM = /(?:\?)|(?:[:@](\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g,
++const RE_PARAM = /(?:\?)|(?:(?<!["'])[:@](\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g,
  DQUOTE = 34,
  SQUOTE = 39,
  BSLASH = 92;
