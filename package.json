@@ -1,6 +1,6 @@
 {
   "name": "oxmysql",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "main": "oxmysql.js",
   "description": "node-mysql2 resource for Cfx",
   "repository": "git@github.com:overextended/oxmysql.git",
