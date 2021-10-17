@@ -34,7 +34,10 @@ const parseParameters = (query, parameters) => {
     const obj = parameters.length !== 0 ? parameters : (() => {
       let obj = {};
       const [_, paramNames] = convertNamedPlaceholders.parse(query);
-      for (let i = 0; i < paramNames.length; i++) obj[paramNames[i]] = null;
+      if (paramNames) {
+        for (let i = 0; i < paramNames.length; i++)
+          obj[paramNames[i]] = null;
+      }
       return obj;
     })();
 
