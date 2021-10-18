@@ -28,7 +28,7 @@ const parseTypes = (field, next) => {
 const parseParameters = (query, parameters) => {
   if (query === undefined) throw new FormatError(`Undefined query passed`);
 
-  if (typeof parameters === 'function') return [query, []];
+  if (!parameters || typeof parameters === 'function') return [query, []];
 
   if (query.includes('@') || query.includes(':')) {
     const obj = parameters.length !== 0 ? parameters : (() => {
