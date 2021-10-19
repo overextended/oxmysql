@@ -6,7 +6,8 @@ import { FormatError } from './errors';
 const execute = async (query, parameters, resource) => {
   try {
     [query, parameters] = parseParameters(query, parameters);
-    const [rows, _, executionTime] = await pool.query(query, parameters);
+    ScheduleResourceTick(resourceName);
+    const [executionTime, rows] = await pool.query(query, parameters);
 
     if (executionTime >= slowQueryWarning || debug)
       console.log(
@@ -14,7 +15,6 @@ const execute = async (query, parameters, resource) => {
         ${query} ${JSON.stringify(parameters)}^0`
       );
 
-    ScheduleResourceTick(resourceName);
     return rows;
   } catch (error) {
     console.log(
@@ -46,18 +46,30 @@ const preparedStatement = async (query, parameters, resource) => {
     if (!Array.isArray(parameters))
       throw new FormatError(`Placeholders were defined, but query received no parameters!`, query);
 
-    if (typeof query !== 'string') throw new FormatError(`Prepared statements must utilise a single query`);
+    if (typeof query !== 'string')
+      throw new FormatError(`Prepared statements must utilise a single query`);
 
     const type = queryType(query);
     if (!type) throw new FormatError(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods!`);
 
-    const results = [];
-    for (let i = 0; i < parameters.length; i++) {
-      const [rows] = await pool.execute(query, parameters[i]);
-      results[i] = rows && (type === 1 ? rows : type === 2 ? rows.insertId : type === 3 ? rows.affectedRows : [rows]);
-    }
-
     ScheduleResourceTick(resourceName);
+    const results = [];
+    let totalTime = 0;
+    let queryCount = parameters.length;
+
+    for (let i = 0; i < queryCount; i++) {
+      const [executionTime, rows] = await pool.execute(query, parameters[i]);
+      totalTime + executionTime;
+      results[i] = rows && (type === 3 ? rows.affectedRows : type === 2 ? rows.insertId : rows);
+    }
+    
+    totalTime = totalTime / queryCount;
+    if (totalTime >= slowQueryWarning || debug)
+      console.log(
+        `^3[${debug ? 'DEBUG' : 'WARNING'}] ${resource} took ${totalTime}ms to execute ${queryCount > 1? queryCount+' queries' : 'a query'}!
+        ${query} ${JSON.stringify(parameters)}^0`
+      );
+
     return results.length === 1? (type === 1 ? results[0][0] : results[0]) : results;
   } catch (error) {
     console.log(
