@@ -73,7 +73,7 @@ const preparedStatement = async (query, parameters, resource) => {
 
     if (results.length === 1) {
       if (type === 1) {
-        if (Object.keys(results[0][0]).length === 1) {
+        if (results[0][0] && Object.keys(results[0][0]).length === 1) {
           return Object.values(results[0][0])[0];
         }
         return results[0][0];
