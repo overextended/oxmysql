@@ -1,5 +1,5 @@
 import { pool } from './pool';
-import { execute } from './execute';
+import { execute, preparedStatement } from './execute';
 import { transaction } from './transaction';
 import { debug, isolationLevel } from './config';
 
@@ -55,7 +55,17 @@ global.exports('transaction', (queries, parameters, cb, resource = GetInvokingRe
   });
 });
 
+global.exports('prepared', (query, parameters, cb, resource = GetInvokingResource()) => {
+  preparedStatement(query, parameters, resource).then((result) =>
+    safeCallback(cb || parameters, result, resource, query))
+});
+
 if (!GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
+  global.exports('preparedSync', async (query, parameters) => {
+    const result = await preparedStatement(query, parameters, GetInvokingResource());
+    return result;
+  });
+
   global.exports('executeSync', async (query, parameters) => {
     const result = await execute(query, parameters, GetInvokingResource());
     return result;
