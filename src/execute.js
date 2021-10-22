@@ -46,8 +46,7 @@ const preparedStatement = async (query, parameters, resource) => {
     if (!Array.isArray(parameters))
       throw new FormatError(`Placeholders were defined, but query received no parameters!`, query);
 
-    if (typeof query !== 'string')
-      throw new FormatError(`Prepared statements must utilise a single query`);
+    if (typeof query !== 'string') throw new FormatError(`Prepared statements must utilise a single query`);
 
     const type = queryType(query);
     if (!type) throw new FormatError(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods!`);
@@ -62,15 +61,26 @@ const preparedStatement = async (query, parameters, resource) => {
       totalTime + executionTime;
       results[i] = rows && (type === 3 ? rows.affectedRows : type === 2 ? rows.insertId : rows);
     }
-    
+
     totalTime = totalTime / queryCount;
     if (totalTime >= slowQueryWarning || debug)
       console.log(
-        `^3[${debug ? 'DEBUG' : 'WARNING'}] ${resource} took ${totalTime}ms to execute ${queryCount > 1? queryCount+' queries' : 'a query'}!
+        `^3[${debug ? 'DEBUG' : 'WARNING'}] ${resource} took ${totalTime}ms to execute ${
+          queryCount > 1 ? queryCount + ' queries' : 'a query'
+        }!
         ${query} ${JSON.stringify(parameters)}^0`
       );
 
-    return results.length === 1? (type === 1 ? results[0][0] : results[0]) : results;
+    if (results.length === 1) {
+      if (type === 1) {
+        if (Object.keys(results[0][0]).length === 1) {
+          return Object.values(results[0][0])[0];
+        }
+        return results[0][0];
+      }
+      return results[0];
+    }
+    return results;
   } catch (error) {
     console.log(
       `^1[ERROR] ${resource} was unable to execute a query!
