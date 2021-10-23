@@ -55,13 +55,13 @@ global.exports('transaction', (queries, parameters, cb, resource = GetInvokingRe
   });
 });
 
-global.exports('prepared', (query, parameters, cb, resource = GetInvokingResource()) => {
+global.exports('prepare', (query, parameters, cb, resource = GetInvokingResource()) => {
   preparedStatement(query, parameters, resource).then((result) =>
     safeCallback(cb || parameters, result, resource, query))
 });
 
 if (!GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
-  global.exports('preparedSync', async (query, parameters) => {
+  global.exports('prepareSync', async (query, parameters) => {
     const result = await preparedStatement(query, parameters, GetInvokingResource());
     return result;
   });
