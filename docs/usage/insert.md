@@ -15,10 +15,12 @@ Inserts a new entry into the database and returns the insert id for the row, if 
 		```
 		**Sync**
 		```lua
-		local id = exports.oxmysql:insertSync('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName})
-		if id then
-			print(id)
-		end
+		CreateThread(function()
+			local id = exports.oxmysql:insertSync('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName})
+			if id then
+				print(id)
+			end
+		end)
 		```
 	=== "JavaScript"
 		**Async**
@@ -30,7 +32,9 @@ Inserts a new entry into the database and returns the insert id for the row, if 
 		```
 		**Sync**
 		```js
-		const id = exports.oxmysql.insertSync('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName]) {
-		if (id)
-		  console.log(id)
+		setImmediate(async () => {
+		  const id = exports.oxmysql.insertSync('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName]) {
+		  if (id)
+		    console.log(id)
+		})
 		```

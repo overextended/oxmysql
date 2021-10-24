@@ -15,10 +15,12 @@ Returns the first column for a single row.
 		```
 		**Sync**
 		```lua
-		local result = exports.oxmysql:scalarSync('SELECT firstname FROM users WHERE identifier = ?', {playerIdentifier})
-		if result then
-			print(result.firstname)
-		end
+		CreateThread(function()
+			local result = exports.oxmysql:scalarSync('SELECT firstname FROM users WHERE identifier = ?', {playerIdentifier})
+			if result then
+				print(result.firstname)
+			end
+		end)
 		```
 	=== "JavaScript"
 		**Async**
@@ -30,7 +32,9 @@ Returns the first column for a single row.
 		```
 		**Sync**
 		```js
-		const result = await exports.oxmysql.scalarSync('SELECT firstname FROM users WHERE identifier = ?', [playerIdentifier]) {
-		if (result)
-		  console.log(result.firstname)
+		setImmediate(async () => {
+		  const result = await exports.oxmysql.scalarSync('SELECT firstname FROM users WHERE identifier = ?', [playerIdentifier]) {
+		  if (result)
+		    console.log(result.firstname)
+		})
 		```

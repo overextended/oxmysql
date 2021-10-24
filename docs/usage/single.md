@@ -15,10 +15,12 @@ Returns the columns for a single row.
 		```
 		**Sync**
 		```lua
-		local result = exports.oxmysql:singleSync('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
-		if result then
-			print(result.identifier, result.firstname, result.lastname)
-		end
+		CreateThread(function()
+			local result = exports.oxmysql:singleSync('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
+			if result then
+				print(result.identifier, result.firstname, result.lastname)
+			end
+		end)
 		```
 	=== "JavaScript"
 		**Async**
@@ -30,7 +32,9 @@ Returns the columns for a single row.
 		```
 		**Sync**
 		```js
-		const result = await exports.oxmysql.singleSync('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
-		if (result)
-		  console.log(result.identifier, result.firstname, result.lastname)
+		setImmediate(async () => {
+		  const result = await exports.oxmysql.singleSync('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
+		  if (result)
+		    console.log(result.identifier, result.firstname, result.lastname)
+		})
 		```
