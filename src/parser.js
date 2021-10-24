@@ -26,7 +26,8 @@ const parseTypes = (field, next) => {
 };
 
 const parseParameters = (query, parameters) => {
-  if (query === undefined) throw new FormatError(`Undefined query passed`);
+  if (typeof query !== 'string') 
+    throw new Error(`Non-string query passed. Make sure you use "oxmysql:execute" instead of "oxmysql.execute" when calling exports.`);
 
   if (!parameters || typeof parameters === 'function') return [query, []];
 
