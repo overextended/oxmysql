@@ -4,8 +4,8 @@ title: Scalar
 Returns the first column for a single row.
 
 !!! info "Example"
-	=== "Lua
-		=== "Async"
+	=== "Lua"
+		**Async**
 		```lua
 		exports.oxmysql:scalar('SELECT firstname FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
 			if result then
@@ -13,22 +13,22 @@ Returns the first column for a single row.
 			end
 		end)
 		```
-		=== "Sync"
+		**Sync**
 		```lua
 		local result = exports.oxmysql:scalarSync('SELECT firstname FROM users WHERE identifier = ?', {playerIdentifier})
 		if result then
 			print(result.firstname)
 		end
 		```
-	=== "JavaScript
-		=== "Async"
+	=== "JavaScript"
+		**Async**
 		```js
 		exports.oxmysql.scalar('SELECT firstname FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
 		  if (result)
 		    console.log(result.firstname)
 		})
 		```
-		=== "Sync"
+		**Sync**
 		```js
 		const result = exports.oxmysql.scalarSync('SELECT firstname FROM users WHERE identifier = ?', [playerIdentifier]) {
 		if (result)

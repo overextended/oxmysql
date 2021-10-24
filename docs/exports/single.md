@@ -4,8 +4,8 @@ title: Single
 Returns the columns for a single row.
 
 !!! info "Example"
-	=== "Lua
-		=== "Async"
+	=== "Lua"
+		**Async**
 		```lua
 		exports.oxmysql:single('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
 			if result then
@@ -13,22 +13,22 @@ Returns the columns for a single row.
 			end
 		end)
 		```
-		=== "Sync"
+		**Sync**
 		```lua
 		local result = exports.oxmysql:singleSync('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
 		if result then
 			print(result.identifier, result.firstname, result.lastname)
 		end
 		```
-	=== "JavaScript
-		=== "Async"
+	=== "JavaScript"
+		**Async**
 		```js
 		exports.oxmysql.single('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
 		  if (result)
 		    console.log(result.identifier, result.firstname, result.lastname)
 		})
 		```
-		=== "Sync"
+		**Sync**
 		```js
 		const result = exports.oxmysql.singleSync('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
 		if (result)

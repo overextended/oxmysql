@@ -30,7 +30,7 @@ local result = exports.oxmysql:transactionSync(queries)
 print(result)
 ```
 
-Javascript
+JavaScript
 ```js
 const queries = [
     { query = 'INSERT INTO `test` (id) VALUES (:someid)', values = { someid = 1 } },
@@ -70,7 +70,7 @@ local result = exports.oxmysql:transactionSync(queries, parameters)
 print(result)
 ```
 
-Javascript
+JavaScript
 ```js
 const queries = [
     'INSERT INTO `test` (id, name) VALUES (:someid, :somename)',

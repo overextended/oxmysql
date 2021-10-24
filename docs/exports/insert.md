@@ -4,8 +4,8 @@ title: Insert
 Inserts a new entry into the database and returns the insert id for the row, if valid.
 
 !!! info "Example"
-	=== "Lua
-		=== "Async"
+	=== "Lua"
+		**Async**
 		```lua
 		exports.oxmysql:insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName}, function(id)
 			if id then
@@ -13,22 +13,22 @@ Inserts a new entry into the database and returns the insert id for the row, if 
 			end
 		end)
 		```
-		=== "Sync"
+		**Sync**
 		```lua
 		local id = exports.oxmysql:insertSync('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName})
 		if id then
 			print(id)
 		end
 		```
-	=== "JavaScript
-		=== "Async"
+	=== "JavaScript"
+		**Async**
 		```js
 		exports.oxmysql.insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName], function(id) {
 		  if (id)
 		    console.log(id)
 		})
 		```
-		=== "Sync"
+		**Sync**
 		```js
 		const id = exports.oxmysql.insertSync('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName]) {
 		if (id)

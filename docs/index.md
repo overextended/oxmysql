@@ -17,18 +17,17 @@ You must include one of the following lines, adjusted for your connection and da
 set mysql_connection_string "mysql://root:12345@localhost/es_extended?charset=utf8mb4"
 set mysql_connection_string "user=root;database=es_extended;password=12345;charset=utf8mb4"
 ```
-For more optional settings (such as multiple statements) you can reference [pool.d.ts](https://github.com/sidorares/node-mysql2/blob/master/typings/mysql/lib/Pool.d.ts#L10) and [connection.d.ts](https://github.com/sidorares/node-mysql2/blob/master/typings/mysql/lib/Connection.d.ts#L8).
-
 You can also add the following convars if you require extra information when testing queries.
 ```
 set mysql_slow_query_warning 100
 set mysql_debug true
 ```
+For more optional settings (such as multiple statements) you can reference [pool.d.ts](https://github.com/sidorares/node-mysql2/blob/master/typings/mysql/lib/Pool.d.ts#L10) and [connection.d.ts](https://github.com/sidorares/node-mysql2/blob/master/typings/mysql/lib/Connection.d.ts#L8).
 
 
 ## Sync vs. async
-Asychronous behaviour does not _truly_ exist in any of the scripting runtimes utilised, with tasks being performed in a queue each tick. 
-Two variants of exports are provided for users, and their names describe their behaviour as part of the active "thread" being executed.  
+Asychronous behaviour does not _truly_ exist in any of the scripting runtimes utilised, with tasks being performed as part of a queue each tick.  
+Two variants of exports are provided for users, and their names describe their behaviour as part of the "thread" being executed.  
 
 The following export is "asynchronous" and will execute in order, however the result will be delayed until a result is returned rather than pausing execution of following code.
 ```lua
@@ -54,9 +53,9 @@ Furthermore, the result will be returned inline (left-hand assignment) rather th
 Lua:	Low: 0.2955ms | High: 16.7566ms	| Avg: 0.36956378ms |	Total: 3695.6378ms (10000 queries)
 JS:		Low: 0.2831ms | High: 5.1899ms	| Avg: 0.33495788ms |	Total: 3349.5788ms (10000 queries)
 ```
-These benchmark _exports_ rather than actual query speed, resulting in extra delays due to serialisation and overhead. Lua generally falls _slightly_ behind, but the amount is negligible. Furthermore we utilise the _sync_ variants for this, so a query will only execute once the previous one has returned.
+These benchmark _exports_ rather than actual query speed, resulting in extra delays due to serialisation and overhead. Lua generally falls _slightly_ behind, but the amount is negligible.  
+Furthermore we utilise the _sync_ variants for this, so a query will only execute once the previous one has returned.
 
-Feel free to run your own tests.
 #### Lua (5.4)
 ```lua
 local val = 10000
@@ -85,7 +84,7 @@ RegisterCommand('luasync', function()
 end)
 ```
 
-####
+#### JavaScript
 ```js
 const val = 10000
 RegisterCommand('jssync', async() => {

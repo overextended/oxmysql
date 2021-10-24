@@ -4,8 +4,8 @@ title: Update
 Updates an entry in the database and returns the number of affected rows.
 
 !!! info "Example"
-	=== "Lua
-		=== "Async"
+	=== "Lua"
+		**Async**
 		```lua
 		exports.oxmysql:insert('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier}, function(affectedRows)
 			if affectedRows then
@@ -13,22 +13,22 @@ Updates an entry in the database and returns the number of affected rows.
 			end
 		end)
 		```
-		=== "Sync"
+		**Sync**
 		```lua
 		local id = exports.oxmysql:insertSync('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier})
 		if affectedRows then
 			print(affectedRows)
 		end
 		```
-	=== "JavaScript
-		=== "Async"
+	=== "JavaScript"
+		**Async**
 		```js
 		exports.oxmysql.insert('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier], function(affectedRows) {
 		  if (affectedRows)
 		    console.log(affectedRows)
 		})
 		```
-		=== "Sync"
+		**Sync**
 		```js
 		const id = exports.oxmysql.insertSync('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier]) {
 		if (affectedRows)
