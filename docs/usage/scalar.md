@@ -30,7 +30,7 @@ Returns the first column for a single row.
 		```
 		**Sync**
 		```js
-		const result = exports.oxmysql.scalarSync('SELECT firstname FROM users WHERE identifier = ?', [playerIdentifier]) {
+		const result = await exports.oxmysql.scalarSync('SELECT firstname FROM users WHERE identifier = ?', [playerIdentifier]) {
 		if (result)
 		  console.log(result.firstname)
 		```

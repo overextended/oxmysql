@@ -38,7 +38,7 @@ When selecting data it will return all matching rows and columns, otherwise it w
 		```
 		**Sync**
 		```js
-		const result = exports.oxmysql.executeSync('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
+		const result = await exports.oxmysql.executeSync('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
 		if (result) {
 		  result.forEach((v) => {
 		    console.log(v.identifier, v.firstname, v.lastname)

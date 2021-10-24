@@ -30,7 +30,7 @@ Returns the columns for a single row.
 		```
 		**Sync**
 		```js
-		const result = exports.oxmysql.singleSync('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
+		const result = await exports.oxmysql.singleSync('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
 		if (result)
 		  console.log(result.identifier, result.firstname, result.lastname)
 		```
