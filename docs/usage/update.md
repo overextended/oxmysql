@@ -7,7 +7,7 @@ Updates an entry in the database and returns the number of affected rows.
 	=== "Lua"
 		**Async**
 		```lua
-		exports.oxmysql:insert('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier}, function(affectedRows)
+		exports.oxmysql:update('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier}, function(affectedRows)
 			if affectedRows then
 				print(affectedRows)
 			end
@@ -16,7 +16,7 @@ Updates an entry in the database and returns the number of affected rows.
 		**Sync**
 		```lua
 		CreateThread(function()
-			local id = exports.oxmysql:insertSync('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier})
+			local id = exports.oxmysql:updateSync('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier})
 			if affectedRows then
 				print(affectedRows)
 			end
@@ -25,7 +25,7 @@ Updates an entry in the database and returns the number of affected rows.
 	=== "JavaScript"
 		**Async**
 		```js
-		exports.oxmysql.insert('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier], function(affectedRows) {
+		exports.oxmysql.update('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier], function(affectedRows) {
 		  if (affectedRows)
 		    console.log(affectedRows)
 		})
@@ -33,7 +33,7 @@ Updates an entry in the database and returns the number of affected rows.
 		**Sync**
 		```js
 		setImmediate(async () => {
-		  const id = exports.oxmysql.insertSync('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier]) {
+		  const id = exports.oxmysql.updateSync('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier]) {
 		  if (affectedRows)
 		    console.log(affectedRows)
 		})
