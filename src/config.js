@@ -1,6 +1,3 @@
-import versionCheck from 'github-version-checker';
-import currentVersion from '../package.json';
-
 const slowQueryWarning = GetConvarInt('mysql_slow_query_warning', 150);
 const debug = GetConvar('mysql_debug', 'false') === 'true';
 
@@ -22,23 +19,3 @@ const isolationLevel = (() => {
 const resourceName = GetCurrentResourceName() || 'oxmysql';
 
 export { slowQueryWarning, debug, isolationLevel, resourceName };
-
-setImmediate(async () => {
-  const versionCheckConfig = {
-    repo: 'oxmysql',
-    owner: 'overextended',
-    currentVersion: currentVersion.version,
-    latest: true,
-  };
-
-  try {
-    const update = await versionCheck(versionCheckConfig);
-    if (update) {
-      console.log(
-        `^3Your version of oxmysql is outdated (v${versionCheckConfig.currentVersion})! Please update to the latest version (${update.name}) here: \nhttps://github.com/overextended/oxmysql/releases/latest^0`
-      );
-    }
-  } catch (e) {
-    console.log(`^3Could not fetch updates for oxmysql!^0\n${e}`);
-  }
-});

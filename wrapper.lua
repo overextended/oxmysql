@@ -1,10 +1,26 @@
 local resource = GetCurrentResourceName()
 local oxmysql = exports[resource]
 
-if not rawget(oxmysql, 'execute') then
+do
+    local url = GetResourceMetadata(resource, 'url', 0)
     local version = GetResourceMetadata(resource, 'version', 0)
-    local link = ('https://github.com/overextended/oxmysql/releases/download/v%s/oxmysql-v%s.zip'):format(version, version)
-    error(('Unable to locate built "oxmysql.js" - please download the release!\n   ^3- %s^0\n'):format(link))
+    local link = ('%s/releases/download/v%s/oxmysql-v%s.zip'):format(url, version, version)
+
+    if not rawget(oxmysql, 'execute') then
+        error(('Unable to locate built "oxmysql.js" - please download the release!\n   ^3- %s^0\n'):format(link))
+    end
+
+    CreateThread(function()
+        Wait(1000)
+        PerformHttpRequest(('%s/main/fxmanifest.lua'):format(url:gsub('github.com', 'raw.githubusercontent.com')), function(error, response)
+            if error == 200 then
+                local latest = response:match('%d%.%d+%.%d+')
+                if version ~= latest then
+                    print(('^3Your version of oxmysql is outdated (%s) - please update to the latest version (%s)!\n   ^3- %s^0'):format(version, latest, link))
+                end
+            end
+        end, "GET")
+    end)
 end
 
 ---@param query string
