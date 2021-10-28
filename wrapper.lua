@@ -1,10 +1,19 @@
+local resource = GetCurrentResourceName()
+local oxmysql = exports[resource]
+
+if not rawget(oxmysql, 'execute') then
+    local version = GetResourceMetadata(resource, 'version', 0)
+    local link = ('https://github.com/overextended/oxmysql/releases/download/v%s/oxmysql-v%s.zip'):format(version, version)
+    error(('Unable to locate built "oxmysql.js" - please download the release!\n   ^3- %s^0\n'):format(link))
+end
+
 ---@param query string
 ---@param parameters? table
 ---@return integer result
 ---returns array of matching rows or result data
 exports('executeSync', function(query, parameters)
     local p = promise.new()
-    exports['oxmysql']:execute(query, parameters, function(result)
+    oxmysql:execute(query, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
@@ -16,7 +25,7 @@ end)
 ---returns array of matching rows or result data
 exports('fetchSync', function(query, parameters)
     local p = promise.new()
-    exports['oxmysql']:fetch(query, parameters, function(result)
+    oxmysql:fetch(query, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
@@ -28,7 +37,7 @@ end)
 ---returns table containing key value pairs
 exports('singleSync', function(query, parameters)
     local p = promise.new()
-    exports['oxmysql']:single(query, parameters, function(result)
+    oxmysql:single(query, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
@@ -40,7 +49,7 @@ end)
 ---returns value of the first column of a single row
 exports('scalarSync', function(query, parameters)
     local p = promise.new()
-    exports['oxmysql']:scalar(query, parameters, function(result)
+    oxmysql:scalar(query, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
@@ -52,7 +61,7 @@ end)
 ---returns the last inserted id
 exports('insertSync', function(query, parameters)
     local p = promise.new()
-    exports['oxmysql']:insert(query, parameters, function(result)
+    oxmysql:insert(query, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
@@ -64,7 +73,7 @@ end)
 ---returns number of rows updated by the executed query
 exports('updateSync', function(query, parameters)
     local p = promise.new()
-    exports['oxmysql']:update(query, parameters, function(result)
+    oxmysql:update(query, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
@@ -76,7 +85,7 @@ end)
 ---returns true when the transaction has succeeded
 exports('transactionSync', function(queries, parameters)
     local p = promise.new()
-    exports['oxmysql']:transaction(queries, parameters, function(result)
+    oxmysql:transaction(queries, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
@@ -90,7 +99,7 @@ end)
 ---return value is based on the number of results and the type of query used
 exports('prepareSync', function(query, parameters)
     local p = promise.new()
-    exports['oxmysql']:prepare(query, parameters, function(result)
+    oxmysql:prepare(query, parameters, function(result)
         p:resolve(result)
     end, GetInvokingResource())
     return Citizen.Await(p)
