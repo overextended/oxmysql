@@ -1,27 +1,34 @@
 local resource = GetCurrentResourceName()
 local oxmysql = exports[resource]
 
-do
+
+CreateThread(function()
+    Wait(1000)
     local url = GetResourceMetadata(resource, 'url', 0)
     local version = GetResourceMetadata(resource, 'version', 0)
     local link = ('%s/releases/download/v%s/oxmysql-v%s.zip'):format(url, version, version)
 
-    if not rawget(oxmysql, 'execute') then
+    local path = GetResourcePath(resource):gsub('//', '/')
+	path = ('%s/oxmysql.js'):format(path)
+    local system = os.getenv('OS')
+    if system and system:match('Windows') then
+        path = path:gsub('/', '\\')
+    end
+    local file = io.open(path, 'r')
+
+    if file ~= nil then file:close() else
         error(('Unable to locate built "oxmysql.js" - please download the release!\n   ^3- %s^0\n'):format(link))
     end
 
-    CreateThread(function()
-        Wait(1000)
-        PerformHttpRequest(('%s/main/fxmanifest.lua'):format(url:gsub('github.com', 'raw.githubusercontent.com')), function(error, response)
-            if error == 200 then
-                local latest = response:match('%d%.%d+%.%d+')
-                if version ~= latest then
-                    print(('^3Your version of oxmysql is outdated (%s) - please update to the latest version (%s)!\n   ^3- %s^0'):format(version, latest, link))
-                end
+    PerformHttpRequest(('%s/main/fxmanifest.lua'):format(url:gsub('github.com', 'raw.githubusercontent.com')), function(error, response)
+        if error == 200 then
+            local latest = response:match('%d%.%d+%.%d+')
+            if version ~= latest then
+                print(('^3Your version of oxmysql is outdated (%s) - please update to the latest version (%s)!\n   ^3- %s^0'):format(version, latest, link))
             end
-        end, "GET")
-    end)
-end
+        end
+    end, 'GET')
+end)
 
 ---@param query string
 ---@param parameters? table
