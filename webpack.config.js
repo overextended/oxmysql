@@ -15,12 +15,15 @@ module.exports = {
       contextRegExp: /./,
     }),
     new CopyPlugin({
-      patterns: ["fxmanifest.lua", "wrapper.lua", "README.md", "LICENSE.md"],
+      patterns: ["./lua", "./lua", "README.md", "LICENSE.md"],
     }),
   ],
   output: {
     filename: "oxmysql.js",
     path: path.resolve(__dirname, "dist"),
+  },
+  optimization: {
+    minimize: false,
   },
   target: "node",
 };
