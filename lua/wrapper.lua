@@ -5,13 +5,24 @@ CreateThread(function()
     local resource = GetCurrentResourceName()
     local url = GetResourceMetadata(resource, 'url', 0)
     local version = GetResourceMetadata(resource, 'version', 0)
-    local link = ('%s/releases/download/v%s/oxmysql-v%s.zip'):format(url, version, version)
 
-    PerformHttpRequest(('%s/main/fxmanifest.lua'):format(url:gsub('github.com', 'raw.githubusercontent.com')), function(error, response)
+    PerformHttpRequest(('%s/main/lua/fxmanifest.lua'):format(url:gsub('github.com', 'raw.githubusercontent.com')), function(error, response)
         if error == 200 then
             local latest = response:match('%d%.%d+%.%d+')
             if version ~= latest then
-                print(('^3Your version of oxmysql is outdated (%s) - please update to the latest version (%s)!\n   ^3- %s^0'):format(version, latest, link))
+                local curMajor, curMinor = string.strsplit('.', version)
+                local newMajor, newMinor =  string.strsplit('.', response:match('%d%.%d+%.%d+'))
+                local link = ('%s/releases/download/v%s/oxmysql-v%s.zip'):format(url, latest, latest)
+
+                if tonumber(curMajor) < tonumber(newMajor) then
+                    latest = 'A major update'
+                elseif tonumber(curMinor) < tonumber(newMinor) then
+                    latest = 'An update'
+                else
+                    latest = 'A patch'
+                end
+
+                print(('^3%s is available for oxmysql - please update to the latest release (current version: %s)\n   ^3- %s^0'):format(latest, version, link))
             end
         end
     end, 'GET')
