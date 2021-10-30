@@ -1,24 +1,10 @@
-local resource = GetCurrentResourceName()
-local oxmysql = exports[resource]
-
+local oxmysql = exports.oxmysql
 
 CreateThread(function()
     Wait(1000)
     local url = GetResourceMetadata(resource, 'url', 0)
     local version = GetResourceMetadata(resource, 'version', 0)
     local link = ('%s/releases/download/v%s/oxmysql-v%s.zip'):format(url, version, version)
-
-    local path = GetResourcePath(resource):gsub('//', '/')
-	path = ('%s/oxmysql.js'):format(path)
-    local system = os.getenv('OS')
-    if system and system:match('Windows') then
-        path = path:gsub('/', '\\')
-    end
-    local file = io.open(path, 'r')
-
-    if file ~= nil then file:close() else
-        error(('Unable to locate built "oxmysql.js" - please download the release!\n   ^3- %s^0\n'):format(link))
-    end
 
     PerformHttpRequest(('%s/main/fxmanifest.lua'):format(url:gsub('github.com', 'raw.githubusercontent.com')), function(error, response)
         if error == 200 then
