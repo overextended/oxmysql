@@ -2,6 +2,7 @@ local oxmysql = exports.oxmysql
 
 CreateThread(function()
     Wait(1000)
+    local resource = GetCurrentResourceName()
     local url = GetResourceMetadata(resource, 'url', 0)
     local version = GetResourceMetadata(resource, 'version', 0)
     local link = ('%s/releases/download/v%s/oxmysql-v%s.zip'):format(url, version, version)
