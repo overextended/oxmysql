@@ -3,7 +3,6 @@
 -- Store is used for compatibility only
 
 local Ox = exports.oxmysql
-local Resource = GetCurrentResourceName()
 local Store = {}
 
 local function safeArgs(query, parameters, cb, transaction)
@@ -99,7 +98,7 @@ MySQL.Sync.execute = function(query, parameters)
 	local promise = promise.new()
 	Ox:update(query, parameters, function(result)
 		promise:resolve(result)
-	end, Resource)
+	end)
 	return Citizen.Await(promise)
 end
 
@@ -112,7 +111,7 @@ MySQL.Sync.fetchAll = function(query, parameters)
 	local promise = promise.new()
 	Ox:execute(query, parameters, function(result)
 		promise:resolve(result)
-	end, Resource)
+	end)
 	return Citizen.Await(promise)
 end
 
@@ -125,7 +124,7 @@ MySQL.Sync.fetchScalar = function(query, parameters)
 	local promise = promise.new()
 	Ox:scalar(query, parameters, function(result)
 		promise:resolve(result)
-	end, Resource)
+	end)
 	return Citizen.Await(promise)
 end
 
@@ -138,7 +137,7 @@ MySQL.Sync.fetchSingle = function(query, parameters)
 	local promise = promise.new()
 	Ox:single(query, parameters, function(result)
 		promise:resolve(result)
-	end, Resource)
+	end)
 	return Citizen.Await(promise)
 end
 
@@ -151,7 +150,7 @@ MySQL.Sync.insert = function(query, parameters)
 	local promise = promise.new()
 	Ox:insert(query, parameters, function(result)
 		promise:resolve(result)
-	end, Resource)
+	end)
 	return Citizen.Await(promise)
 end
 
@@ -160,11 +159,11 @@ end
 ---@return boolean result
 ---returns true when the transaction has succeeded
 MySQL.Sync.transaction = function(queries, parameters)
-	queries, parameters = safeArgs(queries, parameters, true)
+	queries, parameters = safeArgs(queries, parameters, false, true)
 	local promise = promise.new()
 	Ox:transaction(queries, parameters, function(result)
 		promise:resolve(result)
-	end, Resource)
+	end)
 	return Citizen.Await(promise)
 end
 
