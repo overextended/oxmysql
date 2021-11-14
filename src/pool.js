@@ -22,15 +22,16 @@ const parseSemiColons = () => {
   }, {});
 };
 
+// @TODO: refactor acceptable options when using semicolon connection; this or stuff is getting old
 const createConnection = () => {
-  if (connectionString.includes('database=')) {
+  if (connectionString.includes('host=')) {
     const options = parseSemiColons();
 
     return createPool({
       host: options.host || 'localhost',
       port: options.port || 3306,
-      user: options.username || options.user || options.userid || 'root',
-      password: options.password || options.pass || '',
+      user: options.username || options.user || options.userid || options.uid || 'root',
+      password: options.password || options.pass || options.pwd || '',
       database: options.endpoint || options.database,
       charset: 'utf8mb4_unicode_ci',
       connectTimeout: 30000,
