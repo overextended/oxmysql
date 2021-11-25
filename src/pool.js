@@ -1,6 +1,5 @@
 import { createPool } from 'mysql2/promise';
 import { parseTypes } from './parser';
-import { ConnectionStringParser } from 'connection-string-parser';
 
 const connectionString = GetConvar('mysql_connection_string', '');
 
@@ -8,60 +7,29 @@ if (connectionString === '') {
   throw new Error(`Set up mysql_connection_string in server.cfg`);
 }
 
-const parseSemiColons = () => {
-  const parts = connectionString.split(';');
-  if (parseTypes.length === 1) {
-    throw new Error(
-      `Set up mysql_connection_string in correct format - 'username=root;password=password;database=db;host=127.0.0.1'`
-    );
-  }
-  return parts.reduce((connectionInfo, parameter) => {
-    const [key, value] = parameter.split('=');
-    connectionInfo[key] = value;
-    return connectionInfo;
-  }, {});
-};
+const dbOptions = (() => {
+  if (connectionString.includes('mysql://')) return { uri: connectionString };
+  const options = connectionString
+    .replace(/(?:host(?:name)|ip|server|data\s?source|addr(?:ess)?)=/gi, 'host=')
+    .replace(/(?:user\s?(?:id|name)?|uid)=/gi, 'user=')
+    .replace(/(?:pwd|pass)=/gi, 'password=')
+    .replace(/(?:db)=/gi, 'database=')
+    .split(';')
+    .reduce((connectionInfo, parameter) => {
+      const [key, value] = parameter.split('=');
+      connectionInfo[key] = value;
+      return connectionInfo;
+    }, {});
 
-// @TODO: refactor acceptable options when using semicolon connection; this or stuff is getting old
+  return options;
+})();
+
 const createConnection = () => {
-  if (connectionString.includes('host=')) {
-    const options = parseSemiColons();
-
-    return createPool({
-      host: options.host || 'localhost',
-      port: options.port || 3306,
-      user: options.username || options.user || options.userid || options.uid || 'root',
-      password: options.password || options.pass || options.pwd || '',
-      database: options.endpoint || options.database,
-      charset: 'utf8mb4_unicode_ci',
-      connectTimeout: 30000,
-      ...options.options,
-      namedPlaceholders: true,
-      typeCast: parseTypes,
-    });
-  } else {
-    const options = new ConnectionStringParser({
-      scheme: 'mysql',
-      hosts: [],
-    }).parse(connectionString);
-
-    if (Object.keys(options).length === 0) {
-      throw new Error(`Set up mysql_connection_string in correct format - 'mysql://user:password@host/database'`);
-    }
-
-    return createPool({
-      host: options.hosts[0].host || 'localhost',
-      port: options.hosts[0].port || 3306,
-      user: options.username || 'root',
-      password: options.password || '',
-      database: options.endpoint,
-      charset: 'utf8mb4_unicode_ci',
-      connectTimeout: 30000,
-      ...options.options,
-      namedPlaceholders: true,
-      typeCast: parseTypes,
-    });
-  }
+  return createPool({
+    ...dbOptions,
+    namedPlaceholders: true,
+    typeCast: parseTypes,
+  });
 };
 
 export const pool = createConnection();
