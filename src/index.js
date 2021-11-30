@@ -60,7 +60,7 @@ global.exports('prepare', (query, parameters, cb, resource = GetInvokingResource
     safeCallback(cb || parameters, result, resource, query))
 });
 
-if (!GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
+if (GetEntityAttachedTo || !GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
   global.exports('prepareSync', async (query, parameters) => {
     const result = await preparedStatement(query, parameters, GetInvokingResource());
     return result;

@@ -16,6 +16,6 @@ const isolationLevel = (() => {
   }
 })();
 
-const resourceName = GetCurrentResourceName() || 'oxmysql';
+const resourceName = GetCurrentResourceName();
 
 export { slowQueryWarning, debug, isolationLevel, resourceName };
