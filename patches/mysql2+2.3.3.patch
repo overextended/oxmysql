@@ -1,0 +1,47 @@
+diff --git a/node_modules/mysql2/lib/connection_config.js b/node_modules/mysql2/lib/connection_config.js
+index 11ad01b..6fab74e 100644
+--- a/node_modules/mysql2/lib/connection_config.js
++++ b/node_modules/mysql2/lib/connection_config.js
+@@ -187,7 +187,6 @@ class ConnectionConfig {
+       'LONG_PASSWORD',
+       'FOUND_ROWS',
+       'LONG_FLAG',
+-      'CONNECT_WITH_DB',
+       'ODBC',
+       'LOCAL_FILES',
+       'IGNORE_SPACE',
+@@ -200,15 +199,14 @@ class ConnectionConfig {
+       'TRANSACTIONS',
+       'SESSION_TRACK'
+     ];
+-    if (options && options.multipleStatements) {
+-      defaultFlags.push('MULTI_STATEMENTS');
++    if (options) {
++      if (options.multipleStatements) defaultFlags.push('MULTI_STATEMENTS');
++      if (options.database) defaultFlags.push('CONNECT_WITH_DB');
++      if (options.connectAttributes) defaultFlags.push('CONNECT_ATTRS')
+     }
+     defaultFlags.push('PLUGIN_AUTH');
+     defaultFlags.push('PLUGIN_AUTH_LENENC_CLIENT_DATA');
+ 
+-    if (options && options.connectAttributes) {
+-      defaultFlags.push('CONNECT_ATTRS');
+-    }
+     return defaultFlags;
+   }
+ 
+diff --git a/node_modules/mysql2/lib/packets/execute.js b/node_modules/mysql2/lib/packets/execute.js
+index c612f66..02dbe22 100644
+--- a/node_modules/mysql2/lib/packets/execute.js
++++ b/node_modules/mysql2/lib/packets/execute.js
+@@ -28,7 +28,9 @@ function toParameter(value, encoding, timezone) {
+   if (value !== null) {
+     switch (typeof value) {
+       case 'undefined':
+-        throw new TypeError('Bind parameters must not contain undefined');
++        value = '';
++        type = Types.NULL;
++        break
+ 
+       case 'number':
+         type = Types.DOUBLE;
