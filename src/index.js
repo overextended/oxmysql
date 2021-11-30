@@ -12,41 +12,34 @@ setImmediate(async () => {
   }
 });
 
-const safeCallback = (callback, result, resource, query) => {
-  if (typeof callback === 'function')
-    return callback(result);
-  else if (debug)
-    return console.log(`^3[WARNING] ${resource} executed a query, but no callback function was defined!\n        ^3 ${query}^0`);
+const safeCallback = (callback, result) => {
+  if (typeof callback === 'function') callback(result);
 };
 
 global.exports('execute', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) =>
-    safeCallback(cb || parameters, result, resource, query));
+  execute(query, parameters, resource).then((result) => safeCallback(cb || parameters, result));
 });
 
 global.exports('insert', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) =>
-    safeCallback(cb || parameters, result && result.insertId, resource, query));
+  execute(query, parameters, resource).then((result) => safeCallback(cb || parameters, result && result.insertId));
 });
 
 global.exports('update', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) => 
-    safeCallback(cb || parameters, result && result.affectedRows, resource, query));
+  execute(query, parameters, resource).then((result) => safeCallback(cb || parameters, result && result.affectedRows));
 });
 
 global.exports('fetch', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) =>
-    safeCallback(cb || parameters, result, resource, query));
+  execute(query, parameters, resource).then((result) => safeCallback(cb || parameters, result));
 });
 
 global.exports('single', (query, parameters, cb, resource = GetInvokingResource()) => {
-  execute(query, parameters, resource).then((result) =>
-    safeCallback(cb || parameters, result && result[0], resource, query));
+  execute(query, parameters, resource).then((result) => safeCallback(cb || parameters, result && result[0]));
 });
 
 global.exports('scalar', (query, parameters, cb, resource = GetInvokingResource()) => {
   execute(query, parameters, resource).then((result) =>
-    safeCallback(cb || parameters, result && result[0] && Object.values(result[0])[0], resource, query));
+    safeCallback(cb || parameters, result && result[0] && Object.values(result[0])[0])
+  );
 });
 
 global.exports('transaction', (queries, parameters, cb, resource = GetInvokingResource()) => {
@@ -56,8 +49,7 @@ global.exports('transaction', (queries, parameters, cb, resource = GetInvokingRe
 });
 
 global.exports('prepare', (query, parameters, cb, resource = GetInvokingResource()) => {
-  preparedStatement(query, parameters, resource).then((result) =>
-    safeCallback(cb || parameters, result, resource, query))
+  preparedStatement(query, parameters, resource).then((result) => safeCallback(cb || parameters, result));
 });
 
 if (GetEntityAttachedTo || !GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
