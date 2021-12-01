@@ -13,7 +13,7 @@ const transaction = async (queries, parameters, resource) => {
   ScheduleResourceTick(resourceName);
   const connection = await pool.getConnection();
   try {
-    const startTime = process.hrtime(startTime);
+    const startTime = process.hrtime();
 
     const fullQuery = parseTransaction(queries, parameters);
     const transactionAmount = fullQuery.length;
