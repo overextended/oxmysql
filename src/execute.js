@@ -71,7 +71,7 @@ const preparedStatement = async (query, parameters, resource) => {
     const executionTime = process.hrtime(startTime)[1] / 1000000; // nanosecond to millisecond
     if (executionTime >= slowQueryWarning || debug)
       console.log(
-        `^3[${debug ? 'DEBUG' : 'WARNING'}] ${resource} took ${totalTime}ms to execute ${
+        `^3[${debug ? 'DEBUG' : 'WARNING'}] ${resource} took ${executionTime}ms to execute ${
           queryCount > 1 ? queryCount + ' queries' : 'a query'
         }!
         ${query} ${JSON.stringify(parameters)}^0`

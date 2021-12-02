@@ -52,7 +52,8 @@ global.exports('prepare', (query, parameters, cb, resource = GetInvokingResource
   preparedStatement(query, parameters, resource).then((result) => safeCallback(cb || parameters, result));
 });
 
-if (GetEntityAttachedTo || !GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
+// Check for a recent native (~server artifact 4700) to enable JS exports
+if (GetEntityAttachedTo !== undefined || !GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
   global.exports('prepareSync', async (query, parameters) => {
     const result = await preparedStatement(query, parameters, GetInvokingResource());
     return result;

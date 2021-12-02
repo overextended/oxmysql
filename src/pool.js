@@ -10,7 +10,7 @@ if (connectionString === '') {
 const dbOptions = (() => {
   const options = connectionString.includes('mysql://')
     ? { uri: connectionString }
-    : (options = connectionString
+    : connectionString
         .replace(/(?:host(?:name)|ip|server|data\s?source|addr(?:ess)?)=/gi, 'host=')
         .replace(/(?:user\s?(?:id|name)?|uid)=/gi, 'user=')
         .replace(/(?:pwd|pass)=/gi, 'password=')
@@ -20,7 +20,7 @@ const dbOptions = (() => {
           const [key, value] = parameter.split('=');
           connectionInfo[key] = value;
           return connectionInfo;
-        }, {}));
+        }, {});
 
   options.namedPlaceholders = true;
   options.typeCast = parseTypes;
