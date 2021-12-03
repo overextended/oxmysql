@@ -52,45 +52,51 @@ global.exports('prepare', (query, parameters, cb, resource = GetInvokingResource
   preparedStatement(query, parameters, resource).then((result) => safeCallback(cb || parameters, result));
 });
 
-// Check for a recent native (~server artifact 4700) to enable JS exports
-if (GetEntityAttachedTo !== undefined || !GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
-  global.exports('prepareSync', async (query, parameters) => {
-    const result = await preparedStatement(query, parameters, GetInvokingResource());
-    return result;
-  });
+try {
+  // Check for the existance of a native from FXServer 4837 to enable JS exports
+  if (MumbleSetPlayerMuted || !GetResourceMetadata(GetCurrentResourceName(), 'server_script', 1)) {
+    global.exports('prepareSync', async (query, parameters) => {
+      const result = await preparedStatement(query, parameters, GetInvokingResource());
+      return result;
+    });
 
-  global.exports('executeSync', async (query, parameters) => {
-    const result = await execute(query, parameters, GetInvokingResource());
-    return result;
-  });
+    global.exports('executeSync', async (query, parameters) => {
+      const result = await execute(query, parameters, GetInvokingResource());
+      return result;
+    });
 
-  global.exports('insertSync', async (query, parameters) => {
-    const result = await execute(query, parameters, GetInvokingResource());
-    return result && result.insertId;
-  });
+    global.exports('insertSync', async (query, parameters) => {
+      const result = await execute(query, parameters, GetInvokingResource());
+      return result && result.insertId;
+    });
 
-  global.exports('updateSync', async (query, parameters) => {
-    const result = await execute(query, parameters, GetInvokingResource());
-    return result && result.affectedRows;
-  });
+    global.exports('updateSync', async (query, parameters) => {
+      const result = await execute(query, parameters, GetInvokingResource());
+      return result && result.affectedRows;
+    });
 
-  global.exports('fetchSync', async (query, parameters) => {
-    const result = await execute(query, parameters, GetInvokingResource());
-    return result;
-  });
+    global.exports('fetchSync', async (query, parameters) => {
+      const result = await execute(query, parameters, GetInvokingResource());
+      return result;
+    });
 
-  global.exports('singleSync', async (query, parameters) => {
-    const result = await execute(query, parameters, GetInvokingResource());
-    return result && result[0];
-  });
+    global.exports('singleSync', async (query, parameters) => {
+      const result = await execute(query, parameters, GetInvokingResource());
+      return result && result[0];
+    });
 
-  global.exports('scalarSync', async (query, parameters) => {
-    const result = await execute(query, parameters, GetInvokingResource());
-    return result && result[0] && Object.values(result[0])[0];
-  });
+    global.exports('scalarSync', async (query, parameters) => {
+      const result = await execute(query, parameters, GetInvokingResource());
+      return result && result[0] && Object.values(result[0])[0];
+    });
 
-  global.exports('transactionSync', async (queries, parameters) => {
-    const result = await transaction(queries, parameters, GetInvokingResource());
-    return result;
-  });
+    global.exports('transactionSync', async (queries, parameters) => {
+      const result = await transaction(queries, parameters, GetInvokingResource());
+      return result;
+    });
+  }
+} catch(e) {
+  setTimeout(() => {
+    console.log(`^3Unable to load enhanced sync exports (download FXServer 4837+)^0`);
+  }, 1000)
 }

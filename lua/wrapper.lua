@@ -28,8 +28,9 @@ CreateThread(function()
     end, 'GET')
 end)
 
--- Check for a recent native since the recommended artifact doesn't support JS async_retval or dependency constraints
-if not GetEntityAttachedTo then
+-- Check for the existance of a native from FXServer 4837 to disable Lua exports
+-- Shame dependency constraints were added immediately after the recommended build
+if not MumbleSetPlayerMuted then
 
     ---@param query string
     ---@param parameters? table
