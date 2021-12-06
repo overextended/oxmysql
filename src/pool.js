@@ -22,8 +22,14 @@ const dbOptions = (() => {
           return connectionInfo;
         }, {});
 
-  options.namedPlaceholders = true;
   options.typeCast = parseTypes;
+  options.namedPlaceholders = true;
+
+  // increase the default timeout for slow servers
+  options.connectTimeout = options.connectTimeout || 60000;
+
+  // disabled to prevent SQL injection
+  options.multipleStatements = options.multipleStatements || false;
 
   return options;
 })();

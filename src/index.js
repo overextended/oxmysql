@@ -95,8 +95,8 @@ try {
       return result;
     });
   }
-} catch(e) {
+} catch (e) {
   setTimeout(() => {
     console.log(`^3Unable to load enhanced sync exports (download FXServer 4837+)^0`);
-  }, 1000)
+  }, 1000);
 }
