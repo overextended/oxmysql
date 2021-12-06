@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a report to help us improve
 title: ''
-labels: ''
+labels: bug
 assignees: ''
 
 ---
@@ -23,7 +23,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Code**
 ```lua
-If applicable, include the query and relevant code
+    -- If applicable, include the query and relevant code
 ```
 
 **Expected behavior**
@@ -33,6 +33,9 @@ A clear and concise description of what you expected to happen.
 Add any other context about the problem here.
 
 **Server details**
-- FX Server artifact
+- FXServer artifact
 - Operating system
-- Framework
+
+**Database details**
+- MariaDB or MySQL
+- Version
