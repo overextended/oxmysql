@@ -13,7 +13,7 @@ const transaction = async (queries, parameters, resource) => {
   ScheduleResourceTick(resourceName);
   const connection = await pool.getConnection();
   try {
-    const startTime = process.hrtime();
+    // const startTime = process.hrtime();
 
     const fullQuery = parseTransaction(queries, parameters);
     const transactionAmount = fullQuery.length;
@@ -26,14 +26,14 @@ const transaction = async (queries, parameters, resource) => {
 
     await connection.commit();
 
-    const executionTime = process.hrtime(startTime)[1] / 1000000;
+    // const executionTime = process.hrtime(startTime)[1] / 1000000;
 
-    if (executionTime >= slowQueryWarning * transactionAmount || debug)
-      console.log(
-        `^3[${
-          debug ? 'DEBUG' : 'WARNING'
-        }] ${resource} took ${executionTime}ms to execute a transaction!\n${transactionError(queries, parameters)}^0`
-      );
+    // if (executionTime >= slowQueryWarning * transactionAmount || debug)
+    //   console.log(
+    //     `^3[${
+    //       debug ? 'DEBUG' : 'WARNING'
+    //     }] ${resource} took ${executionTime}ms to execute a transaction!\n${transactionError(queries, parameters)}^0`
+    //   );
 
     return true;
   } catch (error) {

@@ -9,8 +9,11 @@ author 'overextended'
 use_fxv2_oal 'yes'
 lua54 'yes'
 
-server_scripts {
+--dependencies {
 --	'/server:4837',  Disabled until the heat death of the universe (or recommended artifact updates)
+--}
+
+server_scripts {
 	'oxmysql.js',
 	'wrapper.lua'
 }
