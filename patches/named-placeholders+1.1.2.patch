@@ -1,5 +1,5 @@
 diff --git a/node_modules/named-placeholders/index.js b/node_modules/named-placeholders/index.js
-index 527d723..f63ce28 100644
+index 527d723..728188b 100644
 --- a/node_modules/named-placeholders/index.js
 +++ b/node_modules/named-placeholders/index.js
 @@ -3,7 +3,7 @@
@@ -11,46 +11,48 @@ index 527d723..f63ce28 100644
  DQUOTE = 34,
  SQUOTE = 39,
  BSLASH = 92;
-@@ -94,15 +94,22 @@ function createCompiler(config) {
+@@ -94,6 +94,14 @@ function createCompiler(config) {
      if (typeof params == 'undefined')
        throw new Error('Named query contains placeholders, but parameters object is undefined');
  
 +    for(const key in params) {
-+      if(key.charAt(0) === '@' || key.charAt(0) === ':') {
++      const char = key[0]
++      if(char == '@' || char == ':') {
 +        params[key.substring(1)] = params[key];
 +        delete params[key];
 +      }
 +    }
-+    
++
      const tokens = tree[1];
      for (let i=0; i < tokens.length; ++i) {
--      arr.push(params[tokens[i]]);
-+      arr.push(params[tokens[i]] === undefined ? null : params[tokens[i]]);
-     }
-     return [tree[0], arr];
+       arr.push(params[tokens[i]]);
+@@ -102,7 +110,8 @@ function createCompiler(config) {
    }
  
    function noTailingSemicolon(s) {
 -    if (s.slice(-1) == ':') {
-+    if (s.slice(-1) == ':' || s.slice(-1) == '@') {
++    const char = s.slice(-1)
++    if (char == ':' || char == '@') {
        return s.slice(0, -1);
      }
      return s;
-@@ -115,7 +122,7 @@ function createCompiler(config) {
+@@ -115,7 +124,8 @@ function createCompiler(config) {
  
      let unnamed = noTailingSemicolon(tree[0][0]);
      for (let i=1; i < tree[0].length; ++i) {
 -      if (tree[0][i-1].slice(-1) == ':') {
-+      if (tree[0][i-1].slice(-1) == ':' || tree[0][i-1].slice(-1) == '@') {
++      const char = tree[0][i-1].slice(-1)
++      if (char == ':' || char == '@') {
          unnamed += config.placeholder;
        }
        unnamed += config.placeholder;
-@@ -124,7 +131,7 @@ function createCompiler(config) {
+@@ -124,7 +134,8 @@ function createCompiler(config) {
  
      const last = tree[0][tree[0].length -1];
      if (tree[0].length == tree[1].length) {
 -      if (last.slice(-1) == ':') {
-+      if (last.slice(-1) == ':' || last.slice(-1) == '@') {
++      const char = last.slice(-1)
++      if (char == ':' || char == '@') {
          unnamed += config.placeholder;
        }
        unnamed += config.placeholder;
