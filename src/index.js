@@ -1,16 +1,6 @@
-import { pool } from './pool';
 import { execute, preparedStatement } from './execute';
 import { transaction } from './transaction';
-import { debug, isolationLevel } from './config';
-
-setImmediate(async () => {
-  try {
-    await pool.query(isolationLevel);
-    console.log(`^2Database server connection established!^0`);
-  } catch (error) {
-    console.log(`^3Unable to establish a connection to the database! [${error.code}]\n${error.message}^0`);
-  }
-});
+import { debug } from './config';
 
 const safeCallback = (callback, result) => {
   if (typeof callback === 'function') callback(result);

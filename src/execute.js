@@ -1,9 +1,30 @@
 import { pool } from './pool';
 import { parseParameters } from './parser';
-import { slowQueryWarning, debug, resourceName } from './config';
+import { slowQueryWarning, debug, resourceName, isolationLevel } from './config';
 import { FormatError } from './errors';
 
+let isReady = false;
+
+const serverReady = () => {
+  return new Promise(() => {
+    setTimeout(() => {
+      return true;
+    });
+  });
+};
+
+setImmediate(async () => {
+  try {
+    await pool.query(isolationLevel);
+    isReady = true;
+    console.log(`^2Database server connection established!^0`);
+  } catch (error) {
+    console.log(`^3Unable to establish a connection to the database! [${error.code}]\n${error.message}^0`);
+  }
+});
+
 const execute = async (query, parameters, resource) => {
+  if (!isReady) await serverReady();
   try {
     [query, parameters] = parseParameters(query, parameters);
 
@@ -45,6 +66,7 @@ const queryType = (query) => {
 };
 
 const preparedStatement = async (query, parameters, resource) => {
+  if (!isReady) await serverReady();
   ScheduleResourceTick(resourceName);
   const connection = await pool.getConnection();
   try {
