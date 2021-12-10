@@ -5,18 +5,20 @@ import { FormatError } from './errors';
 
 let isReady = false;
 
-const serverReady = () => {
-  return new Promise(() => {
-    setTimeout(() => {
-      return true;
-    });
+const serverReady = async () => {
+  return new Promise((resolve) => {
+    const id = setInterval(() => {
+      if (GetResourceState(resourceName) == 'started') resolve(id);
+    }, 50);
+  }).then((id) => {
+    clearInterval(id);
+    isReady = true;
   });
 };
 
 setImmediate(async () => {
   try {
     await pool.query(isolationLevel);
-    isReady = true;
     console.log(`^2Database server connection established!^0`);
   } catch (error) {
     console.log(`^3Unable to establish a connection to the database! [${error.code}]\n${error.message}^0`);
