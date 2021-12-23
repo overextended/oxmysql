@@ -1,11 +1,21 @@
 <script lang="ts">
-  import Resources from './resources/Resources.svelte';
+  import Router from 'svelte-spa-router';
+  import Resources from './menu/NavMenu.svelte';
+  import Home from './routes/Home.svelte';
+  import ResourceData from './routes/ResourceData.svelte';
+
+  const routes = {
+    '/': Home,
+    '/*': ResourceData,
+  };
 </script>
 
 <div class="container">
   <Resources />
   <div class="content-wrapper">
-    <div class="content-container">Some Data here</div>
+    <div class="content-container">
+      <Router {routes} />
+    </div>
   </div>
 </div>
 
@@ -29,8 +39,8 @@
   }
 
   .content-container {
-    width: 80vh;
-    height: 55vh;
+    width: 85%;
+    height: 85%;
     background-color: #34495e;
     border-radius: 0.25vh;
     color: white;
