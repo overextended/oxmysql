@@ -18,6 +18,7 @@ Returns the first column for a single row.
 			print(firstname)
 		end)
 		```
+
 	=== "JavaScript"
 		**Callback**
 		```js

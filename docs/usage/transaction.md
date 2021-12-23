@@ -1,5 +1,3 @@
-TODO: update information and formatting
-
 ---
 title: transaction
 ---

@@ -27,6 +27,7 @@ When selecting data it will return all matching rows and columns, otherwise it w
 			end
 		end)
 		```
+
 	=== "JavaScript"
 		**Callback**
 		```js

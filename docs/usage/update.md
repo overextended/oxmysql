@@ -22,6 +22,7 @@ Returns the number of affected rows when executing an UPDATE or DELETE query.
 			end
 		end)
 		```
+
 	=== "JavaScript"
 		**Callback**
 		```js

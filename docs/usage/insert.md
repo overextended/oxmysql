@@ -18,6 +18,7 @@ Inserts a new entry into the database and returns the insert id for the row, if 
 			print(id)
 		end)
 		```
+
 	=== "JavaScript"
 		**Callback**
 		```js

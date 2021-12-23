@@ -22,6 +22,7 @@ Returns the columns for a single row.
 			end
 		end)
 		```
+
 	=== "JavaScript"
 		**Callback**
 		```js
