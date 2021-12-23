@@ -1,40 +1,34 @@
 ---
-title: Insert
+title: insert
 ---
 Inserts a new entry into the database and returns the insert id for the row, if valid.
 
 !!! info "Example"
 	=== "Lua"
-		**Async**
+		**Callback**
 		```lua
-		exports.oxmysql:insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName}, function(id)
-			if id then
-				print(id)
-			end
+		MySQL.Async.insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName}, function(id)
+			print(id)
 		end)
 		```
-		**Sync**
+		**Promise**
 		```lua
 		CreateThread(function()
-			local id = exports.oxmysql:insertSync('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName})
-			if id then
-				print(id)
-			end
+			local id = MySQL.Sync.insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName})
+			print(id)
 		end)
 		```
 	=== "JavaScript"
-		**Async**
+		**Callback**
 		```js
-		exports.oxmysql.insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName], function(id) {
-		  if (id)
-		    console.log(id)
+		exports.oxmysql.insert_callback('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName], function(id) {
+		  console.log(id)
 		})
 		```
-		**Sync**
+		**Promise**
 		```js
-		setImmediate(async () => {
-		  const id = exports.oxmysql.insertSync('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName]) {
-		  if (id)
-		    console.log(id)
-		})
+		(async () => {
+		  const id = exports.oxmysql.insert_async('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName]) {
+		  console.log(id)
+		})()
 		```

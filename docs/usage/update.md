@@ -1,39 +1,39 @@
 ---
-title: Update
+title: update
 ---
-Updates an entry in the database and returns the number of affected rows.
+Returns the number of affected rows when executing an UPDATE or DELETE query.
 
 !!! info "Example"
 	=== "Lua"
-		**Async**
+		**Callback**
 		```lua
-		exports.oxmysql:update('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier}, function(affectedRows)
+		MySQL.Async.update('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier}, function(affectedRows)
 			if affectedRows then
 				print(affectedRows)
 			end
 		end)
 		```
-		**Sync**
+		**Promise**
 		```lua
 		CreateThread(function()
-			local id = exports.oxmysql:updateSync('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier})
+			local id = MySQL.Sync.update('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier})
 			if affectedRows then
 				print(affectedRows)
 			end
 		end)
 		```
 	=== "JavaScript"
-		**Async**
+		**Callback**
 		```js
-		exports.oxmysql.update('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier], function(affectedRows) {
+		exports.oxmysql.update_callback('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier], function(affectedRows) {
 		  if (affectedRows)
 		    console.log(affectedRows)
 		})
 		```
-		**Sync**
+		**Promise**
 		```js
 		setImmediate(async () => {
-		  const id = exports.oxmysql.updateSync('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier]) {
+		  const id = exports.oxmysql.update_async('UPDATE users SET firstname = ? WHERE identifier = ? ', [newName, playerIdentifier]) {
 		  if (affectedRows)
 		    console.log(affectedRows)
 		})

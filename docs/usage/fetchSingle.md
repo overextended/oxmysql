@@ -1,39 +1,39 @@
 ---
-title: Single
+title: fetchSingle
 ---
 Returns the columns for a single row.
 
 !!! info "Example"
 	=== "Lua"
-		**Async**
+		**Callback**
 		```lua
-		exports.oxmysql:single('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
+		MySQL.Async.fetchSingle('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
 			if result then
 				print(result.identifier, result.firstname, result.lastname)
 			end
 		end)
 		```
-		**Sync**
+		**Promise**
 		```lua
 		CreateThread(function()
-			local result = exports.oxmysql:singleSync('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
+			local result = MySQL.Sync.fetchSingle('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
 			if result then
 				print(result.identifier, result.firstname, result.lastname)
 			end
 		end)
 		```
 	=== "JavaScript"
-		**Async**
+		**Callback**
 		```js
-		exports.oxmysql.single('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
+		exports.oxmysql.single_callback('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
 		  if (result)
 		    console.log(result.identifier, result.firstname, result.lastname)
 		})
 		```
-		**Sync**
+		**Promise**
 		```js
 		setImmediate(async () => {
-		  const result = await exports.oxmysql.singleSync('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
+		  const result = await exports.oxmysql.single_async('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
 		  if (result)
 		    console.log(result.identifier, result.firstname, result.lastname)
 		})
