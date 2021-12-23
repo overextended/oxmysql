@@ -99,7 +99,6 @@ setmetatable(MySQL.Async, {
 	__index = function(self, key)
 		if alias[key] then
 			self[key] = MySQL[alias[key]]
-			alias[key] = nil
 			return self[key]
 		end
 	end
@@ -109,7 +108,6 @@ setmetatable(MySQL.Sync, {
 	__index = function(self, key)
 		if alias[key] then
 			self[key] = MySQL[alias[key]].await
-			alias[key] = nil
 			return self[key]
 		end
 	end
