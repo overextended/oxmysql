@@ -69,7 +69,9 @@ setmetatable(MySQL, {
 		local state = GetResourceState('oxmysql')
 		if state == 'started' or state == 'starting' then
 			self[method] = setmetatable({}, {
-				__call = oxmysql[method],
+				__call = function(_, query, parameters, cb)
+					return oxmysql[method](nil, safeArgs(query, parameters, cb))
+				end,
 				__index = function(_, await)
 					assert(await == 'await', ('unable to index MySQL.%s.%s, expected .await'):format(method, await))
 					self[method].await = function(query, parameters)
