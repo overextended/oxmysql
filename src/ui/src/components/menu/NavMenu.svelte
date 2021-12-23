@@ -1,13 +1,16 @@
-<script>
+<script lang="ts">
   const executingResources = ['luke_garages', 'ox_inventory', 'npwd'];
 </script>
 
 <div class="container">
+  <a href="#/"><div class="home-header">Home</div></a>
   {#each executingResources as resource}
     <div class="resource-wrapper">
-      <div class="resource">
-        {resource}
-      </div>
+      <a href={`#/${resource}`}>
+        <div class="resource">
+          {resource}
+        </div>
+      </a>
     </div>
   {/each}
 </div>
@@ -27,6 +30,13 @@
     user-select: none;
   }
 
+  .home-header {
+    font-size: 2.2vh;
+    text-align: left;
+    padding: 1vh;
+    border-bottom: 0.25vh solid grey;
+  }
+
   .resource-wrapper {
     padding: 1vh;
   }
@@ -39,7 +49,12 @@
     display: block;
   }
 
-  .resource-wrapper:hover {
+  .resource-wrapper:hover,
+  .home-header:hover {
     background-color: grey;
+  }
+
+  a:visited {
+    color: white;
   }
 </style>
