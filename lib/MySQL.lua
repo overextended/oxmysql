@@ -70,7 +70,7 @@ setmetatable(MySQL, {
 		if state == 'started' or state == 'starting' then
 			self[method] = setmetatable({}, {
 				__call = function(_, query, parameters, cb)
-					return oxmysql[method](nil, safeArgs(query, parameters, cb))
+					return oxmysql[method](nil, safeArgs(query, parameters, cb, method == 'transaction'))
 				end,
 				__index = function(_, await)
 					assert(await == 'await', ('unable to index MySQL.%s.%s, expected .await'):format(method, await))
