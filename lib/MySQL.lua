@@ -1,10 +1,38 @@
--- lib/MySQL.lua provides complete compatibility for resources using mysql-async functions
+-- lib/MySQL.lua provides complete compatibility for resources designed for mysql-async
 -- As of v2.0.0 this is the preferred method of interacting with oxmysql
--- * Though some function names are not 100% accurate, mysql-async provides a "standard" (for better or worse)
+-- * You can use mysql-async syntax or oxmysql syntax (refer to issue #77 or line 118)
 -- * Using this lib provides minor improvements to performance and helps debug poor queries
--- * Resources are not bound to using oxmysql where the user may prefer another option (compatibility libraries are common)
+-- * If using mysql-async syntax or newer functions, a resource is not explicity bound to using oxmysql
 
+-- todo: new annotations; need to see if I can get it working with metatables, otherwise it'll need stubs
+
+local MySQL = {}
+MySQL.Async = {}
+MySQL.Sync = {}
 local Store = {}
+
+function MySQL.ready(cb)
+	CreateThread(function()
+		repeat
+			Wait(50)
+		until GetResourceState('oxmysql') == 'started'
+		cb()
+	end)
+end
+
+function MySQL.Async.store(query, cb)
+	assert(type(query) == 'string', 'The SQL Query must be a string')
+	local store = #Store+1
+	Store[store] = query
+	cb(store)
+end
+
+function MySQL.Sync.store(query)
+	assert(type(query) == 'string', 'The SQL Query must be a string')
+	local store = #Store+1
+	Store[store] = query
+	return store
+end
 
 local function safeArgs(query, parameters, cb, transaction)
 	if type(query) == 'number' then query = Store[query] end
@@ -36,177 +64,92 @@ local function Await(fn, query, parameters)
 	return Citizen_Await(p)
 end
 
-local MySQL = {}
---- Results will be returned to a callback function without halting the execution of the current thread.
-MySQL.Async = {}
---- The current thread will yield until the query has resolved, returning results to a variable.
-MySQL.Sync = {}
+setmetatable(MySQL, {
+	__index = function(self, method)
+		local state = GetResourceState('oxmysql')
+		if state == 'started' or state == 'starting' then
+			self[method] = setmetatable({}, {
+				__call = oxmysql[method],
+				__index = function(_, await)
+					assert(await == 'await', ('unable to index MySQL.%s.%s, expected .await'):format(method, await))
+					self[method].await = function(query, parameters)
+						return Await(oxmysql[method], safeArgs(query, parameters))
+					end
+					return self[method].await
+				end
+			})
+			return self[method]
+		else
+			error(('^1oxmysql is currently %s - unable to trigger exports.oxmysql:%s^0'):format(state, method), 0)
+		end
+	end
+})
 
----@param query string
----@param cb? function
----@return number result
---- returns the id used to reference a stored query string
-function MySQL.Async.store(query, cb)
-	assert(type(query) == 'string', 'The SQL Query must be a string')
-	local store = #Store+1
-	Store[store] = query
-	cb(store)
-end
+local alias = {
+	fetchAll = 'query',
+	fetchScalar = 'scalar',
+	fetchSingle = 'single',
+	insert = 'insert',
+	execute = 'execute',
+	transaction = 'transaction',
+	prepare = 'prepare'
+}
 
----@param query string
----@return number result
---- returns the id used to reference a stored query string
-function MySQL.Sync.store(query)
-	assert(type(query) == 'string', 'The SQL Query must be a string')
-	local store = #Store+1
-	Store[store] = query
-	return store
-end
+setmetatable(MySQL.Async, {
+	__index = function(self, key)
+		if alias[key] then
+			self[key] = MySQL[alias[key]]
+			alias[key] = nil
+			return self[key]
+		end
+	end
+})
 
----@param query string
----@param parameters? table|function
----@param cb? function
----@return number result
---- returns number of affected rows
-function MySQL.Async.execute(query, parameters, cb)
-	query, parameters, cb = safeArgs(query, parameters, cb)
-	oxmysql:update_callback(query, parameters, cb, GetCurrentResourceName)
-end
+setmetatable(MySQL.Sync, {
+	__index = function(self, key)
+		if alias[key] then
+			self[key] = MySQL[alias[key]].await
+			alias[key] = nil
+			return self[key]
+		end
+	end
+})
 
----@param query string
----@param parameters? table
----@return number result
---- returns number of affected rows
-function MySQL.Sync.execute(query, parameters)
-	return Await(oxmysql.update_callback, safeArgs(query, parameters))
-end
+--[[
+exports.oxmysql:query (previously exports.oxmysql:execute)
+MySQL.Async.fetchAll = MySQL.query
+MySQL.Sync.fetchAll = MySQL.query.await
 
----@param query string
----@param parameters? table|function
----@param cb? function
----@return table result
---- returns array of matching rows or result data
-function MySQL.Async.fetchAll(query, parameters, cb)
-	query, parameters, cb = safeArgs(query, parameters, cb)
-	oxmysql:query_callback(query, parameters, cb, GetCurrentResourceName)
-end
 
----@param query string
----@param parameters? table
----@return table result
---- returns array of matching rows or result data
-function MySQL.Sync.fetchAll(query, parameters)
-	return Await(oxmysql.query_callback, safeArgs(query, parameters))
-end
+exports.oxmysql:scalar
+MySQL.Async.fetchScalar = MySQL.scalar
+MySQL.Sync.fetchScalar = MySQL.scalar.await
 
----@param query string
----@param parameters? table|function
----@param cb? function
----@return any result
---- returns value of the first column of a single row
-function MySQL.Async.fetchScalar(query, parameters, cb)
-	query, parameters, cb = safeArgs(query, parameters, cb)
-	oxmysql:scalar_callback(query, parameters, cb, GetCurrentResourceName)
-end
 
----@param query string
----@param parameters? table
----@return any result
---- returns value of the first column of a single row
-function MySQL.Sync.fetchScalar(query, parameters)
-	return Await(oxmysql.scalar_callback, safeArgs(query, parameters))
-end
+exports.oxmysql:single
+MySQL.Async.fetchSingle = MySQL.single
+MySQL.Sync.fetchSingle = MySQL.single.await
 
----@param query string
----@param parameters? table|function
----@param cb? function
----@return table result
---- returns table containing key value pairs
-function MySQL.Async.fetchSingle(query, parameters, cb)
-	query, parameters, cb = safeArgs(query, parameters, cb)
-	oxmysql:single_callback(query, parameters, cb, GetCurrentResourceName)
-end
 
----@param query string
----@param parameters? table
----@return table result
---- returns table containing key value pairs
-function MySQL.Sync.fetchSingle(query, parameters)
-	return Await(oxmysql.single_callback, safeArgs(query, parameters))
-end
+exports.oxmysql:insert
+MySQL.Async.insert = MySQL.insert
+MySQL.Sync.insert = MySQL.insert.await
 
----@param query string
----@param parameters? table|function
----@param cb? function
----@return number result
---- returns the insert id of the executed query
-function MySQL.Async.insert(query, parameters, cb)
-	query, parameters, cb = safeArgs(query, parameters, cb)
-	oxmysql:insert_callback(query, parameters, cb, GetCurrentResourceName)
-end
 
----@param query string
----@param parameters? table
----@return number result
---- returns the insert id of the executed query
-function MySQL.Sync.insert(query, parameters)
-	return Await(oxmysql.insert_callback, safeArgs(query, parameters))
-end
+exports.oxmysql:update
+MySQL.Async.execute = MySQL.update
+MySQL.Sync.execute = MySQL.update.await
 
----@param queries table
----@param parameters? table|function
----@param cb? function
----@return boolean result
---- returns true when the transaction has succeeded
-function MySQL.Async.transaction(queries, parameters, cb)
-	queries, parameters, cb = safeArgs(queries, parameters, cb, true)
-	oxmysql:transaction_callback(queries, parameters, cb, GetCurrentResourceName)
-end
 
----@param queries table
----@param parameters? table
----@return boolean result
---- returns true when the transaction has succeeded
-function MySQL.Sync.transaction(queries, parameters)
-	return Await(oxmysql.transaction_callback, safeArgs(queries, parameters, false, true))
-end
+exports.oxmysql:transaction
+MySQL.Async.transaction = MySQL.transaction
+MySQL.Sync.transaction = MySQL.transaction.await
 
----@param query string
----@param parameters table
----@param cb? function
----@return any result
---- Utilises a separate function to execute queries more efficiently. The return type will differ based on the query submitted.  
---- Parameters can be a single table containing placeholders (perform one query) or contain multiple tables with a set of placeholders, i.e
---- ```lua
---- MySQL.Async.prepare('SELECT * FROM users WHERE firstname = ?', {{'Dunak'}, {'Linden'}, {'Luke'}})
---- MySQL.Async.prepare('SELECT * FROM users WHERE firstname = ?', {'Linden'})
---- ````
---- When selecting a single row the result will match fetchSingle, or a single column will match fetchScalar.
-function MySQL.Async.prepare(query, parameters, cb)
-	oxmysql:execute_callback(query, parameters, cb, GetCurrentResourceName)
-end
 
----@param query string
----@param parameters table
----@return any result
---- Utilises a separate function to execute queries more efficiently. The return type will differ based on the query submitted.  
---- Parameters can be a single table containing placeholders (perform one query) or contain multiple tables with a set of placeholders, i.e
---- ```lua
---- MySQL.Sync.prepare('SELECT * FROM users WHERE firstname = ?', {{'Dunak'}, {'Linden'}, {'Luke'}})
---- MySQL.Sync.prepare('SELECT * FROM users WHERE firstname = ?', {'Linden'})
---- ````
---- When selecting a single row the result will match fetchSingle, or a single column will match fetchScalar.
-function MySQL.Sync.prepare(query, parameters)
-	return Await(oxmysql.execute_callback, safeArgs(query, parameters))
-end
+exports.oxmysql:prepare
+MySQL.Async.prepare = MySQL.prepare
+MySQL.Sync.prepare = MySQL.prepare.await
+--]]
 
-function MySQL.ready(cb)
-	CreateThread(function()
-		repeat
-			Wait(50)
-		until GetResourceState('oxmysql') == 'started'
-		cb()
-	end)
-end
 
 _ENV.MySQL = MySQL

@@ -4,31 +4,33 @@
 ### Introduction
 Oxmysql is an alternative to the unmaintained mysql-async/ghmattimysql resources, utilising [node-mysql2](https://github.com/sidorares/node-mysql2) rather than [mysqljs](https://github.com/mysqljs/mysql).  
 
-As of v1.9.0 the preferred method of utilising oxmysql is via lib/MySQL, which can be loaded by adding `@oxmysql/lib/MySQL.lua` to your resource manifests. This resource should be 100% backwards compatible with mysql-async functionality as well as providing extra functions such as fetchSingle and prepare.
+As of v1.9.0 the preferred method of utilising oxmysql is via lib/MySQL, which can be loaded by adding `@oxmysql/lib/MySQL.lua` to your resource manifests. This resource should be 100% backwards compatible with mysql-async functionality on top of providing newer export wrappers and functionality.
 
 ### Features
 - Support for URI connection strings and semicolon separated values
 - Asynchronous queries utilising mysql2/promises connection pool
-- Lua promises in `lib/MySQL.lua` files for improved performance when awaiting a response
 - Javascript async_retval exports supports promises across resources and runtimes
 - Support for placeholder values (named and unnamed) to improve query speed and increase security against SQL injection
 - Improved error checking when placeholders and parameters do not match
-- Prepared statements using internal MySQL query handling for improved performance and caching (at the cost of losing typecasting)
+- Lua promises in `lib/MySQL.lua` files for improved performance when awaiting a response
+- Support mysql-async syntax while providing newer (more accurate) names
 
 ### Usage
 ```lua
 -- Lua
-MySQL.Async.fetchAll('SELECT * from users WHERE identifier = ?', {identifier}), function(result)
+MySQL.query('SELECT * from users WHERE identifier = ?', {identifier}), function(result)
     -- callback response
+    -- same as MySQL.Async.fetchAll
 end)
 CreateThread(function()
-    local result = MySQL.Sync.fetchAll('SELECT * from users WHERE identifier = ?', {identifier})
+    local result = MySQL.query.await('SELECT * from users WHERE identifier = ?', {identifier})
     -- await a promise to resolve
+    -- same as MySQL.Sync.fetchAll
 end)
 ```
 ```js
 // JS
-exports.oxmysql.query_callback('SELECT * from users WHERE identifier = ?', [identifier], (result) => {
+exports.oxmysql.query('SELECT * from users WHERE identifier = ?', [identifier], (result) => {
     // callback response
 })
 (async() => {
