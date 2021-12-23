@@ -31,8 +31,9 @@ jobs:
       - name: Bundle files
         run: |
           mkdir -p ./temp/oxmysql
-          cp ./{LICENSE.md,README.md,fxmanifest.lua,lib} ./temp/oxmysql
-          zip -r oxmysql-${{ github.event.inputs.tag }}.zip ./temp/oxmysql
+          cp ./{LICENSE.md,README.md,fxmanifest.lua} ./temp/oxmysql
+          cp -r ./{lib,dist} ./temp/oxmysql
+          cd ./temp && zip -r ../oxmysql-${{ github.event.inputs.tag }}.zip ./oxmysql
 
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
