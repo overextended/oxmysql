@@ -1,7 +1,7 @@
 ---
-title: update
+title: execute
 ---
-Returns the number of affected rows when executing an UPDATE or DELETE query.
+Returns the number of affected rows by the query.
 
 !!! info "Example"
 	=== "Lua"
