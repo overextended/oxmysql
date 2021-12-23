@@ -1,13 +1,17 @@
 ---
-title: fetchSingle
+title: single
 ---
 Returns the columns for a single row.
 
 !!! info "Example"
 	=== "Lua"
+
 		**Callback**
 		```lua
-		MySQL.Async.fetchSingle('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
+		-- Alias: exports.oxmysql:single
+		-- Alias: MySQL.Async.fetchSingle
+
+		MySQL.single('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
 			if result then
 				print(result.identifier, result.firstname, result.lastname)
 			end
@@ -15,8 +19,11 @@ Returns the columns for a single row.
 		```
 		**Promise**
 		```lua
+		-- Alias: exports.oxmysql:single_async
+		-- Alias: MySQL.Sync.fetchSingle
+
 		CreateThread(function()
-			local result = MySQL.Sync.fetchSingle('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
+			local result = MySQL.single.await('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
 			if result then
 				print(result.identifier, result.firstname, result.lastname)
 			end
@@ -24,9 +31,10 @@ Returns the columns for a single row.
 		```
 
 	=== "JavaScript"
+
 		**Callback**
 		```js
-		exports.oxmysql.single_callback('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
+		exports.oxmysql.single('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
 		  if (result)
 		    console.log(result.identifier, result.firstname, result.lastname)
 		})

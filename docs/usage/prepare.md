@@ -12,9 +12,13 @@ When using SELECT, the return value will match `fetchAll, fetchSingle, or fetchS
 
 !!! info "Example"
 	=== "Lua"
+
 		**Callback**
 		```lua
-		MySQL.Async.prepare('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
+		-- Alias: exports.oxmysql:prepare
+		-- Alias: MySQL.Async.prepare
+
+		MySQL.prepare('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
 			if result then
 				for _, v in pairs(result) do
 					print(v.identifier, v.firstname, v.lastname)
@@ -24,8 +28,12 @@ When using SELECT, the return value will match `fetchAll, fetchSingle, or fetchS
 		```
 		**Promise**
 		```lua
+		-- Alias: exports.oxmysql:prepare_async
+		-- Alias: MySQL.Sync.prepare
+
+		
 		CreateThread(function()
-			local result = MySQL.Sync.prepare('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
+			local result = MySQL.prepare.await('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
 			if result then
 				for _, v in pairs(result) do
 					print(v.identifier, v.firstname, v.lastname)
@@ -35,9 +43,10 @@ When using SELECT, the return value will match `fetchAll, fetchSingle, or fetchS
 		```
 
 	=== "JavaScript"
+
 		**Callback**
 		```js
-		exports.oxmysql.execute_callback('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
+		exports.oxmysql.prepare('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
 		  if (result) {
 		    result.forEach((v) => {
 		      console.log(v.identifier, v.firstname, v.lastname)
@@ -48,7 +57,7 @@ When using SELECT, the return value will match `fetchAll, fetchSingle, or fetchS
 		**Promise**
 		```js
 		(async () => {
-		  const result = await exports.oxmysql.execute_async('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
+		  const result = await exports.oxmysql.prepare_async('SELECT * FROM users WHERE identifier = ?', [playerIdentifier]) {
 		  if (result) {
 		    result.forEach((v) => {
 		      console.log(v.identifier, v.firstname, v.lastname)

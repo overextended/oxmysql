@@ -1,14 +1,18 @@
 ---
-title: fetchAll
+title: query
 ---
 Generic function that can be utilised for any query.  
 When selecting data it will return all matching rows and columns, otherwise it will return field data such as insertid, affectedRows, etc.
 
 !!! info "Example"
 	=== "Lua"
+
 		**Callback**
 		```lua
-		MySQL.Async.fetchAll('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
+		-- Alias: exports.oxmysql:query
+		-- Alias: MySQL.Async.query
+
+		MySQL.query('SELECT * FROM users WHERE identifier = ?', {playerIdentifier}, function(result)
 			if result then
 				for _, v in pairs(result) do
 					print(v.identifier, v.firstname, v.lastname)
@@ -18,8 +22,11 @@ When selecting data it will return all matching rows and columns, otherwise it w
 		```
 		**Promise**
 		```lua
+		-- Alias: exports.oxmysql:query
+		-- Alias: MySQL.Sync.query
+
 		CreateThread(function()
-			local result = MySQL.Sync.fetchAll('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
+			local result = MySQL.query.await('SELECT * FROM users WHERE identifier = ?', {playerIdentifier})
 			if result then
 				for _, v in pairs(result) do
 					print(v.identifier, v.firstname, v.lastname)
@@ -29,9 +36,10 @@ When selecting data it will return all matching rows and columns, otherwise it w
 		```
 
 	=== "JavaScript"
+
 		**Callback**
 		```js
-		exports.oxmysql.query_callback('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
+		exports.oxmysql.query('SELECT * FROM users WHERE identifier = ?', [playerIdentifier], function(result) {
 		  if (result) {
 		    result.forEach((v) => {
 		      console.log(v.identifier, v.firstname, v.lastname)

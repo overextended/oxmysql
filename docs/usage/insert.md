@@ -5,24 +5,32 @@ Inserts a new entry into the database and returns the insert id for the row, if 
 
 !!! info "Example"
 	=== "Lua"
+
 		**Callback**
 		```lua
-		MySQL.Async.insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName}, function(id)
+		-- Alias: exports.oxmysql:insert
+		-- Alias: MySQL.Async.insert
+
+		MySQL.insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName}, function(id)
 			print(id)
 		end)
 		```
 		**Promise**
 		```lua
+		-- Alias: exports.oxmysql:insert_async
+		-- Alias: MySQL.Sync.insert
+
 		CreateThread(function()
-			local id = MySQL.Sync.insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName})
+			local id = MySQL.insert.await('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', {playerIdentifier, firstName, lastName})
 			print(id)
 		end)
 		```
 
 	=== "JavaScript"
+
 		**Callback**
 		```js
-		exports.oxmysql.insert_callback('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName], function(id) {
+		exports.oxmysql.insert('INSERT INTO users (identifier, firstname, lastname) VALUES (?, ?, ?) ', [playerIdentifier, firstName, lastName], function(id) {
 		  console.log(id)
 		})
 		```
