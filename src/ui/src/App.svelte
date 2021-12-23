@@ -1,6 +1,6 @@
 <script lang="ts">
   import VisibilityProvider from './providers/VisibilityProvider.svelte';
-  import HelloWorld from './components/HelloWorld.svelte';
+  import Main from './components/Main.svelte';
   import { debugData } from './utils/debugData';
 
   debugData([
@@ -13,6 +13,6 @@
 
 <main>
   <VisibilityProvider>
-    <HelloWorld />
+    <Main />
   </VisibilityProvider>
 </main>
