@@ -4,30 +4,52 @@
 ### Introduction
 Oxmysql is an alternative to the unmaintained mysql-async/ghmattimysql resources, utilising [node-mysql2](https://github.com/sidorares/node-mysql2) rather than [mysqljs](https://github.com/mysqljs/mysql).  
 
-There are several incompatibilities in the provided API, meaning we cannot guarantee 100% success when using a "drag-and-drop" mentality. For convenience we have included `@oxmysql/lib/MySQL.lua` to replace mysql-async in your resource manifests.
-
-For more information regarding the use of queries, refer to the documentation linked above.
+As of v1.9.0 the preferred method of utilising oxmysql is via lib/MySQL, which can be loaded by adding `@oxmysql/lib/MySQL.lua` to your resource manifests. This resource should be 100% backwards compatible with mysql-async functionality as well as providing extra functions such as fetchSingle and prepare.
 
 ### Features
 - Support for URI connection strings and semicolon separated values
 - Asynchronous queries utilising mysql2/promises connection pool
-- Lua promises in the `wrapper.lua` and `lib/MySQL.lua` files for improved performance when using sync functions
-- Javascript async_retval exports when using recent FX Server builds (requires wrapper.lua to be removed)
+- Lua promises in `lib/MySQL.lua` files for improved performance when awaiting a response
+- Javascript async_retval exports supports promises across resources and runtimes
 - Support for placeholder values (named and unnamed) to improve query speed and increase security against SQL injection
 - Improved error checking when placeholders and parameters do not match
+- Prepared statements using internal MySQL query handling for improved performance and caching (at the cost of losing typecasting)
+
+### Usage
+```lua
+-- Lua
+MySQL.Async.fetchAll('SELECT * from users WHERE identifier = ?', {identifier}), function(result)
+    -- callback response
+end)
+CreateThread(function()
+    local result = MySQL.Sync.fetchAll('SELECT * from users WHERE identifier = ?', {identifier})
+    -- await a promise to resolve
+end)
+```
+```js
+// JS
+exports.oxmysql.query_callback('SELECT * from users WHERE identifier = ?', [identifier], (result) => {
+    // callback response
+})
+(async() => {
+    const result = await exports.oxmysql.query_async('SELECT * from users WHERE identifier = ?', [identifier])
+    // await a promise to resolve
+})()
+exports.oxmysql.query_async('SELECT * from users WHERE identifier = ?', [identifier]).then((result) => {
+    // utilise .then to resolve a promise like a callback
+})
+```
+For more information regarding the use of queries, refer to the documentation linked above.
 
 ### Placeholders
-This allows queries to be properly prepared and escaped, as well as improve query times for frequently accessed queries.  
-The following lines are equivalent.
+This allows queries to be properly prepared and escaped; the following lines are equivalent.
 
 ```
 "SELECT group FROM users WHERE identifier = ?", {identifier}  
 "SELECT group FROM users WHERE identifier = :identifier", {identifier = identifier}  
 "SELECT group FROM users WHERE identifier = @identifier", {['@identifier'] = identifier}
 ```  
-
 You can also use the following syntax when you are uncertain about the column to select.
-
 ```
 "SELECT ?? FROM users WHERE identifier = ?", {column, identifier}  
 instead of using  
