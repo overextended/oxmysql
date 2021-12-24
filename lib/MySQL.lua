@@ -76,7 +76,7 @@ setmetatable(MySQL, {
 				__index = function(_, await)
 					assert(await == 'await', ('unable to index MySQL.%s.%s, expected .await'):format(method, await))
 					self[method].await = function(query, parameters)
-						return Await(oxmysql[method], safeArgs(query, parameters))
+						return Await(oxmysql[method], safeArgs(query, parameters, nil, method == 'transaction'))
 					end
 					return self[method].await
 				end
