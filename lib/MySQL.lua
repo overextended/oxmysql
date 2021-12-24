@@ -10,6 +10,7 @@ local MySQL = {}
 MySQL.Async = {}
 MySQL.Sync = {}
 local Store = {}
+local type = type
 
 function MySQL.ready(cb)
 	CreateThread(function()
@@ -37,16 +38,16 @@ end
 local function safeArgs(query, parameters, cb, transaction)
 	if type(query) == 'number' then query = Store[query] end
 	if transaction then
-		assert(type(query) == 'table', ('A table was expected for the transaction, but instead received %s'):format(query))
+		assert(type(query) == 'table', ('Transaction query expects a table, received %s'):format(query))
 	else
-		assert(type(query) == 'string', ('A string was expected for the query, but instead received %s'):format(query))
+		assert(type(query) == 'string', ('Query expects a string, received %s'):format(query))
 	end
 	if cb then
-		assert(type(cb) == 'function', ('A callback function was expected, but instead received %s'):format(cb))
+		assert(type(cb) == 'function', ('Callback expects a function, received %s'):format(cb))
 	end
 	local type = parameters and type(parameters)
 	if type and type ~= 'table' and type ~= 'function' then
-		assert(nil, ('A %s was expected, but instead received %s'):format(cb and 'table' or 'function', parameters))
+		assert(nil, ('Parameters expected table or function, received %s'):format(parameters))
 	end
 	return query, parameters, cb
 end
@@ -82,7 +83,7 @@ setmetatable(MySQL, {
 			})
 			return self[method]
 		else
-			error(('^1oxmysql is currently %s - unable to trigger exports.oxmysql:%s^0'):format(state, method), 0)
+			error(('^1oxmysql resource state is %s - unable to trigger exports.oxmysql:%s^0'):format(state, method), 0)
 		end
 	end
 })
@@ -97,23 +98,19 @@ local alias = {
 	prepare = 'prepare'
 }
 
-setmetatable(MySQL.Async, {
+local mt = {
 	__index = function(self, key)
 		if alias[key] then
-			self[key] = MySQL[alias[key]]
+			MySQL.Async[key] = MySQL[alias[key]]
+			MySQL.Sync[key] = MySQL[alias[key]].await
+			alias[key] = nil
 			return self[key]
 		end
 	end
-})
+}
 
-setmetatable(MySQL.Sync, {
-	__index = function(self, key)
-		if alias[key] then
-			self[key] = MySQL[alias[key]].await
-			return self[key]
-		end
-	end
-})
+setmetatable(MySQL.Async, mt)
+setmetatable(MySQL.Sync, mt)
 
 --[[
 exports.oxmysql:query (previously exports.oxmysql:execute)
@@ -150,6 +147,5 @@ exports.oxmysql:prepare
 MySQL.Async.prepare = MySQL.prepare
 MySQL.Sync.prepare = MySQL.prepare.await
 --]]
-
 
 _ENV.MySQL = MySQL
