@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { currentResource } from '../../store/stores';
   const executingResources = ['luke_garages', 'ox_inventory', 'npwd'];
 </script>
 
@@ -7,7 +8,7 @@
   {#each executingResources as resource}
     <div class="resource-wrapper">
       <a href={`#/${resource}`}>
-        <div class="resource">
+        <div class="resource" on:click={() => currentResource.set(resource)}>
           {resource}
         </div>
       </a>
