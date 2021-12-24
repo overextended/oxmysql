@@ -2,7 +2,7 @@
 -- As of v2.0.0 this is the preferred method of interacting with oxmysql
 -- * You can use mysql-async syntax or oxmysql syntax (refer to issue #77 or line 118)
 -- * Using this lib provides minor improvements to performance and helps debug poor queries
--- * If using mysql-async syntax or newer functions, a resource is not explicity bound to using oxmysql
+-- * If using mysql-async syntax, a resource is not explicity bound to using oxmysql
 
 -- todo: new annotations; need to see if I can get it working with metatables, otherwise it'll need stubs
 
@@ -93,7 +93,7 @@ local alias = {
 	fetchScalar = 'scalar',
 	fetchSingle = 'single',
 	insert = 'insert',
-	execute = 'execute',
+	execute = 'update',
 	transaction = 'transaction',
 	prepare = 'prepare'
 }
