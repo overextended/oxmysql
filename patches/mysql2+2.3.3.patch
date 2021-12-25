@@ -192,7 +192,7 @@ index c612f66..02dbe22 100644
        case 'number':
          type = Types.DOUBLE;
 diff --git a/node_modules/mysql2/promise.d.ts b/node_modules/mysql2/promise.d.ts
-index 6ab3d6f..68bc9cb 100644
+index 6ab3d6f..64246e8 100644
 --- a/node_modules/mysql2/promise.d.ts
 +++ b/node_modules/mysql2/promise.d.ts
 @@ -25,41 +25,15 @@ export interface Connection extends EventEmitter {
@@ -257,9 +257,10 @@ index 6ab3d6f..68bc9cb 100644
 -  query<T extends RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader>(
 -    options: QueryOptions,
 -    values: any | any[] | { [param: string]: any }
+-  ): Promise<[T, FieldPacket[]]>;
 +    sql_or_options: string | QueryOptions,
 +    values?: any | any[] | { [param: string]: any },
-   ): Promise<[T, FieldPacket[]]>;
++  ): Promise<[T, FieldPacket[], number]>;
  
    execute<
      T extends RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader
