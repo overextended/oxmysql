@@ -14,7 +14,7 @@ dependencies {
 }
 
 server_scripts {
-	'dist/server/build.js',
+	'dist/build.js',
 }
 
 files {
