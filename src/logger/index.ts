@@ -1,12 +1,14 @@
 import { mysql_debug, mysql_slow_query_warning, mysql_ui } from '../config';
 import type { CFXParameters } from '../types';
 
+interface QueryData {
+  date: number;
+  query: string;
+  executionTime: number
+}
+
 type QueryLog = {
-  [invokingResource: string]: {
-    date: number;
-    query: string;
-    executionTime: number;
-  }[];
+  [invokingResource: string]: QueryData[];
 };
 
 const logStorage: QueryLog = {};
@@ -20,15 +22,17 @@ export const logQuery = (invokingResource: string, query: string, executionTime:
 
   if (!mysql_ui) return;
 
+  if (logStorage[invokingResource] === undefined) logStorage[invokingResource] = []
   logStorage[invokingResource].push({ query, executionTime, date: Date.now() });
+
 };
 
 RegisterCommand(
   'mysql',
-  () => {
+  (source: number) => {
     if (!mysql_ui) return;
 
-    emitNet(`oxmysql:openUi`, logStorage);
+    emitNet(`oxmysql:openUi`, source, logStorage);
   },
   true
 );
