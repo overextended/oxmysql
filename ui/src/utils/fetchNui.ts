@@ -5,6 +5,8 @@
 * @return returnData - A promise for the data sent back by the NuiCallbacks CB argument
 */
 
+import { isEnvBrowser } from "./misc";
+
 export async function fetchNui<T = any>(
   eventName: string,
   data: unknown = {}
@@ -16,6 +18,8 @@ export async function fetchNui<T = any>(
     },
     body: JSON.stringify(data),
   };
+
+  if (isEnvBrowser()) return undefined as any;
 
   const resourceName = (window as any).GetParentResourceName
     ? (window as any).GetParentResourceName()
