@@ -2,37 +2,44 @@
   import { currentResource } from '../../store/stores';
   import { fetchNui } from '../../utils/fetchNui';
   import { onMount } from 'svelte';
+  import { useNuiEvent } from '../../utils/useNuiEvent';
+  import { debugData } from '../../utils/debugData';
 
   export let params: { wild: string };
 
-  interface Data {
-    [key: string]: number[];
+  interface QueryData {
+    date: number;
+    query: string;
+    executionTime: number;
   }
 
-  let queryData: number[];
-  let resource: string;
-
-  const debugQueries: Data = {
-    ['luke_garages']: [300, 200, 100],
-    ['npwd']: [600, 300, 723],
-    ['ox_inventory']: [30, 270, 350],
-  };
+  let queryData: QueryData[] | undefined;
+  let isDataLoaded: boolean = false;
 
   onMount(() => currentResource.set(params.wild));
 
-  currentResource.subscribe((value) => {
-    resource = value;
-    fetchNui('getResourceData', resource)
-      .then((retData) => {
-        queryData = retData;
-      })
-      .catch((e) => {
-        queryData = debugQueries[resource];
-      });
+  currentResource.subscribe((resource) => {
+    isDataLoaded = false;
+    fetchNui('fetchResource', resource);
+    debugData([
+      {
+        action: 'loadResource',
+        data: [
+          { date: Date.now(), query: 'SELECT * FROM `somewhere`', executionTime: 2 },
+          { date: Date.now(), query: 'SELECT * FROM `elsewhere`', executionTime: 5 },
+          { date: Date.now(), query: 'SELECT * FROM `somewhere_elsewhere`', executionTime: 3 },
+          { date: Date.now(), query: 'SELECT * FROM `selsewhere`', executionTime: 7 },
+        ],
+      },
+    ]);
+  });
+
+  useNuiEvent('loadResource', (data: QueryData[]) => {
+    queryData = data;
+    isDataLoaded = true;
   });
 </script>
 
-<div>
-  {resource}
-  {queryData}
-</div>
+{#if isDataLoaded === true}
+  {JSON.stringify(queryData)}
+{/if}
