@@ -4,12 +4,10 @@ import type { CFXParameters } from '../types';
 interface QueryData {
   date: number;
   query: string;
-  executionTime: number
+  executionTime: number;
 }
 
-type QueryLog = {
-  [invokingResource: string]: QueryData[];
-};
+type QueryLog = Record<string, QueryData[]>;
 
 const logStorage: QueryLog = {};
 
@@ -22,9 +20,8 @@ export const logQuery = (invokingResource: string, query: string, executionTime:
 
   if (!mysql_ui) return;
 
-  if (logStorage[invokingResource] === undefined) logStorage[invokingResource] = []
+  if (logStorage[invokingResource] === undefined) logStorage[invokingResource] = [];
   logStorage[invokingResource].push({ query, executionTime, date: Date.now() });
-
 };
 
 RegisterCommand(
@@ -32,7 +29,31 @@ RegisterCommand(
   (source: number) => {
     if (!mysql_ui) return;
 
-    emitNet(`oxmysql:openUi`, source, logStorage);
+    let totalQueries: number = 0;
+    let totalTime = 0;
+
+    for (const resource in logStorage) {
+      const queries = logStorage[resource];
+
+      totalQueries += queries.length;
+      totalTime += queries.reduce((totalTime, query) => (totalTime += query.executionTime), 0);
+    }
+
+    emitNet(`oxmysql:openUi`, source, {
+      resources: Object.keys(logStorage),
+      totalQueries,
+      totalTime,
+    });
   },
   true
 );
+
+onNet(`oxmysql:fetchResource`, (resource: string) => {
+  if (typeof resource !== 'string') return;
+
+  const queries = logStorage[resource];
+
+  if (!queries) return;
+
+  emitNet(`oxmysql:loadResource`, source, queries);
+});

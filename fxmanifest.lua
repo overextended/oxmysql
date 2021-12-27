@@ -7,19 +7,18 @@ version '1.9.0'
 url 'https://github.com/overextended/oxmysql'
 author 'overextended'
 
-ui_page 'src/ui/public/index.html'
-
 dependencies {
 	'/server:5104',
 }
 
-server_scripts {
-	'dist/build.js',
-}
+client_script 'ui.lua'
+server_script 'dist/build.js'
 
 files {
-	'src/ui/public/index.html',
-	'src/ui/public/**/*'
+	'ui/public/index.html',
+	'ui/public/**/*'
 }
+
+ui_page 'src/ui/public/index.html'
 
 provide 'mysql-async'
