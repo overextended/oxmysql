@@ -6,63 +6,68 @@
 
 -- todo: new annotations; need to see if I can get it working with metatables, otherwise it'll need stubs
 
-local MySQL = {}
-MySQL.Async = {}
-MySQL.Sync = {}
 local Store = {}
+
+local function addStore(query, cb)
+	assert(type(query) == 'string', 'The SQL Query must be a string')
+	local store = #Store+1
+	Store[store] = query
+	if cb then cb(store) else return store end
+end
+
+local MySQL = {
+	Sync = { store = addStore },
+	Async = { store = addStore },
+
+	ready = function(cb)
+		CreateThread(function()
+			repeat
+				Wait(50)
+			until GetResourceState('oxmysql') == 'started'
+			cb()
+		end)
+	end
+}
+
 local type = type
-
-function MySQL.ready(cb)
-	CreateThread(function()
-		repeat
-			Wait(50)
-		until GetResourceState('oxmysql') == 'started'
-		cb()
-	end)
-end
-
-function MySQL.Async.store(query, cb)
-	assert(type(query) == 'string', 'The SQL Query must be a string')
-	local store = #Store+1
-	Store[store] = query
-	cb(store)
-end
-
-function MySQL.Sync.store(query)
-	assert(type(query) == 'string', 'The SQL Query must be a string')
-	local store = #Store+1
-	Store[store] = query
-	return store
-end
 
 local function safeArgs(query, parameters, cb, transaction)
 	if type(query) == 'number' then query = Store[query] end
+
 	if transaction then
 		assert(type(query) == 'table', ('Transaction query expects a table, received %s'):format(query))
 	else
 		assert(type(query) == 'string', ('Query expects a string, received %s'):format(query))
 	end
+
+	if parameters then
+		local type = type(parameters)
+		if type ~= 'table' and type ~= 'function' then
+			error(('Parameters expected table or function, received %s'):format(parameters))
+		end
+	end
+
 	if cb then
-		assert(type(cb) == 'function', ('Callback expects a function, received %s'):format(cb))
+		local type = type(cb)
+		if type ~= 'function' and (type == 'table' and not cb.__cfx_functionReference) then
+			error(('Callback expects a function, received %s'):format(cb))
+		end
 	end
-	local type = parameters and type(parameters)
-	if type and type ~= 'table' and type ~= 'function' then
-		assert(nil, ('Parameters expected table or function, received %s'):format(parameters))
-	end
+
 	return query, parameters, cb
 end
 
 local promise = promise
 local oxmysql = exports.oxmysql
+local Await = Citizen.Await
 local GetCurrentResourceName = GetCurrentResourceName()
-local Citizen_Await = Citizen.Await
 
-local function Await(fn, query, parameters)
+local function await(fn, query, parameters)
 	local p = promise.new()
 	fn(nil, query, parameters, function(result)
 		p:resolve(result)
 	end, GetCurrentResourceName)
-	return Citizen_Await(p)
+	return Await(p)
 end
 
 setmetatable(MySQL, {
@@ -70,17 +75,20 @@ setmetatable(MySQL, {
 		local state = GetResourceState('oxmysql')
 		if state == 'started' or state == 'starting' then
 			self[method] = setmetatable({}, {
+
 				__call = function(_, query, parameters, cb)
 					return oxmysql[method](nil, safeArgs(query, parameters, cb, method == 'transaction'))
 				end,
-				__index = function(_, await)
-					assert(await == 'await', ('unable to index MySQL.%s.%s, expected .await'):format(method, await))
+
+				__index = function(_, index)
+					assert(index == 'await', ('unable to index MySQL.%s.%s, expected .await'):format(method, index))
 					self[method].await = function(query, parameters)
-						return Await(oxmysql[method], safeArgs(query, parameters, nil, method == 'transaction'))
+						return await(oxmysql[method], safeArgs(query, parameters, nil, method == 'transaction'))
 					end
 					return self[method].await
 				end
 			})
+
 			return self[method]
 		else
 			error(('^1oxmysql resource state is %s - unable to trigger exports.oxmysql:%s^0'):format(state, method), 0)
@@ -98,7 +106,7 @@ local alias = {
 	prepare = 'prepare'
 }
 
-local mt = {
+local alias_mt = {
 	__index = function(self, key)
 		if alias[key] then
 			MySQL.Async[key] = MySQL[alias[key]]
@@ -109,8 +117,10 @@ local mt = {
 	end
 }
 
-setmetatable(MySQL.Async, mt)
-setmetatable(MySQL.Sync, mt)
+setmetatable(MySQL.Async, alias_mt)
+setmetatable(MySQL.Sync, alias_mt)
+
+_ENV.MySQL = MySQL
 
 --[[
 exports.oxmysql:query (previously exports.oxmysql:execute)
@@ -147,5 +157,3 @@ exports.oxmysql:prepare
 MySQL.Async.prepare = MySQL.prepare
 MySQL.Sync.prepare = MySQL.prepare.await
 --]]
-
-_ENV.MySQL = MySQL
