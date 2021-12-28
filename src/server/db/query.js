@@ -4,12 +4,12 @@ import pool from './pool.js';
 
 export default async (type, invokingResource, query, parameters, cb) => {
   if (!isReady) serverReady();
-
-  [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
-  scheduleTick();
   let result, executionTime;
 
   try {
+    [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
+    scheduleTick();
+    
     [result, _, executionTime] = await pool.query(query, parameters);
 
     if (executionTime >= mysql_slow_query_warning || mysql_debug)

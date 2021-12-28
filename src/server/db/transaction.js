@@ -12,13 +12,12 @@ const transactionError = (queries, parameters) =>
 
 export default async (invokingResource, queries, parameters, cb) => {
   if (!isReady) serverReady();
-
-  const parsedQuery = parseTransaction(invokingResource, queries, parameters);
   scheduleTick();
   const connection = await pool.getConnection();
   let result;
 
   try {
+    const parsedQuery = parseTransaction(invokingResource, queries, parameters);
     let queryCount = parsedQuery.length;
     let executionTime = hrtime();
 
