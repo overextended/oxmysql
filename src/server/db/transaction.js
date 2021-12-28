@@ -5,14 +5,19 @@ const hrtime = require('process').hrtime;
 
 const transactionError = (queries, parameters) =>
   `${queries
-    .map((query) => (typeof query === 'string' ? query : `${query.query} ${JSON.stringify(query.values || query.parameters || [])}`))
+    .map((query) =>
+      typeof query === 'string' ? query : `${query.query} ${JSON.stringify(query.values || query.parameters || [])}`
+    )
     .join('\n')}\n${JSON.stringify(parameters)}`;
 
 export default async (invokingResource, queries, parameters, cb) => {
   if (!isReady) serverReady();
+
   const parsedQuery = parseTransaction(invokingResource, queries, parameters);
   scheduleTick();
   const connection = await pool.getConnection();
+  let result;
+
   try {
     let queryCount = parsedQuery.length;
     let executionTime = hrtime();
@@ -28,19 +33,16 @@ export default async (invokingResource, queries, parameters, cb) => {
     executionTime = hrtime(executionTime)[1] / 1000000;
     if (executionTime >= mysql_slow_query_warning || mysql_debug)
       console.log(
-        `^3[${mysql_debug ? 'DEBUG' : 'WARNING'}] ${invokingResource} took ${executionTime}ms to execute a transaction!\n${transactionError(
+        `^3[${
+          mysql_debug ? 'DEBUG' : 'WARNING'
+        }] ${invokingResource} took ${executionTime}ms to execute a transaction!\n${transactionError(
           queries,
           parameters
         )}^0`
       );
 
+    result = true;
     if (parameters && typeof parameters === 'function') cb = parameters;
-
-    if (cb) {
-      cb(true);
-    } else {
-      return true;
-    }
   } catch (error) {
     await connection.rollback();
     console.log(
@@ -52,4 +54,6 @@ export default async (invokingResource, queries, parameters, cb) => {
   } finally {
     connection.release();
   }
+  if (cb) cb(result);
+  else return result;
 };

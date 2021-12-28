@@ -10,13 +10,14 @@ export default async (invokingResource, query, parameters, cb) => {
 
   scheduleTick();
   const connection = await pool.getConnection();
+  let results = [];
+
   try {
     let queryCount = parameters.length;
-    let results = [];
     let executionTime = hrtime();
 
     if (typeof parameters[0] !== 'object') {
-      queryCount = 1
+      queryCount = 1;
       const [result] = await connection.execute(query, parameters);
       results[0] = response(type, result);
     } else {
@@ -44,12 +45,6 @@ export default async (invokingResource, query, parameters, cb) => {
         }!
         ${query} ${JSON.stringify(parameters)}^0`
       );
-
-    if (cb) {
-      cb(results);
-    } else {
-      return results;
-    }
   } catch (err) {
     throw new Error(`${invokingResource} was unable to execute a query!
     ${err.message}
@@ -57,4 +52,7 @@ export default async (invokingResource, query, parameters, cb) => {
   } finally {
     connection.release();
   }
+
+  if (cb) cb(results);
+  else return results;
 };
