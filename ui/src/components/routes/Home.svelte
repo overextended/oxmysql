@@ -1,29 +1,10 @@
 <script lang="ts">
   import { useNuiEvent } from '../../utils/useNuiEvent';
-  import { debugData } from '../../utils/debugData';
+  import type { InitData } from '../../types/init';
 
-  debugData([
-    {
-      action: 'init',
-      data: {
-        resources: ['ox_inventory', 'luke_garages', 'npwd'],
-        totalQueries: 350,
-        totalTime: 75000,
-      },
-    },
-  ]);
+  let initData: InitData;
 
-  interface QueryData {
-    date: number;
-    query: string;
-    executionTime: number;
-  }
-
-  type QueryLog = Record<string, QueryData[]>;
-
-  let initData: QueryLog;
-
-  useNuiEvent('init', (data: QueryLog) => {
+  useNuiEvent<InitData>('init', (data) => {
     initData = data;
   });
 </script>

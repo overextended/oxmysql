@@ -4,16 +4,11 @@
   import { onMount } from 'svelte';
   import { useNuiEvent } from '../../utils/useNuiEvent';
   import { debugData } from '../../utils/debugData';
+  import type { QueryData } from '../../types/query';
 
   export let params: { wild: string };
 
-  interface QueryData {
-    date: number;
-    query: string;
-    executionTime: number;
-  }
-
-  let queryData: QueryData[] | undefined;
+  let queryData: QueryData[];
   let isDataLoaded: boolean = false;
 
   onMount(() => currentResource.set(params.wild));

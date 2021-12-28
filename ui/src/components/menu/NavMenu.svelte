@@ -1,11 +1,11 @@
 <script lang="ts">
   import { currentResource } from '../../store/stores';
-  const executingResources = ['luke_garages', 'ox_inventory', 'npwd'];
+  import { resources } from '../../store/stores';
 </script>
 
 <div class="container">
   <a href="#/"><div class="home-header">Home</div></a>
-  {#each executingResources as resource}
+  {#each $resources as resource}
     <div class="resource-wrapper">
       <a href={`#/${resource}`}>
         <div class="resource" on:click={() => currentResource.set(resource)}>
@@ -55,7 +55,10 @@
     background-color: grey;
   }
 
-  a:visited {
+  a,
+  a:visited,
+  a:active,
+  a:focus {
     color: white;
   }
 </style>
