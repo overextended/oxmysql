@@ -1,10 +1,16 @@
-import { useParams } from "react-router-dom";
+import { useParams } from 'react-router-dom';
+import { Box, Center } from '@chakra-ui/react';
 
-const Resource = () => {
+const Resource: React.FC = () => {
+  let { resource } = useParams();
 
-    const { resource } = useParams();
-
-    return <h1>{resource}</h1>;
-}
+  return (
+    <Center h="95%">
+      <Box h="100%" w="95%" backgroundColor="#1B2129">
+        <h2>{resource}</h2>
+      </Box>
+    </Center>
+  );
+};
 
 export default Resource;
