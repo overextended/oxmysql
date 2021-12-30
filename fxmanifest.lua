@@ -15,10 +15,10 @@ client_script 'ui.lua'
 server_script 'dist/build.js'
 
 files {
-	'ui/public/index.html',
-	'ui/public/**/*'
+	'ui/build/index.html',
+	'ui/build/**/*'
 }
 
-ui_page 'src/ui/public/index.html'
+ui_page 'ui/build/index.html'
 
 provide 'mysql-async'
