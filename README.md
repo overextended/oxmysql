@@ -6,6 +6,8 @@ Oxmysql is an alternative to the unmaintained mysql-async/ghmattimysql resources
 
 As of v1.9.0 the preferred method of utilising oxmysql is via lib/MySQL, which can be loaded by adding `@oxmysql/lib/MySQL.lua` to your resource manifests. This resource should be 100% backwards compatible with mysql-async functionality on top of providing newer export wrappers and functionality.
 
+Refer to [issue #77](https://github.com/overextended/oxmysql/issues/77) for information on replacing your queries from older versions of oxmysql or ghmattimysql.
+
 ### Features
 - Support for URI connection strings and semicolon separated values
 - Asynchronous queries utilising mysql2/promises connection pool
