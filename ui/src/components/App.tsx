@@ -5,6 +5,7 @@ import SideBar from './NavBars/LeftBar';
 import { Routes, Route } from 'react-router-dom';
 import Resource from './Resource';
 import RightBar from './NavBars/RightBar';
+import Content from './MainContent';
 
 debugData([
   {
@@ -20,9 +21,11 @@ const App: React.FC = () => {
         <TopBar />
         <SideBar />
         <RightBar />
-        <Routes>
-          <Route path="/:resource" element={<Resource />} />
-        </Routes>
+        <Content>
+          <Routes>
+            <Route path="/:resource" element={<Resource />} />
+          </Routes>
+        </Content>
       </Box>
     </Center>
   );
