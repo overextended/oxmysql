@@ -1,8 +1,9 @@
-import './App.css';
 import { Center, Box } from '@chakra-ui/react';
 import { debugData } from '../utils/debugData';
 import TopBar from './NavBars/TopBar';
 import SideBar from './NavBars/SideBar';
+import { Routes, Route } from 'react-router-dom';
+import Resource from './Resource';
 
 debugData([
   {
