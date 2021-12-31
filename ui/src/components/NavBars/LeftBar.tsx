@@ -1,13 +1,41 @@
 import { Box, VStack } from '@chakra-ui/react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNuiEvent } from '../../hooks/useNuiEvent';
+import { debugData } from '../../utils/debugData';
+
+interface InitData {
+  resources: string[];
+  totalQueries: number;
+  totalTime: number;
+}
 
 const LeftBar: React.FC = () => {
+  debugData([
+    {
+      action: 'init',
+      data: {
+        resources: ['ox_inventory', 'luke_garages', 'es_extended'],
+        totalQueries: 732,
+        totalTime: 258,
+      },
+    },
+  ]);
+
+  const [initData, setInitData] = useState<InitData>({ resources: [''], totalQueries: 0, totalTime: 0 });
+
+  useNuiEvent<InitData>('init', (data) => {
+    setInitData(data);
+  });
+
   return (
-    <Box p="1.2vh" fontSize="1.5vh" float="left">
+    <Box p="1.2vh" fontSize="1.5vh" float="left" maxWidth="13vh">
       <VStack align="left">
-        <Link to="es_extended">es_extended</Link>
-        <Link to="ox_inventory">ox_inventory</Link>
-        <Link to="luke_garages">luke_garages</Link>
+        {initData.resources.map((resource) => (
+          <Link to={resource}>
+            <Box _hover={{ transform: 'scale(1.1)' }}>{resource}</Box>
+          </Link>
+        ))}
       </VStack>
     </Box>
   );
