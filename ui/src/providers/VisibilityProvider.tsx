@@ -24,6 +24,7 @@ export const VisibilityProvider: React.FC = ({ children }) => {
     const keyHandler = (e: KeyboardEvent) => {
       if (['Escape'].includes(e.code)) {
         fetchNui('exit');
+        setVisible(false);
       }
     };
 
