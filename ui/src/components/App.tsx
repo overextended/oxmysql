@@ -1,11 +1,11 @@
 import { Center, Box } from '@chakra-ui/react';
 import { debugData } from '../utils/debugData';
 import TopBar from './NavBars/TopBar';
-import SideBar from './NavBars/LeftBar';
+import LeftBar from './NavBars/LeftBar';
 import { Routes, Route } from 'react-router-dom';
 import Resource from './Resource';
 import RightBar from './NavBars/RightBar';
-import Content from './MainContent';
+import MainContent from './MainContent';
 
 debugData([
   {
@@ -19,13 +19,13 @@ const App: React.FC = () => {
     <Center w="100%" h="100%">
       <Box width="60%" height="60%" backgroundColor="#191E26" borderRadius="1vh" color="white" fontFamily="Poppins">
         <TopBar />
-        <SideBar />
+        <LeftBar />
         <RightBar />
-        <Content>
+        <MainContent>
           <Routes>
             <Route path="/:resource" element={<Resource />} />
           </Routes>
-        </Content>
+        </MainContent>
       </Box>
     </Center>
   );

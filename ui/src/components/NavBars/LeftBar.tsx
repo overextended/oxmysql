@@ -1,7 +1,7 @@
 import { Box, VStack } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
-const SideBar: React.FC = () => {
+const LeftBar: React.FC = () => {
   return (
     <Box p="1.2vh" fontSize="1.5vh" float="left">
       <VStack align="left">
@@ -13,4 +13,4 @@ const SideBar: React.FC = () => {
   );
 };
 
-export default SideBar;
+export default LeftBar;

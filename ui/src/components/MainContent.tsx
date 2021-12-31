@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Center } from '@chakra-ui/react';
 
-const Content: React.FC = ({ children }) => {
+const MainContent: React.FC = ({ children }) => {
   return (
     <>
       <Center h="95%">
@@ -13,4 +13,4 @@ const Content: React.FC = ({ children }) => {
   );
 };
 
-export default Content;
+export default MainContent;
