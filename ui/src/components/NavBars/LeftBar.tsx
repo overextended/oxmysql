@@ -31,8 +31,8 @@ const LeftBar: React.FC = () => {
   return (
     <Box p="1.2vh" fontSize="1.5vh" float="left" maxWidth="13vh">
       <VStack align="left">
-        {initData.resources.map((resource) => (
-          <Link to={resource}>
+        {initData.resources.map((resource, index) => (
+          <Link to={resource} key={`${resource}-${index}`}>
             <Box _hover={{ transform: 'scale(1.1)' }}>{resource}</Box>
           </Link>
         ))}
