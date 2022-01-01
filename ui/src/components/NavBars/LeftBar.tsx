@@ -29,11 +29,13 @@ const LeftBar: React.FC = () => {
   });
 
   return (
-    <Box p="1.2vh" fontSize="1.5vh" float="left" maxWidth="13vh">
+    <Box p="1.2vh" fontSize="1.5vh" float="left" w="10%" height="55vh" overflowY="scroll">
       <VStack align="left">
         {initData.resources.map((resource, index) => (
           <Link to={resource} key={`${resource}-${index}`}>
-            <Box _hover={{ transform: 'scale(1.1)' }}>{resource}</Box>
+            <Box _hover={{ transform: 'scale(1.1)', color: 'white' }} color="grey">
+              {resource}
+            </Box>
           </Link>
         ))}
       </VStack>

@@ -72,7 +72,12 @@ const Resource: React.FC = () => {
         {headerGroups.map((header): any => (
           <Tr {...header.getHeaderGroupProps()}>
             {header.headers.map((column) => (
-              <Th {...column.getHeaderProps(column.getSortByToggleProps())} color="white" fontFamily="Poppins">
+              <Th
+                {...column.getHeaderProps(column.getSortByToggleProps())}
+                color="white"
+                fontFamily="Poppins"
+                borderBottomColor="#313C4A"
+              >
                 {column.render('Header')}
                 <chakra.span pl="4">
                   {column.isSorted ? (
@@ -100,6 +105,7 @@ const Resource: React.FC = () => {
                   wordBreak="break-word"
                   textOverflow="ellipsis"
                   overflow="hidden"
+                  borderBottomColor="#313C4A"
                 >
                   {cell.render('Cell')}
                 </Td>

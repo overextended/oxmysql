@@ -4,8 +4,8 @@ import { Box, Center } from '@chakra-ui/react';
 const MainContent: React.FC = ({ children }) => {
   return (
     <>
-      <Center h="95%">
-        <Box h="100%" w="95%" backgroundColor="#1B2129">
+      <Center h="95%" alignItems="stretch">
+        <Box h="100%" w="50%" backgroundColor="#1B2129" flex="1">
           {children}
         </Box>
       </Center>
