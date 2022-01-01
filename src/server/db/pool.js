@@ -2,6 +2,8 @@ import { createPool } from 'mysql2/promise';
 import { mysql_connection_string, mysql_transaction_isolation_level, typeCast } from '../config.js';
 
 const connectionString = (() => {
+  if (mysql_connection_string === '') throw new Error(`^1Missing mysql_connection_string in server.cfg! Refer to the documentation^0`);
+
   if (mysql_connection_string.includes('mysql://')) return { uri: mysql_connection_string };
 
   const options = mysql_connection_string
