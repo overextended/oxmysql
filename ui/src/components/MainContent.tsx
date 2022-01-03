@@ -5,7 +5,7 @@ const MainContent: React.FC = ({ children }) => {
   return (
     <>
       <Center h="95%" alignItems="stretch">
-        <Box h="100%" w="50%" backgroundColor="#1B2129" flex="1">
+        <Box h="100%" w="50%" backgroundColor="#1B2129" flex="1" overflowY="scroll">
           {children}
         </Box>
       </Center>

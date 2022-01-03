@@ -24,7 +24,7 @@ const LeftBar: React.FC = () => {
   });
 
   return (
-    <Box p="1.2vh" fontSize="1.5vh" float="left" w="12%" height="55vh" overflowY="scroll">
+    <Box p="1.2vh" fontSize="1.5vh" float="left" w="13%" height="55vh" overflowY="scroll">
       <VStack align="left">
         {initData.resources.map((resource, index) => (
           <Link to={resource} key={`${resource}-${index}`}>
