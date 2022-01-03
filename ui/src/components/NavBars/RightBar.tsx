@@ -1,14 +1,21 @@
-import React from 'react';
+import { useState } from 'react';
 import { Box, VStack, Center } from '@chakra-ui/react';
+import { useNuiEvent } from '../../hooks/useNuiEvent';
+import type { InitData } from '../../types';
 
 const RightBar: React.FC = () => {
+  const [initData, setInitData] = useState<InitData>({ totalQueries: 0, totalTime: 0, resources: [''] });
+
+  // Debug data defined in LeftBar.tsx
+
+  useNuiEvent<InitData>('init', (data) => setInitData(data));
+
   return (
     <Box float="right" w="20%" h="max" p="1.2vh">
       <Center>
         <VStack align="left">
-          <Box>Number of slow queries: 3</Box>
-          <Box>Most active resource: essentialmode</Box>
-          <Box>Total number of queries: 732</Box>
+          <Box>Total number of queries: {initData.totalQueries}</Box>
+          <Box>Total amount of time querying: {initData.totalTime}</Box>
         </VStack>
       </Center>
     </Box>
