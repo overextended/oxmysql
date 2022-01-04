@@ -1,11 +1,7 @@
 RegisterNetEvent('oxmysql:openUi', function(data)
     SendNUIMessage({
-        action = 'init',
+        action = 'openUI',
         data = data
-    })
-    SendNUIMessage({
-        action = 'setVisible',
-        data = true
     })
     SetNuiFocus(true, true)
 end)
@@ -15,8 +11,8 @@ RegisterNUICallback('exit', function(_, cb)
     SetNuiFocus(false, false)
 end)
 
-RegisterNUICallback('fetchResource', function(resource, cb)
-    TriggerServerEvent('oxmysql:fetchResource', resource)
+RegisterNUICallback('fetchResource', function(data, cb)
+    TriggerServerEvent('oxmysql:fetchResource', data)
     cb(true)
 end)
 

@@ -48,12 +48,14 @@ RegisterCommand(
   true
 );
 
-onNet(`oxmysql:fetchResource`, (resource: string) => {
-  if (typeof resource !== 'string') return;
+onNet(`oxmysql:fetchResource`, (data: {resource: string, pageIndex: number}) => {
+  if (typeof data.resource !== 'string') return;
 
-  const queries = logStorage[resource];
+  const queries = logStorage[data.resource].slice(data.pageIndex * 12, data.pageIndex + 12)
+
+  const pageCount = Math.ceil(logStorage[data.resource].length / 12)
 
   if (!queries) return;
 
-  emitNet(`oxmysql:loadResource`, source, queries);
+  emitNet(`oxmysql:loadResource`, source, {queries, pageCount});
 });

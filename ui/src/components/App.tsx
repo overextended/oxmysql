@@ -23,27 +23,24 @@ const App: React.FC = () => {
 
   return (
     <Center w="100%" h="100%">
-      {visible && (
-        <MotionBox
-          animate={{ y: [100, 0] }}
-          width="60%"
-          height="50%"
-          backgroundColor="#191E26"
-          borderRadius="1vh"
-          color="white"
-          fontFamily="Poppins"
-          userSelect="none"
-        >
-          <TopBar />
-          <LeftBar />
-          <RightBar />
-          <MainContent>
-            <Routes>
-              <Route path="/:resource" element={<Resource />} />
-            </Routes>
-          </MainContent>
-        </MotionBox>
-      )}
+      <Box
+        width="60%"
+        height="50%"
+        backgroundColor="#191E26"
+        borderRadius="1vh"
+        color="white"
+        fontFamily="Poppins"
+        userSelect="none"
+      >
+        <TopBar />
+        <LeftBar />
+        <RightBar />
+        <MainContent>
+          <Routes>
+            <Route path="/:resource" element={<Resource />} />
+          </Routes>
+        </MainContent>
+      </Box>
     </Center>
   );
 };

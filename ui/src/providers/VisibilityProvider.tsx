@@ -14,7 +14,7 @@ interface VisibilityProviderValue {
 export const VisibilityProvider: React.FC = ({ children }) => {
   const [visible, setVisible] = useState(false);
 
-  useNuiEvent<boolean>('setVisible', setVisible);
+  useNuiEvent<boolean>('openUI', setVisible);
 
   // Handle pressing escape/backspace
   useEffect(() => {

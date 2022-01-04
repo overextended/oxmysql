@@ -19,7 +19,7 @@ const LeftBar: React.FC = () => {
 
   const [initData, setInitData] = useState<InitData>({ resources: [''], totalQueries: 0, totalTime: 0 });
 
-  useNuiEvent<InitData>('init', (data) => {
+  useNuiEvent<InitData>('openUI', (data) => {
     setInitData(data);
   });
 

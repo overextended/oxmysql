@@ -8,7 +8,9 @@ const RightBar: React.FC = () => {
 
   // Debug data defined in LeftBar.tsx
 
-  useNuiEvent<InitData>('init', (data) => setInitData(data));
+  useNuiEvent<InitData>('openUI', (data) => {
+    setInitData(data);
+  });
 
   return (
     <Box float="right" w="20%" h="max" p="1.2vh">

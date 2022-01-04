@@ -25,6 +25,11 @@ interface TableData {
   executionTime: number;
 }
 
+interface NuiData {
+  queries: QueryData[];
+  pageCount: number;
+}
+
 const Resource: React.FC = () => {
   let { resource } = useParams();
   const [resourceData, setResourceData] = useState<QueryData[]>([
@@ -34,24 +39,11 @@ const Resource: React.FC = () => {
       executionTime: 0,
     },
   ]);
+  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchNui('fetchResource', resource);
-    debugData([
-      {
-        action: 'loadResource',
-        data: [
-          { query: 'SELECT * FROM `users`', executionTime: 5 },
-          { query: 'SELECT * FROM `owned_vehicles`', executionTime: 2 },
-          { query: 'SELECT * FROM `properties`', executionTime: 7 },
-          { query: 'SELECT * FROM `phone_messages`', executionTime: 13 },
-        ],
-      },
-    ]);
-  }, [resource]);
-
-  useNuiEvent<QueryData[]>('loadResource', (data) => {
-    setResourceData(data);
+  useNuiEvent<NuiData>('loadResource', (data) => {
+    setResourceData(data.queries);
+    setTotalPages(data.pageCount);
   });
 
   const data = useMemo<TableData[]>(() => resourceData, [resourceData]);
@@ -84,9 +76,30 @@ const Resource: React.FC = () => {
     previousPage,
     state: { pageIndex },
     prepareRow,
-  } = useTable({ columns, data, initialState: { pageSize: 12 } }, useSortBy, usePagination);
+  } = useTable(
+    { columns, data, initialState: { pageSize: 12 }, manualPagination: true, pageCount: totalPages },
+    useSortBy,
+    usePagination
+  );
 
-  // Todo: pagination
+  useEffect(() => {
+    fetchNui('fetchResource', { resource, pageIndex });
+    debugData([
+      {
+        action: 'loadResource',
+        data: {
+          pageCount: 1,
+          queries: [
+            { query: 'SELECT * FROM `users`', executionTime: 5 },
+            { query: 'SELECT * FROM `owned_vehicles`', executionTime: 2 },
+            { query: 'SELECT * FROM `properties`', executionTime: 7 },
+            { query: 'SELECT * FROM `phone_messages`', executionTime: 13 },
+          ],
+        },
+      },
+    ]);
+  }, [resource, pageIndex]);
+
   return (
     <>
       <Table {...getTableProps} size="sm">
