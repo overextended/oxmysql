@@ -1,6 +1,8 @@
 import { RowDataPacket, ResultSetHeader, OkPacket } from 'mysql2';
 
-export type QueryResponse = RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader;
+type SQLResponse = RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader;
+
+export type QueryResponse = SQLResponse | SQLResponse[];
 
 export type QueryType = 'insert' | 'update' | 'scalar' | 'single' | null;
 
@@ -12,4 +14,4 @@ export type TransactionQuery = {
 
 export type CFXParameters = Record<string, unknown> | unknown[];
 
-export type CFXCallback = (result: QueryResponse | RowDataPacket | number | null) => void;
+export type CFXCallback = (result: QueryResponse | number | null) => void;
