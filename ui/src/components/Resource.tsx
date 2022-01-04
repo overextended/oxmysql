@@ -32,6 +32,7 @@ interface NuiData {
 
 const Resource: React.FC = () => {
   let { resource } = useParams();
+  const [isLoaded, setIsLoaded] = useState(false);
   const [resourceData, setResourceData] = useState<QueryData[]>([
     {
       date: 0,
@@ -44,6 +45,7 @@ const Resource: React.FC = () => {
   useNuiEvent<NuiData>('loadResource', (data) => {
     setResourceData(data.queries);
     setTotalPages(data.pageCount);
+    setIsLoaded(true);
   });
 
   const data = useMemo<TableData[]>(() => resourceData, [resourceData]);
@@ -77,27 +79,35 @@ const Resource: React.FC = () => {
     state: { pageIndex },
     prepareRow,
   } = useTable(
-    { columns, data, initialState: { pageSize: 12 }, manualPagination: true, pageCount: totalPages },
+    {
+      columns,
+      data,
+      initialState: { pageSize: 12 },
+      manualPagination: true,
+      pageCount: totalPages,
+      autoResetPage: false,
+    },
     useSortBy,
     usePagination
   );
 
   useEffect(() => {
     fetchNui('fetchResource', { resource, pageIndex });
-    debugData([
-      {
-        action: 'loadResource',
-        data: {
-          pageCount: 1,
-          queries: [
-            { query: 'SELECT * FROM `users`', executionTime: 5 },
-            { query: 'SELECT * FROM `owned_vehicles`', executionTime: 2 },
-            { query: 'SELECT * FROM `properties`', executionTime: 7 },
-            { query: 'SELECT * FROM `phone_messages`', executionTime: 13 },
-          ],
-        },
-      },
-    ]);
+    setIsLoaded(false);
+    // debugData([
+    //   {
+    //     action: 'loadResource',
+    //     data: {
+    //       pageCount: 1,
+    //       queries: [
+    //         { query: 'SELECT * FROM `users`', executionTime: 5 },
+    //         { query: 'SELECT * FROM `owned_vehicles`', executionTime: 2 },
+    //         { query: 'SELECT * FROM `properties`', executionTime: 7 },
+    //         { query: 'SELECT * FROM `phone_messages`', executionTime: 13 },
+    //       ],
+    //     },
+    //   },
+    // ]);
   }, [resource, pageIndex]);
 
   return (
@@ -129,25 +139,31 @@ const Resource: React.FC = () => {
           ))}
         </Thead>
         <Tbody {...getTableBodyProps()}>
-          {page.map((row) => {
-            prepareRow(row);
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td
-                    {...cell.getCellProps()}
-                    fontFamily="Poppins"
-                    wordBreak="break-word"
-                    textOverflow="ellipsis"
-                    overflow="hidden"
-                    borderBottomColor="#313C4A"
-                  >
-                    {cell.render('Cell')}
-                  </Td>
-                ))}
-              </Tr>
-            );
-          })}
+          {isLoaded ? (
+            <>
+              {page.map((row) => {
+                prepareRow(row);
+                return (
+                  <Tr {...row.getRowProps()}>
+                    {row.cells.map((cell) => (
+                      <Td
+                        {...cell.getCellProps()}
+                        fontFamily="Poppins"
+                        wordBreak="break-word"
+                        textOverflow="ellipsis"
+                        overflow="hidden"
+                        borderBottomColor="#313C4A"
+                      >
+                        {cell.render('Cell')}
+                      </Td>
+                    ))}
+                  </Tr>
+                );
+              })}
+            </>
+          ) : (
+            <h2>Loading....</h2>
+          )}
         </Tbody>
       </Table>
 

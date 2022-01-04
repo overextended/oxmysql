@@ -11,8 +11,12 @@ import { useVisibility } from '../providers/VisibilityProvider';
 
 debugData([
   {
-    action: 'setVisible',
-    data: true,
+    action: 'openUI',
+    data: {
+      resources: ['ox_inventory', 'luke_garages', 'es_extended'],
+      totalQueries: 732,
+      totalTime: 258,
+    },
   },
 ]);
 

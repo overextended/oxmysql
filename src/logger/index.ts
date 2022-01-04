@@ -51,8 +51,9 @@ RegisterCommand(
 onNet(`oxmysql:fetchResource`, (data: {resource: string, pageIndex: number}) => {
   if (typeof data.resource !== 'string') return;
 
-  const queries = logStorage[data.resource].slice(data.pageIndex * 12, data.pageIndex + 12)
-
+  const startRow = data.pageIndex * 12
+  const endRow = startRow + 12
+  const queries = logStorage[data.resource].slice(startRow, endRow)
   const pageCount = Math.ceil(logStorage[data.resource].length / 12)
 
   if (!queries) return;
