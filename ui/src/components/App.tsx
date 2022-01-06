@@ -2,10 +2,11 @@ import { Center, Box } from '@chakra-ui/react';
 import { debugData } from '../utils/debugData';
 import TopBar from './NavBars/TopBar';
 import LeftBar from './NavBars/LeftBar';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Resource from './Resource';
 import RightBar from './NavBars/RightBar';
 import MainContent from './MainContent';
+import { useNuiEvent } from '../hooks/useNuiEvent';
 
 debugData([
   {
@@ -19,6 +20,10 @@ debugData([
 ]);
 
 const App: React.FC = () => {
+  const navigate = useNavigate();
+
+  useNuiEvent('openUI', () => navigate('/'));
+
   return (
     <Center w="100%" h="100%">
       <Box
