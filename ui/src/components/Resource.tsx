@@ -2,7 +2,6 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import { fetchNui } from '../utils/fetchNui';
 import { useNuiEvent } from '../hooks/useNuiEvent';
-import { debugData } from '../utils/debugData';
 import { Table, Thead, Tbody, Tr, Th, Td, chakra, Flex, IconButton, Text } from '@chakra-ui/react';
 import {
   TriangleDownIcon,
@@ -139,7 +138,7 @@ const Resource: React.FC = () => {
           ))}
         </Thead>
         <Tbody {...getTableBodyProps()}>
-          {isLoaded ? (
+          {isLoaded && (
             <>
               {page.map((row) => {
                 prepareRow(row);
@@ -161,8 +160,6 @@ const Resource: React.FC = () => {
                 );
               })}
             </>
-          ) : (
-            <h2>Loading....</h2>
           )}
         </Tbody>
       </Table>

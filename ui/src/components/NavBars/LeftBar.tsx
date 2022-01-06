@@ -2,7 +2,6 @@ import { Box, VStack } from '@chakra-ui/react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNuiEvent } from '../../hooks/useNuiEvent';
-import { debugData } from '../../utils/debugData';
 import type { InitData } from '../../types';
 
 const LeftBar: React.FC = () => {
