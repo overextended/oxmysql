@@ -56,7 +56,7 @@ const Resource: React.FC = () => {
         accessor: 'query',
       },
       {
-        Header: 'Execution time',
+        Header: 'Execution time (ms)',
         accessor: 'executionTime',
       },
     ],

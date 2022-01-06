@@ -16,7 +16,13 @@ const LeftBar: React.FC = () => {
       <VStack align="left">
         {initData.resources.map((resource, index) => (
           <Link to={resource} key={`${resource}-${index}`}>
-            <Box _hover={{ transform: 'scale(1.1)', color: 'white' }} color="grey">
+            <Box
+              _hover={{ transform: 'scale(1.1)', color: 'white' }}
+              color="grey"
+              textOverflow="ellipsis"
+              overflow="hidden"
+              whiteSpace="nowrap"
+            >
               {resource}
             </Box>
           </Link>
