@@ -21,7 +21,7 @@ export const parseResponse = (type: QueryType, result: QueryResponse): QueryResp
       return isRowDataPacket(result) ? result[0] : null;
 
     case 'scalar':
-      return isRowDataPacketArray(result) ? result[0][0] : null;
+      return isRowDataPacketArray(result) ? Object.values(result[0])[0] : null;
 
     default:
       return result || null;
