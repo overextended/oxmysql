@@ -48,15 +48,37 @@ RegisterCommand(
   true
 );
 
-onNet(`oxmysql:fetchResource`, (data: {resource: string, pageIndex: number}) => {
-  if (typeof data.resource !== 'string') return;
+const sortQueries = (queries: QueryData[], sort: { id: 'query' | 'executionTime'; desc: boolean }) => {
+  const sortedQueries = queries.sort((a, b) => {
+    switch (sort.id) {
+      case 'query':
+        return a.query > b.query ? 1 : -1;
+      case 'executionTime':
+        return a.executionTime - b.executionTime;
+      default:
+        return 0;
+    }
+  });
 
-  const startRow = data.pageIndex * 12
-  const endRow = startRow + 12
-  const queries = logStorage[data.resource].slice(startRow, endRow)
-  const pageCount = Math.ceil(logStorage[data.resource].length / 12)
+  return sort.desc ? sortedQueries.reverse() : sortedQueries;
+};
 
-  if (!queries) return;
+onNet(
+  `oxmysql:fetchResource`,
+  (data: { resource: string; pageIndex: number; sortBy?: { id: 'query' | 'executionTime'; desc: boolean }[] }) => {
+    if (typeof data.resource !== 'string') return;
 
-  emitNet(`oxmysql:loadResource`, source, {queries, pageCount});
-});
+    const sort = data.sortBy ? data.sortBy[0] : false;
+
+    const startRow = data.pageIndex * 12;
+    const endRow = startRow + 12;
+    const queries = sort
+      ? sortQueries(logStorage[data.resource], sort).slice(startRow, endRow)
+      : logStorage[data.resource].slice(startRow, endRow);
+    const pageCount = Math.ceil(logStorage[data.resource].length / 12);
+
+    if (!queries) return;
+
+    emitNet(`oxmysql:loadResource`, source, { queries, pageCount });
+  }
+);

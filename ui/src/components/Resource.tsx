@@ -30,7 +30,8 @@ interface NuiData {
 }
 
 const Resource: React.FC = () => {
-  let { resource } = useParams();
+  const { resource } = useParams();
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [resourceData, setResourceData] = useState<QueryData[]>([
     {
@@ -40,12 +41,6 @@ const Resource: React.FC = () => {
     },
   ]);
   const [totalPages, setTotalPages] = useState(1);
-
-  useNuiEvent<NuiData>('loadResource', (data) => {
-    setResourceData(data.queries);
-    setTotalPages(data.pageCount);
-    setIsLoaded(true);
-  });
 
   const data = useMemo<TableData[]>(() => resourceData, [resourceData]);
 
@@ -75,7 +70,7 @@ const Resource: React.FC = () => {
     gotoPage,
     nextPage,
     previousPage,
-    state: { pageIndex },
+    state: { pageIndex, sortBy },
     prepareRow,
   } = useTable(
     {
@@ -83,6 +78,7 @@ const Resource: React.FC = () => {
       data,
       initialState: { pageSize: 12 },
       manualPagination: true,
+      manualSortBy: true,
       pageCount: totalPages,
       autoResetPage: false,
     },
@@ -91,27 +87,19 @@ const Resource: React.FC = () => {
   );
 
   useEffect(() => {
-    fetchNui('fetchResource', { resource, pageIndex });
+    fetchNui('fetchResource', { resource, pageIndex, sortBy });
     setIsLoaded(false);
-    // debugData([
-    //   {
-    //     action: 'loadResource',
-    //     data: {
-    //       pageCount: 1,
-    //       queries: [
-    //         { query: 'SELECT * FROM `users`', executionTime: 5 },
-    //         { query: 'SELECT * FROM `owned_vehicles`', executionTime: 2 },
-    //         { query: 'SELECT * FROM `properties`', executionTime: 7 },
-    //         { query: 'SELECT * FROM `phone_messages`', executionTime: 13 },
-    //       ],
-    //     },
-    //   },
-    // ]);
-  }, [resource, pageIndex]);
+  }, [resource, pageIndex, sortBy]);
+
+  useNuiEvent<NuiData>('loadResource', (data) => {
+    setResourceData(data.queries);
+    setTotalPages(data.pageCount);
+    setIsLoaded(true);
+  });
 
   return (
     <>
-      <Table {...getTableProps} size="sm">
+      <Table {...getTableProps()} size="sm">
         <Thead>
           {headerGroups.map((header): any => (
             <Tr {...header.getHeaderGroupProps()}>
