@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import { fetchNui } from '../utils/fetchNui';
 import { useNuiEvent } from '../hooks/useNuiEvent';
-import { Table, Thead, Tbody, Tr, Th, Td, chakra, Flex, IconButton, Text } from '@chakra-ui/react';
+import { Table, Thead, Tbody, Tr, Th, Td, chakra, Flex, IconButton, Text, Spinner, Center } from '@chakra-ui/react';
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -11,7 +11,7 @@ import {
   ArrowRightIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons';
-import { useTable, useSortBy, Column, usePagination } from 'react-table';
+import { useTable, useSortBy, Column, usePagination, useFlexLayout } from 'react-table';
 
 interface QueryData {
   date: number;
@@ -83,7 +83,8 @@ const Resource: React.FC = () => {
       autoResetPage: false,
     },
     useSortBy,
-    usePagination
+    usePagination,
+    useFlexLayout
   );
 
   useEffect(() => {
@@ -126,7 +127,7 @@ const Resource: React.FC = () => {
           ))}
         </Thead>
         <Tbody {...getTableBodyProps()}>
-          {isLoaded && (
+          {isLoaded ? (
             <>
               {page.map((row) => {
                 prepareRow(row);
@@ -140,6 +141,7 @@ const Resource: React.FC = () => {
                         textOverflow="ellipsis"
                         overflow="hidden"
                         borderBottomColor="#313C4A"
+                        alt
                       >
                         {cell.render('Cell')}
                       </Td>
@@ -148,7 +150,7 @@ const Resource: React.FC = () => {
                 );
               })}
             </>
-          )}
+          ) : <Center height={32}><Spinner /></Center>}
         </Tbody>
       </Table>
 
