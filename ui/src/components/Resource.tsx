@@ -12,7 +12,6 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { useTable, useSortBy, Column, usePagination, useFlexLayout } from 'react-table';
-import { debugData } from '../utils/debugData';
 
 interface QueryData {
   date: number;

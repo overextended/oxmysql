@@ -17,7 +17,7 @@ const RightBar: React.FC = () => {
       <Center>
         <VStack align="left">
           <Box>Total number of queries: {initData.totalQueries}</Box>
-          <Box>Total amount of time querying: {initData.totalTime}</Box>
+          <Box>Total amount of time querying: {Math.trunc(initData.totalTime)} ms</Box>
         </VStack>
       </Center>
     </Box>
