@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import { fetchNui } from '../utils/fetchNui';
 import { useNuiEvent } from '../hooks/useNuiEvent';
-import { Table, Thead, Tbody, Tr, Th, Td, chakra, Flex, IconButton, Text, Spinner, Center } from '@chakra-ui/react';
+import { Table, Thead, Tbody, Tr, Th, Td, chakra, Flex, IconButton, Text, Spinner } from '@chakra-ui/react';
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -12,6 +12,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { useTable, useSortBy, Column, usePagination, useFlexLayout } from 'react-table';
+import { debugData } from '../utils/debugData';
 
 interface QueryData {
   date: number;
@@ -99,7 +100,7 @@ const Resource: React.FC = () => {
   });
 
   return (
-    <>
+    <Flex direction="column" justifyContent="space-between" alignItems="center" h="100%">
       <Table {...getTableProps()} size="sm">
         <Thead>
           {headerGroups.map((header): any => (
@@ -127,7 +128,7 @@ const Resource: React.FC = () => {
           ))}
         </Thead>
         <Tbody {...getTableBodyProps()}>
-          {isLoaded ? (
+          {isLoaded && (
             <>
               {page.map((row) => {
                 prepareRow(row);
@@ -150,9 +151,11 @@ const Resource: React.FC = () => {
                 );
               })}
             </>
-          ) : <Center height={32}><Spinner /></Center>}
+          )}
         </Tbody>
       </Table>
+
+      {!isLoaded && <Spinner />}
 
       <Flex mt={3} justifyContent="center " alignItems="center" p="1.2vh">
         <Flex>
@@ -193,7 +196,7 @@ const Resource: React.FC = () => {
           />
         </Flex>
       </Flex>
-    </>
+    </Flex>
   );
 };
 
