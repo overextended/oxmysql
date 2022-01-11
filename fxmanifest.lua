@@ -16,3 +16,11 @@ server_scripts {
 }
 
 provide 'mysql-async'
+
+convar_category 'OxMySQL' {
+	'Configuration',
+	{
+		{ 'Connection string', 'mysql_connection_string', 'CV_STRING', 'mysql://user:password@localhost/database' },
+		{ 'Debug', 'mysql_debug', 'CV_BOOL', 'false' }
+	}
+}
