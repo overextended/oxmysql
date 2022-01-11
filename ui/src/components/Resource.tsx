@@ -142,7 +142,6 @@ const Resource: React.FC = () => {
                         textOverflow="ellipsis"
                         overflow="hidden"
                         borderBottomColor="#313C4A"
-                        alt
                       >
                         {cell.render('Cell')}
                       </Td>
