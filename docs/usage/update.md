@@ -23,7 +23,7 @@ Returns the number of affected rows by the query.
 		-- Alias: MySQL.update
 
 		CreateThread(function()
-			local id = MySQL.update.await('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier})
+			local affectedRows = MySQL.update.await('UPDATE users SET firstname = ? WHERE identifier = ? ', {newName, playerIdentifier})
 			if affectedRows then
 				print(affectedRows)
 			end
