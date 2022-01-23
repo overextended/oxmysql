@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import { fetchNui } from '../utils/fetchNui';
 import { useNuiEvent } from '../hooks/useNuiEvent';
-import { Table, Thead, Tbody, Tr, Th, Td, chakra, Flex, IconButton, Text, Spinner } from '@chakra-ui/react';
+import { Table, Thead, Tbody, Tr, Th, Td, chakra, Flex, IconButton, Text, Spinner, Tooltip } from '@chakra-ui/react';
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -135,17 +135,17 @@ const Resource: React.FC = () => {
                 return (
                   <Tr {...row.getRowProps()}>
                     {row.cells.map((cell) => (
-                      <Td
-                        {...cell.getCellProps()}
-                        fontFamily="Poppins"
-                        wordBreak="break-word"
-                        textOverflow="ellipsis"
-                        overflow="hidden"
-                        borderBottomColor="#313C4A"
-                        textAlign={cell.column.id === 'executionTime' ? 'center' : 'left'}
-                      >
-                        {cell.render('Cell')}
-                      </Td>
+                      <Tooltip isDisabled={cell.column.id === 'executionTime'} label={cell.value} openDelay={500}>
+                        <Td
+                          {...cell.getCellProps()}
+                          fontFamily="Poppins"
+                          borderBottomColor="#313C4A"
+                          isTruncated={cell.column.id === 'query'}
+                          textAlign={cell.column.id === 'executionTime' ? 'center' : 'left'}
+                        >
+                          {cell.render('Cell')}
+                        </Td>
+                      </Tooltip>
                     ))}
                   </Tr>
                 );
