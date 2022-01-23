@@ -110,6 +110,7 @@ const Resource: React.FC = () => {
                   color="white"
                   fontFamily="Poppins"
                   borderBottomColor="#313C4A"
+                  textAlign="center"
                 >
                   {column.render('Header')}
                   <chakra.span pl="4">
@@ -141,6 +142,7 @@ const Resource: React.FC = () => {
                         textOverflow="ellipsis"
                         overflow="hidden"
                         borderBottomColor="#313C4A"
+                        textAlign={cell.column.id === 'executionTime' ? 'center' : 'left'}
                       >
                         {cell.render('Cell')}
                       </Td>
