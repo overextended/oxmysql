@@ -2,7 +2,7 @@ import { RowDataPacket, ResultSetHeader, OkPacket } from 'mysql2';
 
 type SQLResponse = RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader;
 
-export type QueryResponse = SQLResponse | SQLResponse[];
+export type QueryResponse = SQLResponse | SQLResponse[] | RowDataPacket;
 
 export type QueryType = 'insert' | 'update' | 'scalar' | 'single' | null;
 
