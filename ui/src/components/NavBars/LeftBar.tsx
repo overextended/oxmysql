@@ -1,6 +1,6 @@
-import { Box, VStack, Text } from '@chakra-ui/react';
+import { Box, VStack } from '@chakra-ui/react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useNuiEvent } from '../../hooks/useNuiEvent';
 import type { InitData } from '../../types';
 
@@ -16,11 +16,14 @@ const LeftBar: React.FC = () => {
       <VStack align="left">
         {initData.resources.map((resource, index) => (
           <Box isTruncated key={`${resource}-${index}`}>
-            <Link to={resource}>
-              <Text _hover={{ color: 'white' }} color="grey">
-                {resource}
-              </Text>
-            </Link>
+            <NavLink
+              to={resource}
+              style={(state) => ({
+                color: state.isActive ? 'white' : 'grey',
+              })}
+            >
+              <Box _hover={{ color: 'white' }}>{resource}</Box>
+            </NavLink>
           </Box>
         ))}
       </VStack>
