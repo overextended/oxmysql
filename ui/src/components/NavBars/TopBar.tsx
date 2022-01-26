@@ -1,11 +1,11 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 
 const TopBar: React.FC = () => {
   return (
     <Box w="100%" h="5%">
-      <Box paddingLeft="1.2vh" fontSize="2.2vh">
+      <Text paddingLeft="1.2vh" fontSize="2vh">
         Resources
-      </Box>
+      </Text>
     </Box>
   );
 };
