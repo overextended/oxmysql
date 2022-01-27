@@ -17,11 +17,13 @@ interface QueryData {
   date: number;
   query: string;
   executionTime: number;
+  slow?: boolean;
 }
 
 interface TableData {
   query: string;
   executionTime: number;
+  slow?: boolean;
 }
 
 interface NuiData {
@@ -54,6 +56,10 @@ const Resource: React.FC = () => {
         Header: 'Execution time (ms)',
         accessor: 'executionTime',
       },
+      {
+        Header: 'Slow',
+        accessor: 'slow',
+      },
     ],
     []
   );
@@ -76,7 +82,7 @@ const Resource: React.FC = () => {
     {
       columns,
       data,
-      initialState: { pageSize: 12 },
+      initialState: { pageSize: 12, hiddenColumns: ['slow'] },
       manualPagination: true,
       manualSortBy: true,
       pageCount: totalPages,
@@ -140,6 +146,7 @@ const Resource: React.FC = () => {
                           {...cell.getCellProps()}
                           fontFamily="Poppins"
                           borderBottomColor="#313C4A"
+                          color={row.values.slow && '#f3eca1'}
                           isTruncated={cell.column.id === 'query'}
                           textAlign={cell.column.id === 'executionTime' ? 'center' : 'left'}
                         >

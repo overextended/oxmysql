@@ -5,6 +5,7 @@ interface QueryData {
   date: number;
   query: string;
   executionTime: number;
+  slow?: boolean;
 }
 
 type QueryLog = Record<string, QueryData[]>;
@@ -21,7 +22,12 @@ export const logQuery = (invokingResource: string, query: string, executionTime:
   if (!mysql_ui) return;
 
   if (logStorage[invokingResource] === undefined) logStorage[invokingResource] = [];
-  logStorage[invokingResource].push({ query, executionTime, date: Date.now() });
+  logStorage[invokingResource].push({
+    query,
+    executionTime,
+    date: Date.now(),
+    slow: executionTime >= mysql_slow_query_warning ? true : undefined,
+  });
 };
 
 RegisterCommand(
