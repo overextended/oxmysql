@@ -32,7 +32,7 @@ export const typeCast = (field, next) => {
     case 'TINY':
       return field.length === 1 ? field.string() === '1' : next();
     case 'BIT':
-      return field.buffer()[0] === 1;
+      return field.length === 1 ? field.buffer()[0] === 1 : field.buffer()[0];
     default:
       return next();
   }
