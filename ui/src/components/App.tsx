@@ -15,6 +15,11 @@ debugData([
       resources: ['ox_inventory', 'luke_garages', 'es_extended'],
       totalQueries: 732,
       totalTime: 258,
+      chartData: [
+        { x: 13, y: 350, z: 'ox_inventory' },
+        { x: 27, y: 752, z: 'es_extended' },
+        { x: 41, y: 52, z: 'luke_garages' },
+      ],
     },
   },
 ]);

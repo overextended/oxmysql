@@ -5,7 +5,12 @@ import { useNuiEvent } from '../../hooks/useNuiEvent';
 import type { InitData } from '../../types';
 
 const LeftBar: React.FC = () => {
-  const [initData, setInitData] = useState<InitData>({ resources: [''], totalQueries: 0, totalTime: 0 });
+  const [initData, setInitData] = useState<InitData>({
+    resources: [''],
+    totalQueries: 0,
+    totalTime: 0,
+    chartData: [{ x: 0, y: 0, z: '' }],
+  });
 
   useNuiEvent<InitData>('openUI', (data) => {
     setInitData(data);

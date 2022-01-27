@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { Box, VStack, Center, Spacer, Flex } from '@chakra-ui/react';
+import { Box, VStack, Center, Spacer, Flex, Text } from '@chakra-ui/react';
 import { useNuiEvent } from '../../hooks/useNuiEvent';
 import { VictoryPie, VictoryTooltip } from 'victory';
 import type { InitData } from '../../types';
 
 const RightBar: React.FC = () => {
-  const [initData, setInitData] = useState<InitData>({ totalQueries: 0, totalTime: 0, resources: [''] });
+  const [initData, setInitData] = useState<InitData>({
+    totalQueries: 0,
+    totalTime: 0,
+    resources: [''],
+    chartData: [{ x: 0, y: 0, z: '' }],
+  });
 
   // Debug data defined in LeftBar.tsx
 
@@ -27,11 +32,7 @@ const RightBar: React.FC = () => {
           <Box>
             <VictoryPie
               colorScale="qualitative"
-              data={[
-                { x: 'ox_inventory', y: 63 },
-                { x: 'es_extended', y: 129 },
-                { x: 'luke_garages', y: 73 },
-              ]}
+              data={initData.chartData}
               labelComponent={<VictoryTooltip flyoutPadding={18} style={{ fontSize: 24 }} cornerRadius={15} />}
               style={{
                 labels: {
@@ -40,7 +41,7 @@ const RightBar: React.FC = () => {
                   fontSize: 28,
                 },
               }}
-              labels={({ datum }) => `${datum.x}: ${datum.y}ms`}
+              labels={({ datum }) => `${datum.z}: ${datum.x} (${Math.trunc(datum.y)}ms)`}
               labelPlacement="parallel"
             />
           </Box>

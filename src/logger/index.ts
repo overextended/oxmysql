@@ -31,18 +31,35 @@ RegisterCommand(
 
     let totalQueries: number = 0;
     let totalTime = 0;
+    let chartData: [
+      {
+        x: number; // Number of queries
+        y: number; // Execution time
+        z: string; // Resource name
+      }
+    ] = [
+      {
+        x: 0,
+        y: 0,
+        z: '',
+      },
+    ];
 
     for (const resource in logStorage) {
       const queries = logStorage[resource];
+      let totalResourceTime = 0;
 
       totalQueries += queries.length;
       totalTime += queries.reduce((totalTime, query) => (totalTime += query.executionTime), 0);
+      totalResourceTime += queries.reduce((totalResourceTime, query) => (totalResourceTime += query.executionTime), 0);
+      chartData.push({ x: queries.length, y: totalResourceTime, z: resource });
     }
 
     emitNet(`oxmysql:openUi`, source, {
       resources: Object.keys(logStorage),
       totalQueries,
       totalTime,
+      chartData,
     });
   },
   true
