@@ -37,6 +37,7 @@ RegisterCommand(
 
     let totalQueries: number = 0;
     let totalTime = 0;
+    let slowQueries = 0;
     let chartData: [
       {
         x: number; // Number of queries
@@ -57,6 +58,7 @@ RegisterCommand(
 
       totalQueries += queries.length;
       totalTime += queries.reduce((totalTime, query) => (totalTime += query.executionTime), 0);
+      slowQueries += queries.reduce((slowQueries, query) => (slowQueries += query.slow ? 1 : 0), 0);
       totalResourceTime += queries.reduce((totalResourceTime, query) => (totalResourceTime += query.executionTime), 0);
       chartData.push({ x: queries.length, y: totalResourceTime, z: resource });
     }
@@ -64,6 +66,7 @@ RegisterCommand(
     emitNet(`oxmysql:openUi`, source, {
       resources: Object.keys(logStorage),
       totalQueries,
+      slowQueries,
       totalTime,
       chartData,
     });

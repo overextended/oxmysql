@@ -9,6 +9,7 @@ const LeftBar: React.FC = () => {
     resources: [''],
     totalQueries: 0,
     totalTime: 0,
+    slowQueries: 0,
     chartData: [{ x: 0, y: 0, z: '' }],
   });
 

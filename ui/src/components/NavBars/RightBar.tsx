@@ -8,6 +8,7 @@ const RightBar: React.FC = () => {
   const [initData, setInitData] = useState<InitData>({
     totalQueries: 0,
     totalTime: 0,
+    slowQueries: 0,
     resources: [''],
     chartData: [{ x: 0, y: 0, z: '' }],
   });
@@ -24,8 +25,9 @@ const RightBar: React.FC = () => {
         <Flex direction="column" h="100%">
           <Box>
             <VStack align="left">
-              <Box>Number of queries: {initData.totalQueries}</Box>
-              <Box>Time querying: {Math.trunc(initData.totalTime)} ms</Box>
+              <Text>Number of queries: {initData.totalQueries}</Text>
+              <Text>Time querying: {Math.trunc(initData.totalTime)} ms</Text>
+              <Text color="#f3eca1">Slow queries: {initData.slowQueries}</Text>
             </VStack>
           </Box>
           <Spacer />

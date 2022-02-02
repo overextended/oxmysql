@@ -8,5 +8,6 @@ export type InitData = {
   resources: string[];
   totalQueries: number;
   totalTime: number;
+  slowQueries: number;
   chartData: ChartData[];
 };
