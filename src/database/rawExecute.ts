@@ -1,8 +1,9 @@
-import { QueryError } from 'mysql2';
+import { QueryError, ResultSetHeader, RowDataPacket } from 'mysql2';
 import { pool } from '.';
 import { scheduleTick } from '../config';
 import { logQuery } from '../logger';
 import { CFXCallback, CFXParameters, QueryResponse } from '../types';
+import { parseResponse } from '../utils/parseResponse';
 import { parseExecute } from '../utils/parseExecute';
 
 export const rawExecute = async (
@@ -24,26 +25,22 @@ export const rawExecute = async (
   let result: QueryResponse;
 
   try {
-    const executionTime = process.hrtime();
-
     if (!parameters.every(Array.isArray)) parameters = [[...parameters]];
 
-    const results = [];
+    const results = [] as RowDataPacket;
+    const executionTime = process.hrtime();
 
     for (const params of parameters) {
-      results.push((await connection.execute(query, params))[0]);
-
+      results.push(parseResponse(type, (await connection.execute(query, params))[0]));
       logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, params as typeof parameters);
     }
 
     result = results;
 
-    //TODO any giggle
     if (results.length === 1) {
       if (type === 'execute') {
-        if ((results as any)[0][0] && Object.keys((results as any)[0][0]).length === 1)
-          result = Object.values((results as any)[0][0])[0] as any;
-        else result = (results as any)[0][0];
+        if (results[0][0] && Object.keys(results[0][0]).length === 1) result = Object.values(results[0][0])[0] as any;
+        else result = results[0][0];
       } else {
         result = results[0];
       }

@@ -4,7 +4,7 @@ type SQLResponse = RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] |
 
 export type QueryResponse = SQLResponse | SQLResponse[] | RowDataPacket;
 
-export type QueryType = 'insert' | 'update' | 'scalar' | 'single' | null;
+export type QueryType = 'execute' | 'insert' | 'update' | 'scalar' | 'single' | null;
 
 export type TransactionQuery = {
   query: string;
