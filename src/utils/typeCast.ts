@@ -27,7 +27,7 @@ export const typeCast = (field: Field, next: () => void) => {
     case 'MEDIUM_BLOB':
     case 'LONG_BLOB':
     case 'BLOB':
-      if (field.packet.charsetNr === 63) {
+      if (field.packet?.charsetNr === 63) {
         return [...field.buffer()];
       }
       return field.string();
