@@ -33,6 +33,7 @@ export const logQuery = (invokingResource: string, query: string, executionTime:
 RegisterCommand(
   'mysql',
   (source: number) => {
+    if (!IsPlayerAceAllowed(source.toString(), 'command')) return;
     if (!mysql_ui) return;
 
     let totalQueries: number = 0;
