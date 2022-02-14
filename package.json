@@ -12,7 +12,9 @@
     "lib/MySQL.d.ts"
   ],
   "scripts": {
-    "build": "esbuild --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
+    "build": "yarn build:root && yarn build:ui",
+    "build:ui": "cd ./ui/ && yarn build",
+    "build:root": "esbuild --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "watch": "esbuild --watch --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "lib": "tsc --project lib/tsconfig.lib.json",
     "postinstall": "patch-package",
