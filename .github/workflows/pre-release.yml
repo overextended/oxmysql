@@ -1,6 +1,6 @@
 name: Pre-Release
 
-on: 
+on:
   workflow_dispatch:
     inputs:
       tag:
@@ -22,8 +22,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref }}
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: yarn
+
+      - name: Install ui dependencies
+        run: yarn
+        working-directory: ui
 
       - name: Run build
         run: yarn build
@@ -31,18 +35,20 @@ jobs:
       - name: Bundle files
         run: |
           mkdir -p ./temp/oxmysql
+          mkdir -p ./temp/oxmysql/ui/
           cp ./{LICENSE,README.md,fxmanifest.lua} ./temp/oxmysql
           cp -r ./{lib,dist} ./temp/oxmysql
+          cp -r ./ui/build ./temp/oxmysql/ui/
           cd ./temp && zip -r ../oxmysql-${{ github.event.inputs.tag }}.zip ./oxmysql
 
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@v1.2.1"
+        uses: 'marvinpinto/action-automatic-releases@v1.2.1'
         id: auto_release
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          title: "Experimental - ${{ github.event.inputs.tag }} (FOR TESTING PURPOSE)"
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
+          title: 'Experimental - ${{ github.event.inputs.tag }} (FOR TESTING PURPOSE)'
           prerelease: true
-          automatic_release_tag: "${{ github.event.inputs.tag }}"
+          automatic_release_tag: '${{ github.event.inputs.tag }}'
           files: oxmysql-${{ github.event.inputs.tag }}.zip
 
         env:
