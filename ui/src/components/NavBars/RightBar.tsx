@@ -20,7 +20,7 @@ const RightBar: React.FC = () => {
   });
 
   return (
-    <Box float="right" w="20%" h="100%" p="1.2vh">
+    <Box float="right" w="3xs" h="100%" p={3}>
       <Center h="100%">
         <Flex direction="column" h="100%">
           <Box>

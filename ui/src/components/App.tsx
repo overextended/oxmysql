@@ -1,4 +1,4 @@
-import { Center, Box } from '@chakra-ui/react';
+import { Flex, Box } from '@chakra-ui/react';
 import { debugData } from '../utils/debugData';
 import TopBar from './NavBars/TopBar';
 import LeftBar from './NavBars/LeftBar';
@@ -31,12 +31,12 @@ const App: React.FC = () => {
   useNuiEvent('openUI', () => navigate('/'));
 
   return (
-    <Center w="100%" h="100%">
+    <Flex w="100%" h="100%" alignItems="center" justifyContent="center">
       <Box
-        width="60%"
-        height="50%"
+        width="6xl"
+        height="lg"
         backgroundColor="#191E26"
-        borderRadius="1vh"
+        borderRadius="lg"
         color="white"
         fontFamily="Poppins"
         userSelect="none"
@@ -51,7 +51,7 @@ const App: React.FC = () => {
           </Routes>
         </MainContent>
       </Box>
-    </Center>
+    </Flex>
   );
 };
 

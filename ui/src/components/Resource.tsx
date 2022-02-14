@@ -105,7 +105,7 @@ const Resource: React.FC = () => {
   });
 
   return (
-    <Flex direction="column" justifyContent="space-between" alignItems="center" h="100%">
+    <Flex direction="column" justifyContent="space-between" alignItems="center" h="full">
       <Table {...getTableProps()} size="sm">
         <Thead>
           {headerGroups.map((header): any => (
@@ -164,7 +164,7 @@ const Resource: React.FC = () => {
 
       {!isLoaded && <Spinner />}
 
-      <Flex mt={3} justifyContent="center " alignItems="center" p="1.2vh">
+      <Flex justifyContent="center" alignItems="center" p={3}>
         <Flex>
           <IconButton
             icon={<ArrowLeftIcon h={3} w={3} color="black" />}

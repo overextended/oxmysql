@@ -18,7 +18,7 @@ const LeftBar: React.FC = () => {
   });
 
   return (
-    <Box p="1.2vh" fontSize="1.5vh" float="left" w="13%" height="90%" overflowY="scroll">
+    <Box pl={3} pr={3} pb={3} pt={2} fontSize="md" float="left" w={150} height="90%" overflowY="scroll">
       <VStack align="left">
         {initData.resources.map((resource, index) => (
           <Box isTruncated key={`${resource}-${index}`}>
@@ -28,7 +28,9 @@ const LeftBar: React.FC = () => {
                 color: state.isActive ? 'white' : 'grey',
               })}
             >
-              <Box _hover={{ color: 'white' }}>{resource}</Box>
+              <Box _hover={{ color: 'white' }} isTruncated>
+                {resource}
+              </Box>
             </NavLink>
           </Box>
         ))}
