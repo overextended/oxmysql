@@ -111,7 +111,6 @@ dist
 .vscode-test
 
 # yarn v2
-yarn.lock
 .yarn/cache
 .yarn/unplugged
 .yarn/build-state.yml
@@ -120,3 +119,7 @@ yarn.lock
 
 # FiveM
 .yarn.installed
+
+# Wrapper
+lib/MySQL.js
+lib/MySQL.d.ts

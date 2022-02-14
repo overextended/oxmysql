@@ -11,9 +11,15 @@ dependencies {
 	'/server:5104',
 }
 
-server_scripts {
-	'dist/server/build.js',
+client_script 'ui.lua'
+server_script 'dist/build.js'
+
+files {
+	'ui/build/index.html',
+	'ui/build/**/*'
 }
+
+ui_page 'ui/build/index.html'
 
 provide 'mysql-async'
 

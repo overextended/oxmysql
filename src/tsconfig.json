@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["ESNext"],
+    "module": "CommonJS",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "types": ["@citizenfx/server", "@types/node"]
+  }
+}
