@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
 
 jobs:
   create-release:
@@ -19,12 +19,16 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
-      
+
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: yarn
+
+      - name: Install ui dependencies
+        run: yarn
+        working-directory: ui
 
       - name: Run build
         run: yarn build
@@ -34,13 +38,14 @@ jobs:
           mkdir -p ./temp/oxmysql
           cp ./{LICENSE,README.md,fxmanifest.lua} ./temp/oxmysql
           cp -r ./{lib,dist} ./temp/oxmysql
+          cp -r ./ui/{build} ./temp/oxmysql
           cd ./temp && zip -r ../oxmysql-${{ env.RELEASE_VERSION }}.zip ./oxmysql
 
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@v1.2.1"
+        uses: 'marvinpinto/action-automatic-releases@v1.2.1'
         id: auto_release
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
           title: ${{ env.RELEASE_VERSION }}
           prerelease: false
           files: oxmysql-${{ env.RELEASE_VERSION }}.zip
