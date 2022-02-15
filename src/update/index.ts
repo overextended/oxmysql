@@ -25,6 +25,6 @@ setTimeout(async () => {
       : 'a major update';
 
   console.log(
-    `^3There is ${updateMessage} available for oxmysql - please update to the latest release (current version: ${currentVersion[0]})\r\n${release.html_url}.zip^0`
+    `^3There is ${updateMessage} available for oxmysql - please update to the latest release (current version: ${currentVersion[0]})\r\n${release.html_url}^0`
   );
 }, 1000);
