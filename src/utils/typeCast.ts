@@ -1,9 +1,12 @@
 import { FieldPacket } from 'mysql2';
 
+const BINARY_CHARSET = 63;
+
 type Field = {
   type: string;
   length: number;
   packet: FieldPacket;
+  charset: number;
   string: () => string;
   buffer: () => number[];
 };
@@ -27,7 +30,7 @@ export const typeCast = (field: Field, next: () => void) => {
     case 'MEDIUM_BLOB':
     case 'LONG_BLOB':
     case 'BLOB':
-      if (field.packet?.charsetNr === 63) {
+      if (field.charset === BINARY_CHARSET) {
         return [...field.buffer()];
       }
       return field.string();
