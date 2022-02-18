@@ -49,7 +49,7 @@ jobs:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           title: ${{ env.RELEASE_VERSION }}
           prerelease: false
-          files: oxmysql-${{ env.RELEASE_VERSION }}.zip
+          files: oxmysql.zip
 
         env:
           CI: false
