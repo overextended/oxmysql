@@ -25,9 +25,9 @@ const RightBar: React.FC = () => {
         <Flex direction="column" h="100%">
           <Box>
             <VStack align="left">
-              <Text>Number of queries: {initData.totalQueries}</Text>
-              <Text>Time querying: {Math.trunc(initData.totalTime)} ms</Text>
-              <Text color="#f3eca1">Slow queries: {initData.slowQueries}</Text>
+              <Text>Number of queries: {initData.totalQueries.toLocaleString('en-US')}</Text>
+              <Text>Time querying: {Math.trunc(initData.totalTime).toLocaleString('en-US')} ms</Text>
+              <Text color="#f3eca1">Slow queries: {initData.slowQueries.toLocaleString('en-US')}</Text>
             </VStack>
           </Box>
           <Spacer />
