@@ -12,6 +12,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { useTable, useSortBy, Column, usePagination, useFlexLayout } from 'react-table';
+import { debugData } from '../utils/debugData';
 
 interface QueryData {
   date: number;
@@ -96,6 +97,19 @@ const Resource: React.FC = () => {
   useEffect(() => {
     fetchNui('fetchResource', { resource, pageIndex, sortBy });
     setIsLoaded(false);
+    debugData<NuiData>([
+      {
+        action: 'loadResource',
+        data: {
+          queries: [
+            { query: 'SELECT * FROM `owned_vehicles`', date: 0, executionTime: 3.5 },
+            { query: 'SELECT * FROM `users`', date: 0, executionTime: 7.3 },
+            { query: 'SELECT * FROM `properties`', date: 0, executionTime: 25.7 },
+          ],
+          pageCount: 1,
+        },
+      },
+    ]);
   }, [resource, pageIndex, sortBy]);
 
   useNuiEvent<NuiData>('loadResource', (data) => {
@@ -136,12 +150,17 @@ const Resource: React.FC = () => {
         <Tbody {...getTableBodyProps()}>
           {isLoaded && (
             <>
-              {page.map((row) => {
+              {page.map((row, index) => {
                 prepareRow(row);
                 return (
-                  <Tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => (
-                      <Tooltip isDisabled={cell.column.id === 'executionTime'} label={cell.value} openDelay={500}>
+                  <Tr {...row.getRowProps()} key={`row-${index}`}>
+                    {row.cells.map((cell, index) => (
+                      <Tooltip
+                        isDisabled={cell.column.id === 'executionTime'}
+                        label={cell.value}
+                        openDelay={500}
+                        key={`cell-${index}`}
+                      >
                         <Td
                           {...cell.getCellProps()}
                           fontFamily="Poppins"
