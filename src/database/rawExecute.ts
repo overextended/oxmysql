@@ -31,7 +31,13 @@ export const rawExecute = async (
     const executionTime = process.hrtime();
 
     for (const params of parameters) {
-      results.push(parseResponse(type, (await connection.execute(query, params))[0]));
+      const [rows] = (await connection.execute(query, params)) as RowDataPacket[][];
+      if (rows.length > 1) {
+        for (const row of rows) {
+          results.push(parseResponse(type, row));
+        }
+      } else results.push(parseResponse(type, rows));
+
       logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, params as typeof parameters);
     }
 
