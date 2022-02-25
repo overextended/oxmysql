@@ -1,8 +1,8 @@
 import { pool } from '.';
-import { scheduleTick } from '../config';
 import { logQuery } from '../logger';
 import { CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
+import { scheduleTick } from '../utils/scheduleTick';
 
 const transactionError = (queries: { query: string; params: CFXParameters }[], parameters: CFXParameters) =>
   `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(

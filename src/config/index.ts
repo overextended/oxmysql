@@ -1,6 +1,4 @@
 export const resourceName = GetCurrentResourceName();
-export const scheduleTick = () => ScheduleResourceTick(resourceName);
-
 export const mysql_debug = GetConvar('mysql_debug', 'false') === 'true';
 export const mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
 export const mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);

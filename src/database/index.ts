@@ -8,14 +8,16 @@ const pool = createPool({
   typeCast,
 });
 
+let serverReady = false;
+
 pool
   .query(mysql_transaction_isolation_level)
-  .then(() => console.log(`^2Database server connection established!^0`))
+  .then(() => {
+    console.log(`^2Database server connection established!^0`);
+    serverReady = true;
+  })
   .catch((e: QueryError) =>
-    setInterval(
-      () => console.error(`^3Unable to establish a connection to the database! [${e.code}]\n${e.message}^0`),
-      5000
-    )
+    console.error(`^3Unable to establish a connection to the database! [${e.code}]\n${e.message}^0`)
   );
 
-export { pool };
+export { pool, serverReady };

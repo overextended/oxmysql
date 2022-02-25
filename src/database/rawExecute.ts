@@ -1,10 +1,10 @@
 import { QueryError, ResultSetHeader, RowDataPacket } from 'mysql2';
 import { pool } from '.';
-import { scheduleTick } from '../config';
 import { logQuery } from '../logger';
 import { CFXCallback, CFXParameters, QueryResponse } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { parseExecute } from '../utils/parseExecute';
+import { scheduleTick } from '../utils/scheduleTick';
 
 export const rawExecute = async (
   invokingResource: string,
@@ -19,7 +19,7 @@ export const rawExecute = async (
   if (!Array.isArray(parameters))
     throw new Error(`Parameters expected an array but received ${typeof parameters} instead`);
 
-  scheduleTick();
+  await scheduleTick();
 
   const connection = await pool.getConnection();
   let result: QueryResponse;
