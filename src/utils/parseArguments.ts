@@ -12,7 +12,7 @@ export const parseArguments = (
 
   const queryParams = query.match(/\?(?!\?)/g);
 
-  if ((typeof parameters && !Array.isArray(parameters) && query.includes(':')) || query.includes('@')) {
+  if ((typeof parameters === 'object' && !Array.isArray(parameters) && query.includes(':')) || query.includes('@')) {
     const placeholders = convertNamedPlaceholders(query, parameters);
     query = placeholders[0];
     parameters = placeholders[1];
