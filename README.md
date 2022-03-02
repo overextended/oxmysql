@@ -22,7 +22,7 @@ Refer to [issue #77](https://github.com/overextended/oxmysql/issues/77) for info
 
 ```lua
 -- Lua
-MySQL.query('SELECT * from users WHERE identifier = ?', {identifier}), function(result)
+MySQL.query('SELECT * from users WHERE identifier = ?', {identifier}, function(result)
     -- callback response
     -- same as MySQL.Async.fetchAll
 end)
