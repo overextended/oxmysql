@@ -15,7 +15,7 @@ export const rawTransaction = async (
   parameters: CFXParameters,
   callback?: (result: boolean) => void
 ) => {
-  scheduleTick();
+  await scheduleTick();
 
   const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
 
