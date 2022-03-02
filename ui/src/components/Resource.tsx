@@ -1,8 +1,22 @@
 import { useParams } from 'react-router-dom';
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { fetchNui } from '../utils/fetchNui';
 import { useNuiEvent } from '../hooks/useNuiEvent';
-import { Table, Thead, Tbody, Tr, Th, Td, chakra, Flex, IconButton, Text, Spinner, Tooltip } from '@chakra-ui/react';
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  chakra,
+  Flex,
+  IconButton,
+  Text,
+  Spinner,
+  Tooltip,
+  useToast,
+} from '@chakra-ui/react';
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -13,6 +27,7 @@ import {
 } from '@chakra-ui/icons';
 import { useTable, useSortBy, Column, usePagination, useFlexLayout } from 'react-table';
 import { debugData } from '../utils/debugData';
+import { setClipboard } from '../utils/setClipboard';
 
 interface QueryData {
   date: number;
@@ -34,6 +49,7 @@ interface NuiData {
 
 const Resource: React.FC = () => {
   const { resource } = useParams();
+  const toast = useToast();
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [resourceData, setResourceData] = useState<QueryData[]>([
@@ -118,6 +134,15 @@ const Resource: React.FC = () => {
     setIsLoaded(true);
   });
 
+  const handleClick = (value: string) => {
+    setClipboard(value);
+    toast({
+      title: 'Query copied to clipboard',
+      duration: 2500,
+      status: 'success',
+    });
+  };
+
   return (
     <Flex direction="column" justifyContent="space-between" alignItems="center" h="full">
       <Table {...getTableProps()} size="sm">
@@ -155,23 +180,26 @@ const Resource: React.FC = () => {
                 return (
                   <Tr {...row.getRowProps()} key={`row-${index}`}>
                     {row.cells.map((cell, index) => (
-                      <Tooltip
-                        isDisabled={cell.column.id === 'executionTime'}
-                        label={cell.value}
-                        openDelay={500}
-                        key={`cell-${index}`}
-                      >
-                        <Td
-                          {...cell.getCellProps()}
-                          fontFamily="Poppins"
-                          borderBottomColor="#313C4A"
-                          color={row.values.slow && '#f3eca1'}
-                          isTruncated={cell.column.id === 'query'}
-                          textAlign={cell.column.id === 'executionTime' ? 'center' : 'left'}
+                      <React.Fragment key={`row-${index}`}>
+                        <Tooltip
+                          isDisabled={cell.column.id === 'executionTime'}
+                          label={cell.value}
+                          openDelay={500}
+                          key={`cell-${index}`}
                         >
-                          {cell.render('Cell')}
-                        </Td>
-                      </Tooltip>
+                          <Td
+                            {...cell.getCellProps()}
+                            fontFamily="Poppins"
+                            borderBottomColor="#313C4A"
+                            color={row.values.slow && '#f3eca1'}
+                            isTruncated={cell.column.id === 'query'}
+                            textAlign={cell.column.id === 'executionTime' ? 'center' : 'left'}
+                            onClick={(e) => cell.column.id === 'query' && handleClick(cell.value)}
+                          >
+                            {cell.render('Cell')}
+                          </Td>
+                        </Tooltip>
+                      </React.Fragment>
                     ))}
                   </Tr>
                 );
