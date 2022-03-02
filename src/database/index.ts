@@ -1,8 +1,8 @@
-import { createPool, QueryError } from 'mysql2/promise';
+import { createPool, QueryError, Pool } from 'mysql2/promise';
 import { connectionOptions, mysql_transaction_isolation_level } from '../config';
 import { typeCast } from '../utils/typeCast';
 
-let pool;
+let pool: Pool;
 let serverReady = false;
 
 setTimeout(() => {
