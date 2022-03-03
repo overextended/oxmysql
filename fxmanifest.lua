@@ -3,7 +3,7 @@ game 'common'
 
 name 'oxmysql'
 description 'Database wrapper for FiveM utilising node-mysql2 offering improved performance and security.'
-version '2.0.4'
+version '2.1.0'
 url 'https://github.com/overextended/oxmysql'
 author 'overextended'
 
