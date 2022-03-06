@@ -35,6 +35,11 @@ RegisterCommand(
   (source: number) => {
     if (!mysql_ui) return;
 
+    if (source < 1) { // source is 0 when received from the server
+      console.log("^3This command cannot run server side^0");
+      return;
+    }
+
     let totalQueries: number = 0;
     let totalTime = 0;
     let slowQueries = 0;
