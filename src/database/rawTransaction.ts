@@ -18,8 +18,8 @@ export const rawTransaction = async (
   await scheduleTick();
 
   const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
-
   const connection = await pool.getConnection();
+  let response = false;
 
   try {
     const executionTime = process.hrtime();
@@ -32,7 +32,7 @@ export const rawTransaction = async (
 
     logQuery(invokingResource, 'TRANSACTION', process.hrtime(executionTime)[1] / 1e6, parameters);
 
-    return cb ? cb(true) : true;
+    response = true;
   } catch (e) {
     await connection.rollback();
 
@@ -41,9 +41,11 @@ export const rawTransaction = async (
         (e as any).sql || `${transactionError(transactions, parameters)}`
       }^0`
     );
-
-    return cb ? cb(false) : false;
   } finally {
     connection.release();
   }
+
+  try {
+    return cb ? cb(response) : response;
+  } catch {}
 };

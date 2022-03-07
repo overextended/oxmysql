@@ -12,7 +12,7 @@ const isRowDataPacketArray = (result: QueryResponse): result is RowDataPacket[][
   (result as RowDataPacket[][])[0] !== undefined &&
   Object.values((result as RowDataPacket[][])[0])[0] !== undefined;
 
-export const parseResponse = (type: QueryType, result: QueryResponse): QueryResponse | number | null => {
+export const parseResponse = (type: QueryType, result: QueryResponse): any => {
   switch (type) {
     case 'insert':
       return isOkPacket(result) ? result.insertId : null;

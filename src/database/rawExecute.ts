@@ -22,7 +22,7 @@ export const rawExecute = async (
   await scheduleTick();
 
   const connection = await pool.getConnection();
-  let result: QueryResponse;
+  let response: QueryResponse;
 
   try {
     if (!parameters.every(Array.isArray)) parameters = [[...parameters]];
@@ -41,20 +41,18 @@ export const rawExecute = async (
       logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, params as typeof parameters);
     }
 
-    result = results;
+    response = results;
 
     if (results.length === 1) {
       if (type === 'execute') {
-        if (results[0][0] && Object.keys(results[0][0]).length === 1) result = Object.values(results[0][0])[0] as any;
-        else result = results[0][0];
+        if (results[0][0] && Object.keys(results[0][0]).length === 1) response = Object.values(results[0][0])[0] as any;
+        else response = results[0][0];
       } else {
-        result = results[0];
+        response = results[0];
       }
     } else {
-      result = results;
+      response = results;
     }
-
-    if (!cb) return result;
   } catch (e) {
     throw new Error(`${invokingResource} was unable to execute a query!
     ${(e as QueryError).message}
@@ -63,5 +61,7 @@ export const rawExecute = async (
     connection.release();
   }
 
-  if (cb) cb(result);
+  try {
+    return cb ? cb(response) : response;
+  } catch {}
 };
