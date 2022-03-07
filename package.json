@@ -1,6 +1,6 @@
 {
   "name": "oxmysql",
-  "version": "2.0.2",
+  "version": "2.1.1",
   "description": "FXServer to MySQL communication via node-mysql2",
   "repository": "git@github.com:overextended/oxmysql.git",
   "author": "dunak-debug <19434539+dunak-debug@users.noreply.github.com>",
@@ -17,8 +17,7 @@
     "build:root": "esbuild --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "watch": "esbuild --watch --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "lib": "tsc --project lib/tsconfig.lib.json",
-    "postinstall": "patch-package",
-    "prepare": "husky install"
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@citizenfx/server": "^2.0.5132-1",
@@ -28,10 +27,7 @@
     "prettier": "^2.5.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^16.2.1",
-    "@commitlint/config-conventional": "^16.2.1",
     "esbuild": "^0.14.23",
-    "husky": "^7.0.4",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0",
     "pretty-quick": "^3.1.3",
