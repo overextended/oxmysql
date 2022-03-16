@@ -3,6 +3,7 @@ import { logQuery } from '../logger';
 import { CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { scheduleTick } from '../utils/scheduleTick';
+import { QueryError } from 'mysql2';
 
 const transactionError = (queries: { query: string; params: CFXParameters }[], parameters: CFXParameters) =>
   `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
@@ -36,10 +37,10 @@ export const rawTransaction = async (
   } catch (e) {
     await connection.rollback();
 
-    console.error(
-      `${invokingResource} was unable to execute a transaction!\n${(e as Error).message}\n${
-        (e as any).sql || `${transactionError(transactions, parameters)}`
-      }^0`
+    throw new Error(
+`${invokingResource} was unable to execute a transaction!
+${(e as QueryError).message}
+${(e as any).sql || `${transactionError(transactions, parameters)}`}`
     );
   } finally {
     connection.release();
