@@ -48,8 +48,22 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": ">=7.0.0 <8.0.0",
+    "@babel/plugin-syntax-flow": "^7.14.5",
+    "@babel/plugin-transform-react-jsx": "^7.14.9",
+    "@chakra-ui/system": "^1.11.2",
     "@craco/craco": "^6.4.3",
+    "autoprefixer": "^10.0.2",
     "cross-env": "^7.0.3",
+    "postcss": "^8.1.0",
     "rimraf": "^3.0.2"
+  },
+  "peerDependencies": {
+    "@babel/core": ">=7.0.0 <8.0.0",
+    "@babel/plugin-syntax-flow": "^7.14.5",
+    "@babel/plugin-transform-react-jsx": "^7.14.9",
+    "@chakra-ui/system": "^1.11.2",
+    "autoprefixer": "^10.0.2",
+    "postcss": "^8.1.0"
   }
 }
