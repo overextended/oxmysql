@@ -14,26 +14,19 @@ export const rawQuery = async (
   cb?: CFXCallback
 ) => {
   await scheduleTick();
-  let response: QueryResponse;
+  [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
 
-  try {
-    [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
-
-    const [result, _, executionTime] = await pool.query(query, parameters);
-
+  pool.query(query, parameters, (err, result, _, executionTime) => {
     logQuery(invokingResource, query, executionTime, parameters);
+    if (err)
+      throw new Error(
+        `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(
+          parameters
+        )}`}`
+      );
 
-    response = parseResponse(type, result);
-  } catch (e) {
-    throw new Error(
-      `${invokingResource} was unable to execute a query!\n${(e as Error).message}\n${
-        (e as any).sql || `${query} ${JSON.stringify(parameters)}`
-      }`
-    );
-  }
-
-  if (cb)
-    try {
-      cb(response);
-    } catch {}
+    if (cb) {
+      cb(parseResponse(type, result));
+    }
+  });
 };

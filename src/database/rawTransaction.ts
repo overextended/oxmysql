@@ -18,7 +18,7 @@ export const rawTransaction = async (
   await scheduleTick();
 
   const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
-  const connection = await pool.getConnection();
+  const connection = await pool.promise().getConnection();
   let response = false;
 
   try {

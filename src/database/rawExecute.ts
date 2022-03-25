@@ -16,11 +16,11 @@ export const rawExecute = async (
 
   if (!type) throw new Error(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods.`);
 
-  parameters = parseExecute(query, parameters);
+  parameters = parseExecute(parameters);
 
   await scheduleTick();
 
-  const connection = await pool.getConnection();
+  const connection = await pool.promise().getConnection();
   let response: QueryResponse;
 
   try {

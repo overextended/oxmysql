@@ -15,7 +15,7 @@ export const executeType = (query: string) => {
   }
 };
 
-export const parseExecute = (query: string, parameters: CFXParameters | CFXParameters[]) => {
+export const parseExecute = (parameters: CFXParameters | CFXParameters[]) => {
   if (!Array.isArray(parameters))
     if (typeof parameters === 'object') {
       const arr: unknown[] = [];
