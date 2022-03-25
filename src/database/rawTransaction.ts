@@ -45,7 +45,8 @@ export const rawTransaction = async (
     connection.release();
   }
 
-  try {
-    return cb ? cb(response) : response;
-  } catch {}
+  if (cb)
+    try {
+      cb(response);
+    } catch {}
 };

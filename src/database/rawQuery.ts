@@ -32,7 +32,8 @@ export const rawQuery = async (
     );
   }
 
-  try {
-    return cb ? cb(response) : response;
-  } catch {}
+  if (cb)
+    try {
+      cb(response);
+    } catch {}
 };
