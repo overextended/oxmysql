@@ -30,9 +30,10 @@ export const rawExecute = async (
 
     await connection.beginTransaction();
 
-    parameters.forEach(async (values: any) => {
+    for (let values of parameters as CFXParameters[]) {
       values = parseValues(placeholders, values);
       const [rows] = (await connection.execute(query, values)) as RowDataPacket[][];
+
       if (rows.length > 1) {
         for (const row of rows) {
           results.push(parseResponse(type, row));
@@ -40,7 +41,7 @@ export const rawExecute = async (
       } else results.push(parseResponse(type, rows));
 
       logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, values as typeof parameters);
-    });
+    }
 
     response = results;
 
