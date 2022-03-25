@@ -16,6 +16,7 @@ export const rawQuery = async (
   await scheduleTick();
   [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
 
+  //@ts-ignore TODO: patch mysql2 type
   pool.query(query, parameters, (err, result, _, executionTime) => {
     logQuery(invokingResource, query, executionTime, parameters);
     if (err)

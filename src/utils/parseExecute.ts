@@ -16,14 +16,31 @@ export const executeType = (query: string) => {
 };
 
 export const parseExecute = (parameters: CFXParameters | CFXParameters[]) => {
-  if (!Array.isArray(parameters))
+  if (!Array.isArray(parameters)) {
     if (typeof parameters === 'object') {
       const arr: unknown[] = [];
       Object.entries(parameters).forEach((entry) => (arr[parseInt(entry[0]) - 1] = entry[1]));
       parameters = arr;
     } else throw new Error(`Parameters expected an array but received ${typeof parameters} instead`);
+  }
 
   if (!parameters.every(Array.isArray)) parameters = [[...parameters]];
+
+  return parameters;
+};
+
+export const parseValues = (placeholders: number, parameters: CFXParameters | CFXParameters[]) => {
+  if (!Array.isArray(parameters)) {
+    if (typeof parameters === 'object') {
+      const arr: unknown[] = [];
+      Object.entries(parameters).forEach((entry) => (arr[parseInt(entry[0]) - 1] = entry[1]));
+      parameters = arr;
+    } else throw new Error(`Parameters expected an array but received ${typeof parameters} instead`);
+  } else if (placeholders > parameters.length) {
+    for (let i = parameters.length; i < placeholders; i++) {
+      parameters[i] = null;
+    }
+  }
 
   return parameters;
 };

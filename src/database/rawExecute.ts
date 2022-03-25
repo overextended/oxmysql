@@ -3,7 +3,7 @@ import { pool } from '.';
 import { logQuery } from '../logger';
 import { CFXCallback, CFXParameters, QueryResponse } from '../types';
 import { parseResponse } from '../utils/parseResponse';
-import { executeType, parseExecute } from '../utils/parseExecute';
+import { executeType, parseExecute, parseValues } from '../utils/parseExecute';
 import { scheduleTick } from '../utils/scheduleTick';
 
 export const rawExecute = async (
@@ -24,10 +24,14 @@ export const rawExecute = async (
   let response: QueryResponse;
 
   try {
+    const placeholders = query.split('?').length - 1;
     const results = [] as RowDataPacket;
     const executionTime = process.hrtime();
 
-    for (const values of parameters) {
+    await connection.beginTransaction();
+
+    parameters.forEach(async (values: any) => {
+      values = parseValues(placeholders, values);
       const [rows] = (await connection.execute(query, values)) as RowDataPacket[][];
       if (rows.length > 1) {
         for (const row of rows) {
@@ -36,7 +40,7 @@ export const rawExecute = async (
       } else results.push(parseResponse(type, rows));
 
       logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, values as typeof parameters);
-    }
+    });
 
     response = results;
 
@@ -50,10 +54,14 @@ export const rawExecute = async (
     } else {
       response = results;
     }
+
+    await connection.commit();
   } catch (e) {
+    await connection.rollback();
+
     throw new Error(`${invokingResource} was unable to execute a query!
     ${(e as QueryError).message}
-    ${`${query} ${JSON.stringify(parameters)}`}`);
+    ${`${(e as any).sql}`}`);
   } finally {
     connection.release();
   }
