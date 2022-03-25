@@ -14,24 +14,32 @@ jobs:
       - name: Install archive tools
         run: sudo apt install zip
 
-      - name: Checkout source code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.20.3
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: 'pnpm'
 
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Install root dependencies
-        run: yarn
+        run: pnpm install
 
       - name: Install ui dependencies
-        run: yarn
+        run: pnpm install
         working-directory: ui
 
       - name: Run build
-        run: yarn build
+        run: pnpm build
 
       - name: Bundle files
         run: |

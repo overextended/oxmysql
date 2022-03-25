@@ -1,6 +1,6 @@
 {
   "name": "oxmysql",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "FXServer to MySQL communication via node-mysql2",
   "repository": "git@github.com:overextended/oxmysql.git",
   "author": "dunak-debug <19434539+dunak-debug@users.noreply.github.com>",
@@ -12,8 +12,8 @@
     "lib/MySQL.d.ts"
   ],
   "scripts": {
-    "build": "yarn build:root && yarn build:ui",
-    "build:ui": "cd ./ui/ && yarn build",
+    "build": "pnpm build:root && pnpm build:ui",
+    "build:ui": "cd ./ui/ && pnpm build",
     "build:root": "esbuild --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "watch": "esbuild --watch --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "lib": "tsc --project lib/tsconfig.lib.json",
