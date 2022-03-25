@@ -2,11 +2,12 @@ lockfileVersion: 5.3
 
 specifiers:
   '@citizenfx/server': ^2.0.5132-1
+  '@tellus/patch-package-with-pnpm-support': github:Tellus/patch-package-with-pnpm-support
   '@types/node': ^17.0.4
   esbuild: ^0.14.23
   mysql2: ^2.3.3
+  named-placeholders: ^1.1.2
   node-fetch: ^3.2.1
-  patch-package: ^6.4.7
   postinstall-postinstall: ^2.1.0
   prettier: ^2.5.1
   pretty-quick: ^3.1.3
@@ -16,12 +17,13 @@ dependencies:
   '@citizenfx/server': 2.0.5132-1
   '@types/node': 17.0.22
   mysql2: 2.3.3
+  named-placeholders: 1.1.2
   node-fetch: 3.2.3
   prettier: 2.6.0
 
 devDependencies:
+  '@tellus/patch-package-with-pnpm-support': github.com/Tellus/patch-package-with-pnpm-support/5b5c433ee9944d7dd9f4992b47146a3dca5e08ec
   esbuild: 0.14.27
-  patch-package: 6.4.7
   postinstall-postinstall: 2.1.0
   pretty-quick: 3.1.3_prettier@2.6.0
   typescript: 4.6.2
@@ -31,6 +33,10 @@ packages:
   /@citizenfx/server/2.0.5132-1:
     resolution: {integrity: sha512-DGqijToliwQdodc9IK5wrqsqVukN12qXLGatJTZhUsxD0m2LfwBtxwqL4VpuYkFhJ+7wna5aotEItYCVZUOVqQ==}
     dev: false
+
+  /@types/dashdash/1.14.1:
+    resolution: {integrity: sha512-3UAiw52g6LARDS9I5lpYwUzj/nBuMvor/0BWiza7ibuOIEaNIo+m3whnVBLLj/ue0DzlcX+96c24YdZCuDwOiQ==}
+    dev: true
 
   /@types/minimatch/3.0.5:
     resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
@@ -71,6 +77,11 @@ packages:
   /arrify/2.0.1:
     resolution: {integrity: sha512-3duEwti880xqi4eAMN8AyR4a0ByT90zoYdLlevfrvU43vb0YZwZVfxOgxWrLXXXpyugL0hNZc9G6BiB5B3nUug==}
     engines: {node: '>=8'}
+    dev: true
+
+  /assert-plus/1.0.0:
+    resolution: {integrity: sha1-8S4PPF13sLHN2RRpQuTpbB5N1SU=}
+    engines: {node: '>=0.8'}
     dev: true
 
   /balanced-match/1.0.2:
@@ -155,6 +166,13 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+    dev: true
+
+  /dashdash/2.0.0:
+    resolution: {integrity: sha512-ElMoAPlrzmF4l0OscF5pPBZv8LhUJBnwh7rHKllUOrwabAr47R1aQIIwC53rc59ycCb7k5Sj1/es+A3Bep/x5w==}
+    engines: {node: '>=10.x'}
+    dependencies:
+      assert-plus: 1.0.0
     dev: true
 
   /data-uri-to-buffer/4.0.0:
@@ -427,7 +445,7 @@ packages:
   /find-yarn-workspace-root/2.0.0:
     resolution: {integrity: sha512-1IMnbjt4KzsQfnhnzNd8wUEgXZ44IzZaZmnLYx7D5FZlaHt2gW20Cri8Q+E/t5tIj4+epTBub+2Zxu/vNILzqQ==}
     dependencies:
-      micromatch: 4.0.4
+      micromatch: 4.0.5
     dev: true
 
   /formdata-polyfill/4.0.10:
@@ -595,8 +613,8 @@ packages:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
     dev: true
 
-  /micromatch/4.0.4:
-    resolution: {integrity: sha512-pRmzw/XUcwXGpD9aI9q/0XOwLNygjETJ8y0ao0wdqprrzDa4YnxLcz7fQRZr8voh8V10kGhABbNcHVk5wHgWwg==}
+  /micromatch/4.0.5:
+    resolution: {integrity: sha512-DMy+ERcEW2q8Z2Po+WNXuw3c5YaUSFjAO5GsJqfEl7UjvtIuFKO6ZrKvcItdy98dwFI2N1tg3zNIdKaQT+aNdA==}
     engines: {node: '>=8.6'}
     dependencies:
       braces: 3.0.2
@@ -612,10 +630,6 @@ packages:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
     dependencies:
       brace-expansion: 1.1.11
-    dev: true
-
-  /minimist/1.2.5:
-    resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
     dev: true
 
   /mri/1.2.0:
@@ -725,26 +739,6 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /patch-package/6.4.7:
-    resolution: {integrity: sha512-S0vh/ZEafZ17hbhgqdnpunKDfzHQibQizx9g8yEf5dcVk3KOflOfdufRXQX8CSEkyOQwuM/bNz1GwKvFj54kaQ==}
-    engines: {npm: '>5'}
-    hasBin: true
-    dependencies:
-      '@yarnpkg/lockfile': 1.1.0
-      chalk: 2.4.2
-      cross-spawn: 6.0.5
-      find-yarn-workspace-root: 2.0.0
-      fs-extra: 7.0.1
-      is-ci: 2.0.0
-      klaw-sync: 6.0.0
-      minimist: 1.2.5
-      open: 7.4.2
-      rimraf: 2.7.1
-      semver: 5.7.1
-      slash: 2.0.0
-      tmp: 0.0.33
-    dev: true
-
   /path-exists/4.0.0:
     resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
     engines: {node: '>=8'}
@@ -852,6 +846,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /shlex/2.1.0:
+    resolution: {integrity: sha512-Tk8PjohJbWpGu2NtAlsEi/9AS4GU2zW2ZWLFrWRDskZpSJmyBIU3nTkBtocxD90r3w4BwRevsNtIqIP9HMuYiQ==}
+    dev: true
+
   /signal-exit/3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
     dev: true
@@ -941,3 +939,29 @@ packages:
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
     dev: false
+
+  github.com/Tellus/patch-package-with-pnpm-support/5b5c433ee9944d7dd9f4992b47146a3dca5e08ec:
+    resolution: {tarball: https://codeload.github.com/Tellus/patch-package-with-pnpm-support/tar.gz/5b5c433ee9944d7dd9f4992b47146a3dca5e08ec}
+    name: '@tellus/patch-package-with-pnpm-support'
+    version: 6.4.9-jlb.0
+    engines: {npm: '>5'}
+    hasBin: true
+    prepare: true
+    requiresBuild: true
+    dependencies:
+      '@types/dashdash': 1.14.1
+      '@yarnpkg/lockfile': 1.1.0
+      chalk: 2.4.2
+      cross-spawn: 6.0.5
+      dashdash: 2.0.0
+      find-yarn-workspace-root: 2.0.0
+      fs-extra: 7.0.1
+      is-ci: 2.0.0
+      klaw-sync: 6.0.0
+      open: 7.4.2
+      rimraf: 2.7.1
+      semver: 5.7.1
+      shlex: 2.1.0
+      slash: 2.0.0
+      tmp: 0.0.33
+    dev: true
