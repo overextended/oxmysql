@@ -3,7 +3,7 @@ import { pool } from '.';
 import { logQuery } from '../logger';
 import { CFXCallback, CFXParameters, QueryResponse } from '../types';
 import { parseResponse } from '../utils/parseResponse';
-import { parseExecute } from '../utils/parseExecute';
+import { executeType, parseExecute } from '../utils/parseExecute';
 import { scheduleTick } from '../utils/scheduleTick';
 
 export const rawExecute = async (
@@ -12,12 +12,11 @@ export const rawExecute = async (
   parameters: CFXParameters | CFXParameters[],
   cb?: CFXCallback
 ) => {
-  const type = parseExecute(query);
+  const type = executeType(query);
 
-  if (!type) throw new Error(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods!`);
+  if (!type) throw new Error(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods.`);
 
-  if (!Array.isArray(parameters))
-    throw new Error(`Parameters expected an array but received ${typeof parameters} instead`);
+  parameters = parseExecute(query, parameters);
 
   await scheduleTick();
 
@@ -25,20 +24,18 @@ export const rawExecute = async (
   let response: QueryResponse;
 
   try {
-    if (!parameters.every(Array.isArray)) parameters = [[...parameters]];
-
     const results = [] as RowDataPacket;
     const executionTime = process.hrtime();
 
-    for (const params of parameters) {
-      const [rows] = (await connection.execute(query, params)) as RowDataPacket[][];
+    for (const values of parameters) {
+      const [rows] = (await connection.execute(query, values)) as RowDataPacket[][];
       if (rows.length > 1) {
         for (const row of rows) {
           results.push(parseResponse(type, row));
         }
       } else results.push(parseResponse(type, rows));
 
-      logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, params as typeof parameters);
+      logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, values as typeof parameters);
     }
 
     response = results;
@@ -56,7 +53,7 @@ export const rawExecute = async (
   } catch (e) {
     throw new Error(`${invokingResource} was unable to execute a query!
     ${(e as QueryError).message}
-    ${(e as any).sql || `${query} ${JSON.stringify(parameters)}`}`);
+    ${`${query} ${JSON.stringify(parameters)}`}`);
   } finally {
     connection.release();
   }
