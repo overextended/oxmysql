@@ -24,11 +24,11 @@ export const rawExecute = async (
   try {
     const placeholders = query.split('?').length - 1;
     const results = [] as RowDataPacket;
-    const executionTime = process.hrtime();
 
 	if (type !== null) await connection.beginTransaction();
 
     for (let values of parameters as CFXParameters[]) {
+      const executionTime = process.hrtime();
       values = parseValues(placeholders, values);
       const [rows] = (await connection.execute(query, values)) as RowDataPacket[][];
 
