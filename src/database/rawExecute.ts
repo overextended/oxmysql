@@ -14,8 +14,6 @@ export const rawExecute = async (
 ) => {
   const type = executeType(query);
 
-  if (!type) throw new Error(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods.`);
-
   parameters = parseExecute(parameters);
 
   await scheduleTick();
@@ -28,7 +26,7 @@ export const rawExecute = async (
     const results = [] as RowDataPacket;
     const executionTime = process.hrtime();
 
-    await connection.beginTransaction();
+	if (type !== null) await connection.beginTransaction();
 
     for (let values of parameters as CFXParameters[]) {
       values = parseValues(placeholders, values);
@@ -46,7 +44,7 @@ export const rawExecute = async (
     response = results;
 
     if (results.length === 1) {
-      if (type === 'execute') {
+      if (type === null) {
         if (results[0][0] && Object.keys(results[0][0]).length === 1) response = Object.values(results[0][0])[0] as any;
         else response = results[0][0];
       } else {
@@ -56,7 +54,7 @@ export const rawExecute = async (
       response = results;
     }
 
-    await connection.commit();
+    if (type !== null) await connection.commit();
   } catch (e) {
     await connection.rollback();
 
