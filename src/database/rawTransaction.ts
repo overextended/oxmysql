@@ -22,15 +22,16 @@ export const rawTransaction = async (
   let response = false;
 
   try {
-    const executionTime = process.hrtime();
-
     await connection.beginTransaction();
 
-    for (const transaction of transactions) await connection.query(transaction.query, transaction.params);
+    for (const transaction of transactions) {
+		//@ts-expect-error
+		const [result, fields, executionTime] = await connection.query(transaction.query, transaction.params);
+		//@ts-expect-error
+		logQuery(invokingResource, transaction.query, executionTime, transaction.params);
+	}
 
     await connection.commit();
-
-    logQuery(invokingResource, 'TRANSACTION', process.hrtime(executionTime)[1] / 1e6, parameters);
 
     response = true;
   } catch (e) {
