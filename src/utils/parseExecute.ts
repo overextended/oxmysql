@@ -15,7 +15,7 @@ export const executeType = (query: string) => {
   }
 };
 
-export const parseExecute = (parameters: CFXParameters | CFXParameters[]) => {
+export const parseExecute = (parameters: CFXParameters) => {
   if (!Array.isArray(parameters)) {
     if (typeof parameters === 'object') {
       const arr: unknown[] = [];
@@ -24,12 +24,10 @@ export const parseExecute = (parameters: CFXParameters | CFXParameters[]) => {
     } else throw new Error(`Parameters expected an array but received ${typeof parameters} instead`);
   }
 
-  if (!parameters.every(Array.isArray)) parameters = [[...parameters]];
-
   return parameters;
 };
 
-export const parseValues = (placeholders: number, parameters: CFXParameters | CFXParameters[]) => {
+export const parseValues = (placeholders: number, parameters: CFXParameters) => {
   if (!Array.isArray(parameters)) {
     if (typeof parameters === 'object') {
       const arr: unknown[] = [];

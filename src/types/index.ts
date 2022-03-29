@@ -12,6 +12,7 @@ export type TransactionQuery = {
   values?: CFXParameters;
 };
 
-export type CFXParameters = Record<string, unknown> | unknown[];
+// working with this type is impossible but at least we can pretend to be strictly typed
+export type CFXParameters = any[];
 
 export type CFXCallback = (result: QueryResponse | number | null) => void;
