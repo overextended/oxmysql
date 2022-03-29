@@ -57,7 +57,7 @@ MySQL.transaction = (
 
 MySQL.prepare = (
   query: string,
-  parameters: CFXParameters | CFXParameters[],
+  parameters: CFXParameters,
   cb: CFXCallback,
   invokingResource = GetInvokingResource()
 ) => {
@@ -70,21 +70,12 @@ MySQL.fetch = MySQL.query;
 for (const key in MySQL) {
   global.exports(key, MySQL[key]);
 
-  global.exports(
-    `${key}_async`,
-    (query: string, parameters: CFXParameters | CFXParameters[], invokingResource = GetInvokingResource()) => {
-      return new Promise((resolve) => {
-        MySQL[key](query, parameters, resolve, invokingResource);
-      });
-    }
-  );
+  const exp = (query: string, parameters: CFXParameters, invokingResource = GetInvokingResource()) => {
+    return new Promise((resolve) => {
+      MySQL[key](query, parameters, resolve, invokingResource);
+    });
+  };
 
-  global.exports(
-    `${key}Sync`,
-    (query: string, parameters: CFXParameters | CFXParameters[], invokingResource = GetInvokingResource()) => {
-      return new Promise((resolve) => {
-        MySQL[key](query, parameters, resolve, invokingResource);
-      });
-    }
-  );
+  global.exports(`${key}_async`, exp);
+  global.exports(`${key}Sync`, exp);
 }
