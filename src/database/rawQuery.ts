@@ -16,18 +16,16 @@ export const rawQuery = async (
   await scheduleTick();
   [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
 
-  //@ts-ignore TODO: patch mysql2 type
-  pool.query(query, parameters, (err, result, _, executionTime) => {
-    logQuery(invokingResource, query, executionTime, parameters);
-    if (err)
-      throw new Error(
-        `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(
-          parameters
-        )}`}`
-      );
+  return await new Promise((resolve, reject) => {
+    pool.query(query, parameters, (err, result, _, executionTime) => {
+      if (err) return reject(err);
 
-    if (cb) {
-      cb(parseResponse(type, result));
-    }
+      logQuery(invokingResource, query, executionTime, parameters);
+      resolve(cb ? cb(parseResponse(type, result)) : null);
+    });
+  }).catch((err) => {
+    throw new Error(
+      `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(parameters)}`}`
+    );
   });
 };

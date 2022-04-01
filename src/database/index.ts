@@ -8,6 +8,7 @@ let serverReady = false;
 setTimeout(() => {
   pool = createPool({
     connectTimeout: 60000,
+    trace: false,
     ...connectionOptions,
     typeCast,
   });
