@@ -14,13 +14,9 @@ export const rawExecute = async (
 ) => {
   const type = executeType(query);
   parameters = parseExecute(parameters);
-
   let single: boolean;
 
-  if (!parameters.every(Array.isArray)) {
-    single = true;
-    parameters = [[...parameters]];
-  }
+  if (!parameters.every(Array.isArray)) parameters = [[...parameters]];
 
   const length = parameters.length - 1;
 
@@ -41,15 +37,18 @@ export const rawExecute = async (
           connection.execute(query, values, (err, results: RowDataPacket[][]) => {
             if (err) return reject([connection, err]);
 
-            if (results.length > 1) {
-              for (const value of results) {
-                response.push(parseResponse(type, value));
-              }
-            } else response.push(parseResponse(type, results));
+            if (cb) {
+              if (results.length > 1) {
+                for (const value of results) {
+                  response.push(parseResponse(type, value));
+                }
+              } else response.push(parseResponse(type, results));
+            }
 
             logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, values as typeof parameters);
 
             if (index === length) {
+              single = response.length === 1;
               if (!single && type !== null) connection.commit();
               connection.release();
 
@@ -59,7 +58,7 @@ export const rawExecute = async (
         });
       };
 
-      if (single || type !== null) {
+      if (type === null) {
         execute();
       } else
         connection.beginTransaction((err) => {
