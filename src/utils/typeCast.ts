@@ -18,10 +18,9 @@ export const typeCast = (field: Field, next: () => void) => {
     case 'TIMESTAMP':
     case 'TIMESTAMP2':
     case 'NEWDATE':
+      return new Date(field.string()).getTime();
     case 'DATE':
-      return field.type === 'DATE'
-        ? new Date(field.string() + ' 00:00:00').getTime()
-        : new Date(field.string()).getTime();
+      return new Date(field.string() + ' 00:00:00').getTime();
     case 'TINY':
       return field.length === 1 ? field.string() === '1' : next();
     case 'BIT':
@@ -31,7 +30,9 @@ export const typeCast = (field: Field, next: () => void) => {
     case 'LONG_BLOB':
     case 'BLOB':
       if (field.charset === BINARY_CHARSET) {
-        return [...field.buffer()];
+        const value = field.buffer();
+		if (value === null) return [value]
+        return [...value];
       }
       return field.string();
     default:
