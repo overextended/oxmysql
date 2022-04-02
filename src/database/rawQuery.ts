@@ -17,6 +17,7 @@ export const rawQuery = async (
   [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
 
   return await new Promise((resolve, reject) => {
+    //@ts-expect-error todo: patch type with executionTime
     pool.query(query, parameters, (err, result, _, executionTime) => {
       if (err) return reject(err);
 
