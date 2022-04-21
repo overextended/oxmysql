@@ -24,7 +24,6 @@ export const rawExecute = async (
   const connection = await pool.promise().getConnection();
 
   try {
-    if (type !== null) await connection.beginTransaction();
     const placeholders = query.split('?').length - 1;
 
     for (let values of parameters as CFXParameters[]) {
@@ -45,10 +44,7 @@ export const rawExecute = async (
     }
 
     single = response.length === 1;
-    if (type !== null) connection.commit();
   } catch (err: any) {
-    if (connection && type !== null) connection.rollback();
-
     throw new Error(`${invokingResource} was unable to execute a query!
 	${err.message}
 	${err.sql}`);
