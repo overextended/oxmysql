@@ -11,7 +11,7 @@ const transactionError = (queries: { query: string; params: CFXParameters }[], p
 
 export const rawTransaction = async (
   invokingResource: string,
-  queries: TransactionQuery[] | string[],
+  queries: TransactionQuery,
   parameters: CFXParameters,
   callback?: (result: boolean) => void
 ) => {

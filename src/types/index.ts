@@ -7,7 +7,7 @@ export type QueryResponse = SQLResponse | SQLResponse[] | RowDataPacket;
 export type QueryType = 'execute' | 'insert' | 'update' | 'scalar' | 'single' | null;
 
 export type TransactionQuery = {
-  query: string;
+  query: string | string[];
   parameters?: CFXParameters;
   values?: CFXParameters;
 };

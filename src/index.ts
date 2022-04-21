@@ -47,7 +47,7 @@ MySQL.insert = (
 };
 
 MySQL.transaction = (
-  queries: TransactionQuery[] | string[],
+  queries: TransactionQuery,
   parameters: CFXParameters,
   cb: (result: boolean) => void,
   invokingResource = GetInvokingResource()
