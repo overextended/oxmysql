@@ -1,4 +1,4 @@
-<h1 align='center'><a href='https://overextended.github.io/oxmysql/'>Documentation</a></h2>
+<h1 align='center'><a href='https://overextended.github.io/docs/oxmysql/'>Documentation</a></h2>
 
 ### Introduction
 
