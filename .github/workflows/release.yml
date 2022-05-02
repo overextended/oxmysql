@@ -30,12 +30,8 @@ jobs:
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: Install root dependencies
-        run: pnpm install
-
-      - name: Install ui dependencies
-        run: pnpm install
-        working-directory: ui
+      - name: Install dependencies
+        run: pnpm i
 
       - name: Run build
         run: pnpm build

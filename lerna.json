@@ -1,0 +1,5 @@
+{
+  "packages": ["ui"],
+  "npmClient": "pnpm",
+  "version": "0.0.0"
+}

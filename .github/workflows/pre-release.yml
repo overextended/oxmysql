@@ -22,15 +22,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref }}
 
-      - name: Install root dependencies
-        run: yarn
-
-      - name: Install ui dependencies
-        run: yarn
-        working-directory: ui
+      - name: Install dependencies
+        run: pnpm i
 
       - name: Run build
-        run: yarn build
+        run: pnpm build
 
       - name: Bundle files
         run: |

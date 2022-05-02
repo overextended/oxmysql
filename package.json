@@ -12,12 +12,12 @@
     "lib/MySQL.d.ts"
   ],
   "scripts": {
-    "build": "pnpm build:root && pnpm build:ui",
-    "build:ui": "cd ./ui/ && pnpm build",
+    "build": "pnpm build:root && lerna run build",
     "build:root": "esbuild --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "watch": "esbuild --watch --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "lib": "tsc --project lib/tsconfig.lib.json",
-    "postinstall": "patch-package"
+    "bootstrap": "lerna bootstrap",
+    "postinstall": "patch-package && pnpm bootstrap"
   },
   "dependencies": {
     "@citizenfx/server": "^2.0.5132-1",
@@ -30,6 +30,7 @@
   "devDependencies": {
     "@tellus/patch-package-with-pnpm-support": "github:Tellus/patch-package-with-pnpm-support",
     "esbuild": "^0.14.23",
+    "lerna": "^4.0.0",
     "postinstall-postinstall": "^2.1.0",
     "pretty-quick": "^3.1.3",
     "typescript": "^4.6.2"
