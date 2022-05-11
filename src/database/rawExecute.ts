@@ -52,17 +52,19 @@ export const rawExecute = async (
     connection.release();
   }
 
-  if (cb) {
-    if (single) {
-      if (type === null) {
-        //@ts-expect-error
-        if (response[0][0] && Object.keys(response[0][0]).length === 1) cb(Object.values(response[0][0])[0]);
-        else cb(response[0][0]);
+  try {
+    if (cb) {
+      if (single) {
+        if (type === null) {
+          //@ts-expect-error
+          if (response[0][0] && Object.keys(response[0][0]).length === 1) cb(Object.values(response[0][0])[0]);
+          else cb(response[0][0]);
+        } else {
+          cb(response[0]);
+        }
       } else {
-        cb(response[0]);
+        cb(response);
       }
-    } else {
-      cb(response);
     }
-  }
+  } catch (err) {}
 };

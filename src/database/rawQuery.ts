@@ -22,7 +22,9 @@ export const rawQuery = async (
       if (err) return reject(err);
 
       logQuery(invokingResource, query, executionTime, parameters);
-      resolve(cb ? cb(parseResponse(type, result)) : null);
+      try {
+        resolve(cb ? cb(parseResponse(type, result)) : null);
+      } catch (err) {}
     });
   }).catch((err) => {
     throw new Error(
