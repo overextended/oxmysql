@@ -1,7 +1,7 @@
 import { CFXParameters } from '../types';
 
 export const executeType = (query: string) => {
-  switch (query.replace(/\s.*/, '')) {
+  switch (query.substring(0, query.indexOf(' '))) {
     case 'SELECT':
       return null;
     case 'INSERT':
