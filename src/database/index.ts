@@ -1,5 +1,5 @@
 import { createPool, Pool } from 'mysql2';
-import { mysql_connection_string, mysql_transaction_isolation_level } from '../config';
+import { mysql_connection_string, mysql_transaction_isolation_level, mysql_reconnect_time } from '../config';
 import { typeCast } from '../utils/typeCast';
 
 export const parseUri = (connectionString: string) => {
@@ -51,19 +51,32 @@ const connectionOptions = (() => {
 let pool: Pool;
 let serverReady = false;
 
-setTimeout(() => {
-  pool = createPool({
-    connectTimeout: 60000,
-    trace: false,
-    ...connectionOptions,
-    typeCast,
-  });
+const mysqlInit = (() => {
+  setTimeout(() => {
+    pool = createPool({
+      connectTimeout: 60000,
+      trace: false,
+      ...connectionOptions,
+      typeCast,
+    });
 
-  pool.query(mysql_transaction_isolation_level, (err) => {
-    if (err) return console.error(`^3Unable to establish a connection to the database!\n^3[${err}]^0`);
-    console.log(`^2Database server connection established!^0`);
-    serverReady = true;
+    pool.query(mysql_transaction_isolation_level, (err) => {
+      if (err) {
+        console.error(`^3Unable to establish a connection to the database!\n^3[${err}]^0`);
+        delete pool;
+        if (mysql_reconnect_time > 0){
+          setTimeout(function() {
+            mysqlInit();
+          }, mysql_reconnect_time);
+        };
+        return;
+      }
+      console.log(`^2Database server connection established!^0`);
+      serverReady = true;
+    });
   });
-});
+})
+
+mysqlInit();
 
 export { pool, serverReady };
