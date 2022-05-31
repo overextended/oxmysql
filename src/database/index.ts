@@ -51,8 +51,7 @@ const connectionOptions = (() => {
 let pool: Pool;
 let serverReady = false;
 
-const mysqlInit = (() => {
-  setTimeout(() => {
+const mysqlInit = () => {
     pool = createPool({
       connectTimeout: 60000,
       trace: false,
@@ -63,19 +62,13 @@ const mysqlInit = (() => {
     pool.query(mysql_transaction_isolation_level, (err) => {
       if (err) {
         console.error(`^3Unable to establish a connection to the database!\n^3[${err}]^0`);
-        delete pool;
-        if (mysql_reconnect_time > 0){
-          setTimeout(function() {
-            mysqlInit();
-          }, mysql_reconnect_time);
-        };
+        if (mysql_reconnect_time > 0) setTimeout(mysqlInit, mysql_reconnect_time);
         return;
       }
       console.log(`^2Database server connection established!^0`);
       serverReady = true;
     });
-  });
-})
+}
 
 mysqlInit();
 
