@@ -59,15 +59,15 @@ const mysqlInit = () => {
       typeCast,
     });
 
-    pool.query(mysql_transaction_isolation_level, (err) => {
-      if (err) {
-        console.error(`^3Unable to establish a connection to the database!\n^3[${err}]^0`);
-        if (mysql_reconnect_time > 0) setTimeout(mysqlInit, mysql_reconnect_time);
-        return;
-      }
-      console.log(`^2Database server connection established!^0`);
-      serverReady = true;
-    });
+  pool.query(mysql_transaction_isolation_level, (err) => {
+    if (err) {
+      console.error(`^3Unable to establish a connection to the database!\n^3[${err}]^0`);
+      if (mysql_reconnect_time > 0) setTimeout(mysqlInit, mysql_reconnect_time);
+      return;
+    }
+    console.log(`^2Database server connection established!^0`);
+    serverReady = true;
+  });
 }
 
 mysqlInit();
