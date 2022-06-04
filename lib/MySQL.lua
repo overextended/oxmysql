@@ -68,7 +68,11 @@ local GetCurrentResourceName = GetCurrentResourceName()
 
 local function await(fn, query, parameters)
 	local p = promise.new()
-	fn(nil, query, parameters, function(result)
+	fn(nil, query, parameters, function(result, error)
+		if error then
+			return p:reject(error)
+		end
+
 		p:resolve(result)
 	end, GetCurrentResourceName)
 	return Await(p)
