@@ -10,7 +10,8 @@ export const rawExecute = async (
   invokingResource: string,
   query: string,
   parameters: CFXParameters,
-  cb?: CFXCallback
+  cb?: CFXCallback,
+  throwError?: boolean
 ) => {
   const type = executeType(query);
   parameters = parseExecute(parameters);
@@ -45,9 +46,12 @@ export const rawExecute = async (
 
     single = response.length === 1;
   } catch (err: any) {
-    throw new Error(`${invokingResource} was unable to execute a query!
-	${err.message}
-	${err.sql}`);
+    const error = `${invokingResource} was unable to execute a query!
+    ${err.message}
+    ${err.sql}`;
+
+    if (cb) cb(null, error)
+    if (throwError) throw new Error(error)
   } finally {
     connection.release();
   }

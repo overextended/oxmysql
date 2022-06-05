@@ -15,4 +15,4 @@ export type TransactionQuery = {
 // working with this type is impossible but at least we can pretend to be strictly typed
 export type CFXParameters = any[];
 
-export type CFXCallback = (result: QueryResponse | number | null) => void;
+export type CFXCallback = (result: QueryResponse | number | null, err?: string) => void;

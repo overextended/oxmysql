@@ -11,7 +11,8 @@ export const rawQuery = async (
   invokingResource: string,
   query: string,
   parameters: CFXParameters,
-  cb?: CFXCallback
+  cb?: CFXCallback,
+  throwError?: boolean
 ) => {
   await scheduleTick();
   [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
@@ -27,8 +28,9 @@ export const rawQuery = async (
       } catch (err) {}
     });
   }).catch((err) => {
-    throw new Error(
-      `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(parameters)}`}`
-    );
+    const error = `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(parameters)}`}`
+
+    if (cb) cb(null, error)
+    if (throwError) throw new Error(error)
   });
 };
