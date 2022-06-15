@@ -1,4 +1,4 @@
-import { mysql_debug, mysql_slow_query_warning, mysql_ui } from '../config';
+import { mysql_debug, mysql_slow_query_warning, mysql_ui, mysql_ui_command } from '../config';
 import type { CFXParameters } from '../types';
 
 interface QueryData {
@@ -31,7 +31,7 @@ export const logQuery = (invokingResource: string, query: string, executionTime:
 };
 
 RegisterCommand(
-  'mysql',
+  mysql_ui_command,
   (source: number) => {
     if (!mysql_ui) return;
 

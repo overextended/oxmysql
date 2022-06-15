@@ -3,6 +3,7 @@ export const mysql_debug = GetConvar('mysql_debug', 'false') === 'true';
 export const mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
 export const mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
 export const mysql_connection_string = GetConvar('mysql_connection_string', '');
+export const mysql_ui_command = GetConvar('mysql_ui_command', 'mysql');
 
 export const mysql_transaction_isolation_level = (() => {
   const query = 'SET TRANSACTION ISOLATION LEVEL';
