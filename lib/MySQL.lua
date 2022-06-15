@@ -118,7 +118,7 @@ local alias_mt = {
 	__index = function(self, key)
 		if alias[key] then
 			MySQL.Async[key] = MySQL[alias[key]]
-			MySQL.Sync[key] = MySQL[alias[key]].await
+			MySQL.Sync[key] = MySQL[alias[key] .. "_async"]
 			alias[key] = nil
 			return self[key]
 		end
@@ -133,35 +133,35 @@ _ENV.MySQL = MySQL
 --[[
 exports.oxmysql:query (previously exports.oxmysql:execute)
 MySQL.Async.fetchAll = MySQL.query
-MySQL.Sync.fetchAll = MySQL.query.await
+MySQL.Sync.fetchAll = MySQL.query_async
 
 
 exports.oxmysql:scalar
 MySQL.Async.fetchScalar = MySQL.scalar
-MySQL.Sync.fetchScalar = MySQL.scalar.await
+MySQL.Sync.fetchScalar = MySQL.scalar_async
 
 
 exports.oxmysql:single
 MySQL.Async.fetchSingle = MySQL.single
-MySQL.Sync.fetchSingle = MySQL.single.await
+MySQL.Sync.fetchSingle = MySQL.single_async
 
 
 exports.oxmysql:insert
 MySQL.Async.insert = MySQL.insert
-MySQL.Sync.insert = MySQL.insert.await
+MySQL.Sync.insert = MySQL.insert_async
 
 
 exports.oxmysql:update
 MySQL.Async.execute = MySQL.update
-MySQL.Sync.execute = MySQL.update.await
+MySQL.Sync.execute = MySQL.update_async
 
 
 exports.oxmysql:transaction
 MySQL.Async.transaction = MySQL.transaction
-MySQL.Sync.transaction = MySQL.transaction.await
+MySQL.Sync.transaction = MySQL.transaction_async
 
 
 exports.oxmysql:prepare
 MySQL.Async.prepare = MySQL.prepare
-MySQL.Sync.prepare = MySQL.prepare.await
+MySQL.Sync.prepare = MySQL.prepare_async
 --]]
