@@ -74,7 +74,7 @@ local function await(fn, query, parameters)
 		end
 
 		p:resolve(result)
-	end, GetCurrentResourceName)
+	end, GetCurrentResourceName, false)
 	return Await(p)
 end
 
@@ -85,7 +85,8 @@ setmetatable(MySQL, {
 			self[method] = setmetatable({}, {
 
 				__call = function(_, query, parameters, cb)
-					return oxmysql[method](nil, safeArgs(query, parameters, cb, method == 'transaction'))
+					query, parameters, cb = safeArgs(query, parameters, cb, method == 'transaction')
+					return oxmysql[method](nil, query, parameters, cb, GetCurrentResourceName, true)
 				end,
 
 				__index = function(_, index)
