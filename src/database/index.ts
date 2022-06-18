@@ -55,6 +55,7 @@ setTimeout(() => {
   pool = createPool({
     connectTimeout: 60000,
     trace: false,
+    supportBigNumbers: true,
     ...connectionOptions,
     typeCast,
   });
