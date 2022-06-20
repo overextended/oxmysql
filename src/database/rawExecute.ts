@@ -77,6 +77,13 @@ export const rawExecute = async (
     .catch((err) => {
       const error = `${invokingResource} was unable to execute a query!\n${err}\n${`${query}`}`;
 
+      TriggerEvent('oxmysql:error', {
+        query: query,
+        parameters: parameters,
+        message: err.message,
+        err: err,
+      });
+
       if (cb && throwError) return cb(null, error);
     throw new Error(error);
     });
