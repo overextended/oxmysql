@@ -44,7 +44,7 @@ export const rawTransaction = async (
       }^0`
     );
 
-    TriggerEvent('oxmysql:error', {
+    TriggerEvent('oxmysql:transaction-error', {
       query: transactionErrorMessage,
       parameters: parameters,
       message: (e as Error).message,
