@@ -28,7 +28,14 @@ export const rawQuery = async (
       } catch (err) {}
     });
   }).catch((err) => {
-    const error = `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(parameters)}`}`
+    const error = `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(parameters)}`}`;
+
+    TriggerEvent('oxmysql:error', {
+      query: query,
+      parameters: parameters,
+      message: err.message,
+      err: err,
+    });
 
     if (cb && throwError) return cb(null, error);
     throw new Error(error);
