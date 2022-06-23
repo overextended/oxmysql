@@ -35,6 +35,7 @@ export const rawQuery = async (
       parameters: parameters,
       message: err.message,
       err: err,
+      resource: invokingResource,
     });
 
     if (cb && throwError) return cb(null, error);
