@@ -28,6 +28,10 @@ export const rawQuery = async (
       } catch (err) {}
     });
   }).catch((err) => {
+    if (typeof err === 'string') {
+      return console.log(err)
+    }
+    
     const error = `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(parameters)}`}`;
 
     TriggerEvent('oxmysql:error', {
