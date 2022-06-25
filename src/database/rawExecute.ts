@@ -82,6 +82,7 @@ export const rawExecute = async (
         parameters: parameters,
         message: err.message,
         err: err,
+        resource: invokingResource,
       });
 
       if (cb && throwError) return cb(null, error);

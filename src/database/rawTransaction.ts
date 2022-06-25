@@ -49,6 +49,7 @@ export const rawTransaction = async (
       parameters: parameters,
       message: (e as Error).message,
       err: e,
+      resource: invokingResource,
     });
   } finally {
     connection.release();
