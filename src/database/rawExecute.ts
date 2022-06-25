@@ -24,6 +24,7 @@ export const rawExecute = async (
   return await new Promise((resolve, reject) => {
     pool.getConnection((err, connection) => {
       if (err) return reject(err.message);
+      if (parameters.length === 0) return reject(`Query received no parameters.`);
 
       const placeholders = query.split('?').length - 1;
 
@@ -68,11 +69,16 @@ export const rawExecute = async (
       });
     });
   })
-    .then((response) => {
+    .then(async (response) => {
       if (cb)
         try {
-          cb(response as QueryResponse);
-        } catch (err) {}
+          await cb(response);
+        } catch (err) {
+          if (typeof err === 'string') {
+            if (err.includes('SCRIPT ERROR:')) return console.log(err);
+            console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
+          }
+        }
     })
     .catch((err) => {
       const error = `${invokingResource} was unable to execute a query!\n${err}\n${`${query}`}`;
@@ -86,6 +92,6 @@ export const rawExecute = async (
       });
 
       if (cb && throwError) return cb(null, error);
-    throw new Error(error);
+      throw new Error(error);
     });
 };

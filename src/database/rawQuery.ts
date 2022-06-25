@@ -23,26 +23,34 @@ export const rawQuery = async (
       if (err) return reject(err);
 
       logQuery(invokingResource, query, executionTime, parameters);
-      try {
-        resolve(cb ? cb(parseResponse(type, result)) : null);
-      } catch (err) {}
+      resolve(cb ? parseResponse(type, result) : null);
     });
-  }).catch((err) => {
-    if (typeof err === 'string') {
-      return console.log(err)
-    }
-    
-    const error = `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(parameters)}`}`;
+  })
+    .then(async (result) => {
+      if (cb)
+        try {
+          await cb(result);
+        } catch (err) {
+          if (typeof err === 'string') {
+            if (err.includes('SCRIPT ERROR:')) return console.log(err);
+            console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
+          }
+        }
+    })
+    .catch((err) => {
+      const error = `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(
+        parameters
+      )}`}`;
 
-    TriggerEvent('oxmysql:error', {
-      query: query,
-      parameters: parameters,
-      message: err.message,
-      err: err,
-      resource: invokingResource,
+      TriggerEvent('oxmysql:error', {
+        query: query,
+        parameters: parameters,
+        message: err.message,
+        err: err,
+        resource: invokingResource,
+      });
+
+      if (cb && throwError) return cb(null, error);
+      throw new Error(error);
     });
-
-    if (cb && throwError) return cb(null, error);
-    throw new Error(error);
-  });
 };
