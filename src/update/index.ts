@@ -17,7 +17,7 @@ if (GetConvar('mysql_versioncheck', 'true') === 'true') {
       const latestVersion = release.tag_name.match(/(\d)\.(\d+)\.(\d+)/);
       if (!latestVersion) return;
 
-      if (currentVersion[0] === latestVersion[0]) return;
+      if (currentVersion[0] === latestVersion[0] || currentVersion[0] > latestVersion[0]) return;
 
       const updateMessage =
         currentVersion[3] < latestVersion[3]
