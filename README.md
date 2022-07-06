@@ -63,5 +63,5 @@ Named placeholders are deprecated and should be avoided as much as possible.
 <br><br><br><br><br>
 
 <hr>
-<p align='center'><a href='https://discord.gg/overextended'>Discord</a></p>
+<p align='center'><a href='https://discord.gg/mEM6eYdXPm'>Discord</a></p>
 <hr>
