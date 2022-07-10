@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "build": "pnpm build:root && lerna run build",
-    "build:root": "esbuild --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
+    "build:root": "node build.js && cd lib && tsc",
     "watch": "esbuild --watch --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
     "lib": "tsc --project lib/tsconfig.lib.json",
     "bootstrap": "lerna bootstrap",
