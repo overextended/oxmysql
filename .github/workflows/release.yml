@@ -40,8 +40,10 @@ jobs:
         run: |
           mkdir -p ./temp/oxmysql
           mkdir -p ./temp/oxmysql/ui/
+          mkdir -p ./temp/oxmysql/lib/
           cp ./{LICENSE,README.md,fxmanifest.lua,ui.lua} ./temp/oxmysql
-          cp -r ./{lib,dist} ./temp/oxmysql
+          cp ./lib/{MySQL.lua,define.lua} ./temp/oxmysql/lib
+          cp -r ./dist ./temp/oxmysql
           cp -r ./ui/build ./temp/oxmysql/ui/
           cd ./temp && zip -r ../oxmysql.zip ./oxmysql
 

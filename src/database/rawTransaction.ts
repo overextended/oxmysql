@@ -25,11 +25,11 @@ export const rawTransaction = async (
     await connection.beginTransaction();
 
     for (const transaction of transactions) {
-		//@ts-expect-error
-		const [result, fields, executionTime] = await connection.query(transaction.query, transaction.params);
-		//@ts-expect-error
-		logQuery(invokingResource, transaction.query, executionTime, transaction.params);
-	}
+      //@ts-expect-error
+      const [result, fields, executionTime] = await connection.query(transaction.query, transaction.params);
+      //@ts-expect-error
+      logQuery(invokingResource, transaction.query, executionTime, transaction.params);
+    }
 
     await connection.commit();
 
@@ -37,11 +37,18 @@ export const rawTransaction = async (
   } catch (e) {
     await connection.rollback();
 
+    const transactionErrorMessage = (e as any).sql || transactionError(transactions, parameters);
     console.error(
-      `${invokingResource} was unable to execute a transaction!\n${(e as Error).message}\n${
-        (e as any).sql || `${transactionError(transactions, parameters)}`
-      }^0`
+      `${invokingResource} was unable to execute a transaction!\n${(e as Error).message}\n${transactionErrorMessage}^0`
     );
+
+    TriggerEvent('oxmysql:transaction-error', {
+      query: transactionErrorMessage,
+      parameters: parameters,
+      message: (e as Error).message,
+      err: e,
+      resource: invokingResource,
+    });
   } finally {
     connection.release();
   }
@@ -49,5 +56,10 @@ export const rawTransaction = async (
   if (cb)
     try {
       cb(response);
-    } catch {}
+    } catch (err) {
+      if (typeof err === 'string') {
+        if (err.includes('SCRIPT ERROR:')) return console.log(err);
+        console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
+      }
+    }
 };

@@ -18,7 +18,7 @@ export const parseTransaction = (
 
   if (parameters === null || parameters === undefined || typeof parameters === 'function') parameters = [];
 
-  if (queries[0][0]) {
+  if (Array.isArray(queries[0])) {
     const transactions = queries.map((query) => {
 		if (typeof query[1] !== 'object') throw new Error(`Transaction parameters must be array or object, received '${typeof query[1]}'.`);
       const [parsedQuery, parsedParameters] = parseArguments(

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": ".",
+    "strict": true,
+    "module": "CommonJS",
+    "types": ["@citizenfx/server", "@types/node"],
+    "declaration": true,
+    "sourceMap": true,
+    "target": "ESNext",
+    "allowJs": true,
+    "lib": ["ESNext"],
+    "noEmitOnError": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "rootDir": ".",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "noEmit": false
+  },
+  "include": ["MySQL.ts"],
+  "exclude": ["**/node_modules"]
+}
