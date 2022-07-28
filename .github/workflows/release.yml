@@ -1,40 +1,67 @@
-name: Release
+name: Build
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
 
 jobs:
   create-release:
-    name: Build and Create Tagged Release
+    name: Build and Create Tagged release
     runs-on: ubuntu-latest
+
     steps:
       - name: Install archive tools
         run: sudo apt install zip
 
-      - uses: actions/checkout@v2
+      - name: Checkout source code
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          ref: ${{ github.ref }}
-      - uses: pnpm/action-setup@v2.0.1
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2.0.1
         with:
           version: 6.20.3
+
+      - name: Get variables
+        id: get_vars
+        run: |
+          echo '::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)'
+          echo '::set-output name=DATE::$(date +'%D')'
 
       - name: Setup node
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
           cache: 'pnpm'
-
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm i
 
       - name: Run build
         run: pnpm build
+
+      - name: Bump manifest version
+        run: node .github/actions/bump-manifest-version.js
+        env:
+          TGT_RELEASE_VERSION: ${{ github.ref_name }}
+
+      - name: Push manifest change
+        uses: EndBug/add-and-commit@v8
+        with:
+          add: fxmanifest.lua
+          push: true
+          author_name: Manifest Bumper
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
+          message: 'chore: bump manifest version to ${{ github.ref_name }}'
+
+      - name: Update tag ref
+        uses: EndBug/latest-tag@latest
+        with:
+          tag-name: ${{ github.ref_name }}
 
       - name: Bundle files
         run: |
@@ -52,7 +79,7 @@ jobs:
         id: auto_release
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          title: ${{ env.RELEASE_VERSION }}
+          title: '${{ env.RELEASE_VERSION }}'
           prerelease: false
           files: oxmysql.zip
 
