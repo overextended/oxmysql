@@ -78,6 +78,23 @@ MySQL.prepare = (
 MySQL.execute = MySQL.query;
 MySQL.fetch = MySQL.query;
 
+function provide(name: string, cb: Function, sync: Function) {
+  on(`__cfx_export_ghmattimysql_${name}`, (setCb: Function) => setCb(cb));
+  on(`__cfx_export_ghmattimysql_${name}Sync`, (setCb: Function) => setCb(sync));
+}
+
+// provide the "store" and "storeSync" exports, to provide compatibility for ghmattimysql
+// these are not actually used to do anything, simply returning the query as-is
+provide(
+  'store',
+  (query: string, cb: Function) => {
+    cb(query);
+  },
+  (query: string) => {
+    return query;
+  }
+);
+
 for (const key in MySQL) {
   global.exports(key, MySQL[key]);
 
@@ -98,4 +115,6 @@ for (const key in MySQL) {
 
   global.exports(`${key}_async`, exp);
   global.exports(`${key}Sync`, exp);
+
+  if (key === 'execute' || key === 'scalar' || key === 'transaction') provide(key, MySQL[key], exp);
 }
