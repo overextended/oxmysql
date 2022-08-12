@@ -13,7 +13,14 @@ type QueryLog = Record<string, QueryData[]>;
 const logStorage: QueryLog = {};
 
 export const logQuery = (invokingResource: string, query: string, executionTime: number, parameters: CFXParameters) => {
-  if (executionTime >= mysql_slow_query_warning || mysql_debug)
+  if (mysql_debug && Array.isArray(mysql_debug)) {
+    if (mysql_debug.includes(invokingResource)) {
+      console.log(
+        `^3[DEBUG] ${invokingResource} took ${executionTime}ms to execute a query!
+      ${query} ${JSON.stringify(parameters)}^0`
+      );
+    }
+  } else if (mysql_debug || executionTime >= mysql_slow_query_warning)
     console.log(
       `^3[${mysql_debug ? 'DEBUG' : 'WARNING'}] ${invokingResource} took ${executionTime}ms to execute a query!
     ${query} ${JSON.stringify(parameters)}^0`
@@ -35,8 +42,9 @@ RegisterCommand(
   (source: number) => {
     if (!mysql_ui) return;
 
-    if (source < 1) { // source is 0 when received from the server
-      console.log("^3This command cannot run server side^0");
+    if (source < 1) {
+      // source is 0 when received from the server
+      console.log('^3This command cannot run server side^0');
       return;
     }
 
