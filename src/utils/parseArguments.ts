@@ -1,6 +1,7 @@
 import type { CFXCallback, CFXParameters } from '../types';
+import { connectionOptions } from '../config';
 
-const convertNamedPlaceholders = require('named-placeholders')();
+const convertNamedPlaceholders = connectionOptions.namedPlaceholders && require('named-placeholders')();
 
 export const parseArguments = (
   invokingResource: string,
@@ -10,14 +11,15 @@ export const parseArguments = (
 ): [string, CFXParameters, CFXCallback | undefined] => {
   if (typeof query !== 'string') throw new Error(`Query expected a string but received ${typeof query} instead`);
 
-  if (
-    (query.includes(':') && parameters && typeof parameters === 'object' && !Array.isArray(parameters)) ||
-    query.includes('@')
-  ) {
-    const placeholders = convertNamedPlaceholders(query, parameters);
-    query = placeholders[0];
-    parameters = placeholders[1];
-  }
+  if (convertNamedPlaceholders)
+    if (
+      (query.includes(':') && parameters && typeof parameters === 'object' && !Array.isArray(parameters)) ||
+      query.includes('@')
+    ) {
+      const placeholders = convertNamedPlaceholders(query, parameters);
+      query = placeholders[0];
+      parameters = placeholders[1];
+    }
 
   if (cb && typeof cb !== 'function') cb = undefined;
 
