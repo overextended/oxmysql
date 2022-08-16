@@ -1,111 +1,145 @@
 type Query = string | number;
-type Params = Record<string, unknown> | unknown[];
+type Params = Record<string, unknown> | unknown[] | Function;
 type Callback<T> = (result: T | null) => void;
 
-type Transaction = {
-  query: Query;
-} & ({ params?: Params } | { values?: Params });
+type Transaction = Object[]
+
+interface Result {
+    [column: string | number]: any;
+    affectedRows?: number;
+    fieldCount?: number;
+    info?: string;
+    insertId?: number;
+    serverStatus?: number;
+    warningStatus?: number;
+    changedRows?: number;
+}
+
+interface Row {
+    [column: string | number]: unknown;
+}
 
 interface OxMySQL {
   store: (query: string) => void;
   ready: (callback: () => void) => void;
-  query:
-    | (<T = any>(query: Query, params?: Params, cb?: Callback<T>) => Promise<T | null>)
-    | (<T = any>(query: Query, params?: Params, cb?: Callback<T>) => void)
-    | (<T = any>(query: Query, params?: Params, cb?: Callback<T>) => Promise<T | null> | void);
-  single:
-    | (<T = Record<string | number, any>>(query: Query, params?: Params) => Promise<T | null>)
-    | (<T = Record<string | number, any>>(query: Query, params?: Params, cb?: Callback<T>) => void)
-    | (<T = Record<string | number, any>>(query: Query, params?: Params, cb?: Callback<T>) => Promise<T | null | void>);
-  scalar:
-    | (<T = unknown>(query: Query, params?: Params) => Promise<T | null>)
-    | (<T = unknown>(query: Query, params?: Params, cb?: Callback<T>) => void)
-    | (<T = unknown>(query: Query, params?: Params, cb?: Callback<T>) => Promise<T | null> | void);
-  update:
-    | ((query: Query, params?: Params) => Promise<number | null>)
-    | ((query: Query, params?: Params, cb?: Callback<number>) => void)
-    | ((query: Query, params?: Params, cb?: Callback<number>) => Promise<number | null> | void);
-  insert:
-    | ((query: Query, params?: Params) => Promise<number | null>)
-    | ((query: Query, params?: Params, cb?: Callback<number>) => void)
-    | ((query: Query, params?: Params, cb?: Callback<number>) => Promise<number | null> | void);
-  prepare:
-    | (<T = unknown>(query: Query, params?: Params) => Promise<T | null>)
-    | (<T = unknown>(query: Query, params?: Params, cb?: Callback<T>) => void)
-    | (<T = unknown>(query: Query, params?: Params, cb?: Callback<T>) => Promise<T | null> | void);
-  transaction:
-    | ((query: Query, params?: Params) => Promise<boolean>)
-    | ((query: Query, params?: Params, cb?: Callback<boolean>) => void)
-    | ((query: Query, params?: Params, cb?: Callback<boolean>) => Promise<boolean> | void);
+  query: <T = Result | null> (query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>
+  single: <T = Row | null> (query: Query, params?: Params | Callback<Exclude<T, []>>, cb?: Callback<Exclude<T, []>>) => Promise<Exclude<T, []>>
+  scalar: <T = unknown | null> (query: Query, params?: Params | Callback<Exclude<T, []>>, cb?: Callback<Exclude<T, []>>) => Promise<Exclude<T, []>>
+  update: <T = number | null> (query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>
+  insert: <T = number | null> (query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>
+  prepare: <T = any> (query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>
+  transaction: (query: Transaction, params?: Params | Callback<boolean>, cb?: Callback<boolean>) => Promise<boolean>
 }
 
 const QueryStore: string[] = [];
 
-const Wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const assert = (condition: boolean, message: string) => {
+function assert(condition: boolean, message: string) {
   if (!condition) throw new TypeError(message);
-};
+}
 
-const safeArgs = (query: Transaction[] | string[] | Query, params?: any, cb?: Callback<any>, transaction?: true) => {
-  if (typeof query === 'number') query = QueryStore[query];
+const safeArgs = (
+  query: Query | Transaction,
+  params?: any,
+  cb?: Function,
+  transaction?: true
+) => {
+  if (typeof query === "number") query = QueryStore[query];
 
   if (transaction) {
-    assert(Array.isArray(query), `First argument expected array, recieved ${typeof query}`);
+    assert(
+      typeof query === "object",
+      `First argument expected object, recieved ${typeof query}`
+    );
   } else {
-    assert(typeof query === 'string', `First argument expected string, received ${typeof query}`);
+    assert(
+      typeof query === "string",
+      `First argument expected string, received ${typeof query}`
+    );
   }
 
   if (params) {
     const paramType = typeof params;
     assert(
-      paramType === 'object' || paramType === 'function',
-      `Second argument expected table or function, received ${paramType}`
+      paramType === "object" || paramType === "function",
+      `Second argument expected object or function, received ${paramType}`
     );
+
+    if (!cb && paramType === "function") {
+        cb = params
+        params = undefined
+    }
   }
 
-  if (cb !== undefined) assert(typeof cb === 'function', `Callback expects function, received ${typeof cb}`);
+  if (cb !== undefined)
+    assert(
+      typeof cb === "function",
+      `Third argument expected function, received ${typeof cb}`
+    );
 
   return [query, params, cb];
 };
 
+const exp = exports.oxmysql;
+const currentResourceName = GetCurrentResourceName()
+
+function execute(method: string, query: Query | Transaction, params?: Params) {
+    return new Promise((resolve, reject) => {
+        exp[method](query, params, (result, error) => {
+            if (error) return reject(error)
+            resolve(result)
+        }, currentResourceName, true)
+    }) as any
+}
+
 export const oxmysql: OxMySQL = {
   store(query) {
-    assert(typeof query !== 'string', `Query expects a string, received ${typeof query}`);
+    assert(
+      typeof query !== "string",
+      `Query expects a string, received ${typeof query}`
+    );
 
     return QueryStore.push(query);
   },
   ready(callback) {
-    setImmediate(() => {
-      while (GetResourceState('oxmysql') !== 'started') Wait(50);
+    setImmediate(async () => {
+      while (GetResourceState("oxmysql") !== "started")
+        await new Promise((resolve) => setTimeout(resolve, 50));
       callback();
     });
   },
-  query(query, params, cb) {
-    if (cb) return global.exports.oxmysql.query(...safeArgs(query, params, cb));
-    return global.exports.oxmysql.query_async(...safeArgs(query, params));
+  async query(query, params, cb) {
+    [query, params, cb] = safeArgs(query, params, cb)
+    const result = await execute('query', query, params)
+    return cb ? cb(result) : result
   },
-  single(query, params, cb) {
-    if (cb) return global.exports.oxmysql.single(...safeArgs(query, params, cb));
-    return global.exports.oxmysql.single_async(...safeArgs(query, params));
+  async single(query, params, cb) {
+    [query, params, cb] = safeArgs(query, params, cb)
+    const result = await execute('single', query, params)
+    return cb ? cb(result) : result
   },
-  scalar(query, params, cb) {
-    if (cb) return global.exports.oxmysql.scalar(...safeArgs(query, params, cb));
-    return global.exports.oxmysql.scalar_async(...safeArgs(query, params));
+  async scalar(query, params, cb) {
+    [query, params, cb] = safeArgs(query, params, cb)
+    const result = await execute('scalar', query, params)
+    return cb ? cb(result) : result
   },
-  update(query, params, cb) {
-    if (cb) return global.exports.oxmysql.update(...safeArgs(query, params, cb));
-    return global.exports.oxmysql.update_async(...safeArgs(query, params));
+  async update(query, params, cb) {
+    [query, params, cb] = safeArgs(query, params, cb)
+    const result = await execute('update', query, params)
+    return cb ? cb(result) : result
   },
-  insert(query, params, cb) {
-    if (cb) return global.exports.oxmysql.insert(...safeArgs(query, params, cb));
-    return global.exports.oxmysql.insert_async(...safeArgs(query, params));
+  async insert(query, params, cb) {
+    [query, params, cb] = safeArgs(query, params, cb)
+    const result = await execute('insert', query, params)
+    return cb ? cb(result) : result
   },
-  prepare(query, params, cb) {
-    if (cb) return global.exports.oxmysql.prepare(...safeArgs(query, params, cb));
-    return global.exports.oxmysql.prepare_async(...safeArgs(query, params));
+  async prepare(query, params, cb) {
+    [query, params, cb] = safeArgs(query, params, cb)
+    const result = await execute('prepare', query, params)
+    return cb ? cb(result) : result
   },
-  transaction(query, params, cb) {
-    if (cb) return global.exports.oxmysql.transaction(...safeArgs(query, params, cb, true));
-    return global.exports.oxmysql.transaction_async(...safeArgs(query, params, undefined, true));
+  async transaction(query, params, cb) {
+    [query, params, cb] = safeArgs(query, params, cb, true)
+    const result = await execute('transaction', query, params)
+    return cb ? cb(result) : result
   },
 };

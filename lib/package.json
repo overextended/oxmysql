@@ -1,6 +1,6 @@
 {
   "name": "@overextended/oxmysql",
-  "version": "1.0.2",
+  "version": "1.1.1",
   "description": "Exports wrapper for oxmysql",
   "types": "MySQL.d.ts",
   "main": "MySQL.js",

@@ -1,4 +1,6 @@
-# OxMySQL exports wrapper package for Node.js
+# OxMySQL exports wrapper for FiveM
+
+Types are fully supported and you will get intellisense on the `oxmysql` object when using it.
 
 ## Installation
 
@@ -16,11 +18,13 @@ npm install @overextended/oxmysql
 ## Usage
 
 Import as module:
+
 ```ts
-import { oxmysql } from '@overextended/oxmysql'
+import { oxmysql } from '@overextended/oxmysql';
 ```
 
 Import with require:
+
 ```js
 const { oxmysql } = require('@overextended/oxmysql');
 ```
@@ -29,7 +33,19 @@ const { oxmysql } = require('@overextended/oxmysql');
 
 [View documentation](https://overextended.github.io/docs/oxmysql)
 
-## License
-LGPL-3.0
+```js
+MySQL.scalar('SELECT username FROM uses', (result) => {
+    console.log(result)
+}).catch(console.error)
 
-Types are fully supported and you will get intellisense on the `oxmysql` object when using it.
+MySQL.scalar('SELECT username FROM uses').then((result) => {
+    console.log(result)
+}).catch(console.error)
+
+const result = await MySQL.scalar('SELECT username FROM uses').catch(console.error)
+console.log(result)
+```
+
+## License
+
+LGPL-3.0
