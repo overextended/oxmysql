@@ -117,9 +117,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# FiveM
-.yarn.installed
-
 # Wrapper
 lib/MySQL.js
 lib/MySQL.d.ts
