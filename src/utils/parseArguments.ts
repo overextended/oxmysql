@@ -11,7 +11,7 @@ export const parseArguments = (
 ): [string, CFXParameters, CFXCallback | undefined] => {
   if (typeof query !== 'string') throw new Error(`Query expected a string but received ${typeof query} instead`);
 
-  if (convertNamedPlaceholders && typeof parameters === 'object' && !Array.isArray(parameters))
+  if (convertNamedPlaceholders && parameters && typeof parameters === 'object' && !Array.isArray(parameters))
     if (query.includes(':') || query.includes('@')) {
       const placeholders = convertNamedPlaceholders(query, parameters);
       query = placeholders[0];
@@ -25,7 +25,7 @@ export const parseArguments = (
     parameters = [];
   } else if (parameters === null || parameters === undefined) parameters = [];
 
-  if (!Array.isArray(parameters)) {
+  if (parameters && !Array.isArray(parameters)) {
     let arr: unknown[] = [];
     Object.entries(parameters).forEach((entry) => (arr[parseInt(entry[0]) - 1] = entry[1]));
     parameters = arr;
