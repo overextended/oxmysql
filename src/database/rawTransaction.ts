@@ -25,9 +25,7 @@ export const rawTransaction = async (
     await connection.beginTransaction();
 
     for (const transaction of transactions) {
-      //@ts-expect-error
       const [result, fields, executionTime] = await connection.query(transaction.query, transaction.params);
-      //@ts-expect-error
       logQuery(invokingResource, transaction.query, executionTime, transaction.params);
     }
 
