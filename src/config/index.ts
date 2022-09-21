@@ -72,6 +72,17 @@ export const connectionOptions = (() => {
 
   options.namedPlaceholders = options.namedPlaceholders === 'false' ? false : true;
 
+  for (const key in options) {
+    const value = options[key];
+
+    if (typeof value === 'string') {
+      try {
+        options[key] = JSON.parse(value);
+        console.log(key, options[key]);
+      } catch {}
+    }
+  }
+
   return options;
 })();
 
