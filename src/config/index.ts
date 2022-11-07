@@ -1,15 +1,25 @@
 export const resourceName = GetCurrentResourceName();
-export const mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
-export const mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
 export const mysql_connection_string = GetConvar('mysql_connection_string', '');
+export let mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
+export let mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
 export let mysql_debug: boolean | string[];
 
-try {
-  const debug = GetConvar('mysql_debug', 'false');
-  mysql_debug = debug === 'false' ? false : JSON.parse(debug);
-} catch (e) {
-  mysql_debug = true;
+function setDebug() {
+  try {
+    const debug = GetConvar('mysql_debug', 'false');
+    mysql_debug = debug === 'false' ? false : JSON.parse(debug);
+  } catch (e) {
+    mysql_debug = true;
+  }
 }
+
+setDebug();
+
+setInterval(() => {
+  setDebug();
+  mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
+  mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
+}, 1000);
 
 export const mysql_transaction_isolation_level = (() => {
   const query = 'SET TRANSACTION ISOLATION LEVEL';
