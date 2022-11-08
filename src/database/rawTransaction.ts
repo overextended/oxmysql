@@ -1,4 +1,4 @@
-import { pool } from '.';
+import { pool, serverReady, waitForConnection } from '.';
 import { logQuery } from '../logger';
 import { CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
@@ -15,7 +15,9 @@ export const rawTransaction = async (
   parameters: CFXParameters,
   callback?: (result: boolean) => void
 ) => {
-  await scheduleTick();
+  if (!serverReady) await waitForConnection()
+
+  scheduleTick();
 
   const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
   const connection = await pool.promise().getConnection();

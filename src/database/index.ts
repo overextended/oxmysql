@@ -5,6 +5,19 @@ import { typeCast } from '../utils/typeCast';
 let pool: Pool;
 let serverReady = false;
 
+export async function waitForConnection() {
+  if (!serverReady) {
+    await new Promise<void>((resolve) => {
+      (function wait() {
+        if (serverReady) {
+          return resolve();
+        }
+        setTimeout(wait);
+      })();
+    });
+  }
+}
+
 setTimeout(() => {
   pool = createPool({
     connectTimeout: 60000,

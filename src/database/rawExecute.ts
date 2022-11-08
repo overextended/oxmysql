@@ -1,10 +1,11 @@
 import { RowDataPacket } from 'mysql2';
 import { pool } from '.';
 import { logQuery } from '../logger';
-import { CFXCallback, CFXParameters, QueryResponse } from '../types';
+import { CFXCallback, CFXParameters } from '../types';
 import { parseResponse } from '../utils/parseResponse';
-import { executeType, parseExecute, parseValues } from '../utils/parseExecute';
+import { executeType, parseExecute } from '../utils/parseExecute';
 import { scheduleTick } from '../utils/scheduleTick';
+import { serverReady, waitForConnection } from '../database';
 
 export const rawExecute = async (
   invokingResource: string,
@@ -17,8 +18,10 @@ export const rawExecute = async (
   const placeholders = query.split('?').length - 1;
   parameters = parseExecute(placeholders, parameters);
   let response = [] as any;
+  
+  if (!serverReady) await waitForConnection()
 
-  await scheduleTick();
+  scheduleTick();
 
   return await new Promise((resolve, reject) => {
     pool.getConnection((err, connection) => {
