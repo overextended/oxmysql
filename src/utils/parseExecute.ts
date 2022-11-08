@@ -40,9 +40,9 @@ export const parseExecute = (placeholders: number, parameters: CFXParameters) =>
         for (let i = 0; i < placeholders; i++) {
           if (!arr[index][i]) arr[index][i] = null;
         }
-
-        parameters = arr;
       });
+
+      parameters = arr;
     } else parameters = [[...parameters]];
   }
 
