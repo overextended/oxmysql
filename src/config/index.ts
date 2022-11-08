@@ -103,6 +103,7 @@ RegisterCommand(
       case 'add':
         if (!Array.isArray(mysql_debug)) mysql_debug = [];
         mysql_debug.push(args[1]);
+        SetConvar('mysql_debug', JSON.stringify(mysql_debug))
         return console.log(`^3Added ${args[1]} to mysql_debug^0`);
 
       case 'remove':
@@ -111,6 +112,7 @@ RegisterCommand(
           if (index === -1) return;
           mysql_debug.splice(index, 1);
           if (mysql_debug.length === 0) mysql_debug = false;
+          SetConvar('mysql_debug', JSON.stringify(mysql_debug) || 'false')
           return console.log(`^3Removed ${args[1]} from mysql_debug^0`);
         }
 
