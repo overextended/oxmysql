@@ -14,10 +14,9 @@ export const rawExecute = async (
   throwError?: boolean
 ) => {
   const type = executeType(query);
-  parameters = parseExecute(parameters);
+  const placeholders = query.split('?').length - 1;
+  parameters = parseExecute(placeholders, parameters);
   let response = [] as any;
-
-  if (!parameters.every(Array.isArray)) parameters = [[...parameters]];
 
   await scheduleTick();
 
@@ -26,11 +25,8 @@ export const rawExecute = async (
       if (err) return reject(err.message);
       if (parameters.length === 0) return reject(`Query received no parameters.`);
 
-      const placeholders = query.split('?').length - 1;
-
       parameters.forEach((values, index) => {
         const executionTime = process.hrtime();
-        values = parseValues(placeholders, values);
 
         connection.execute(query, values, (err, results: RowDataPacket[][]) => {
           if (err) {
