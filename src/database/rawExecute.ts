@@ -28,6 +28,12 @@ export const rawExecute = async (
       parameters.forEach((values, index) => {
         const executionTime = process.hrtime();
 
+        if (placeholders > values.length) {
+          for (let i = values.length; i < placeholders; i++) {
+            values[i] = null;
+          }
+        }
+
         connection.execute(query, values, (err, results: RowDataPacket[][]) => {
           if (err) {
             connection.release();
