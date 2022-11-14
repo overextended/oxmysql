@@ -1,6 +1,6 @@
 {
   "name": "oxmysql",
-  "version": "2.3.4",
+  "version": "2.5.3",
   "description": "FXServer to MySQL communication via node-mysql2",
   "repository": "git@github.com:overextended/oxmysql.git",
   "author": "dunak-debug <19434539+dunak-debug@users.noreply.github.com>",
@@ -20,16 +20,16 @@
     "postinstall": "patch-package && pnpm bootstrap"
   },
   "dependencies": {
-    "@citizenfx/server": "^2.0.5132-1",
+    "@citizenfx/server": "^2.0.6020-1",
     "@milahu/patch-package": "^6.4.14",
-    "@types/node": "^17.0.45",
-    "mysql2": "^2.3.3",
+    "@types/node": "^18.11.9",
+    "mysql2": "^3.0.0-rc.1",
     "named-placeholders": "^1.1.2",
-    "node-fetch": "^3.2.10",
+    "node-fetch": "^3.3.0",
     "prettier": "^2.7.1"
   },
   "devDependencies": {
-    "esbuild": "^0.14.54",
+    "esbuild": "^0.15.13",
     "lerna": "^4.0.0",
     "postinstall-postinstall": "^2.1.0",
     "pretty-quick": "^3.1.3",
