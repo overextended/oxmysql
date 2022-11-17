@@ -6,7 +6,7 @@ import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
 import { scheduleTick } from '../utils/scheduleTick';
 
-export const rawQuery = async (
+export const rawQuery = (
   type: QueryType,
   invokingResource: string,
   query: string,
@@ -14,12 +14,17 @@ export const rawQuery = async (
   cb?: CFXCallback,
   throwError?: boolean
 ) => {
-  if (!serverReady) await waitForConnection()
+  if (typeof query !== 'string')
+    throw new Error(
+      `${invokingResource} was unable to execute a query!\nExpected query to be a string but received ${typeof query} instead.`
+    );
 
-  scheduleTick();
   [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
+  scheduleTick();
 
-  return await new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    if (!serverReady) await waitForConnection();
+
     pool.query(query, parameters, (err, result, _, executionTime) => {
       if (err) return reject(err);
 

@@ -7,26 +7,31 @@ import { executeType, parseExecute } from '../utils/parseExecute';
 import { scheduleTick } from '../utils/scheduleTick';
 import { serverReady, waitForConnection } from '../database';
 
-export const rawExecute = async (
+export const rawExecute = (
   invokingResource: string,
   query: string,
   parameters: CFXParameters,
   cb?: CFXCallback,
   throwError?: boolean
 ) => {
+  if (typeof query !== 'string')
+    throw new Error(
+      `${invokingResource} was unable to execute a query!\nExpected query to be a string but received ${typeof query} instead.`
+    );
+
   const type = executeType(query);
   const placeholders = query.split('?').length - 1;
   parameters = parseExecute(placeholders, parameters);
+  if (parameters.length === 0) throw new Error(`Query received no parameters.`);
   let response = [] as any;
-  
-  if (!serverReady) await waitForConnection()
 
   scheduleTick();
 
-  return await new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    if (!serverReady) await waitForConnection();
+
     pool.getConnection((err, connection) => {
       if (err) return reject(err.message);
-      if (parameters.length === 0) return reject(`Query received no parameters.`);
 
       parameters.forEach((values, index) => {
         const executionTime = process.hrtime();
