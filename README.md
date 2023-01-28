@@ -8,7 +8,7 @@ As of v1.9.0 the preferred method of utilising oxmysql is via lib/MySQL, which c
 
 Refer to [issue #77](https://github.com/overextended/oxmysql/issues/77) for information on replacing your queries from older versions of oxmysql or ghmattimysql.
 
-### Install Insturctions Instructions
+### Install Insturctions
 
 - Download from https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
 - Follow install instructions at https://overextended.github.io/docs/oxmysql/
