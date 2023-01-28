@@ -8,6 +8,16 @@ As of v1.9.0 the preferred method of utilising oxmysql is via lib/MySQL, which c
 
 Refer to [issue #77](https://github.com/overextended/oxmysql/issues/77) for information on replacing your queries from older versions of oxmysql or ghmattimysql.
 
+### Instructions
+
+Since there's always some very special FiveM "developers" who don't understand and are incapable of following instructions, this same issue is posted time and time again whenever a new update is released.
+
+Here are some very simple instructions for you to follow.
+
+Download an actual release which has been built and is capable of being loaded and run by FXServer.
+https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
+Start any resources which utilise oxmysql after you have actually bothered starting oxmysql.
+
 ### Features
 
 - Support for URI connection strings and semicolon separated values
