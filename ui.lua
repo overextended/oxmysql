@@ -1,5 +1,7 @@
-TriggerEvent("dw_morecontrols:getControls", function(cb)
-    MC = cb
+Citizen.CreateThread(function()
+    TriggerEvent("dw_morecontrols:getControls", function(cb)
+        MC = cb
+    end)
 end)
 
 RegisterNetEvent('oxmysql:openUi', function(data)
