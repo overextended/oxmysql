@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { meta } from 'tinro';
 
   const route = meta();
