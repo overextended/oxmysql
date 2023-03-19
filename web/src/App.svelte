@@ -3,7 +3,7 @@
   import Resource from './pages/resource/Resource.svelte';
   import Root from './pages/root/Root.svelte';
   import { useNuiEvent } from './utils/useNuiEvent';
-  import { resources } from './store';
+  import { resources, generalData } from './store';
   import { debugData } from './utils/debugData';
 
   interface OpenData {
@@ -23,6 +23,11 @@
 
   useNuiEvent('openUI', (data: OpenData) => {
     $resources = data.resources;
+    $generalData = {
+      queries: data.totalQueries,
+      slowQueries: data.slowQueries,
+      timeQuerying: data.totalTime,
+    };
   });
 
   debugData<OpenData>([
@@ -45,7 +50,6 @@
 
 <main class="w-full h-full flex justify-center items-center font-main">
   <div class="bg-dark-800 text-white w-[1000px] h-[600px] flex rounded-md">
-    <!-- <Navbar /> -->
     <Route path="/">
       <Root />
     </Route>

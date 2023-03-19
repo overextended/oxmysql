@@ -20,3 +20,9 @@ export const filteredResources = derived(
     return set($resources.filter((resource) => resource.toLowerCase().includes(query)));
   }
 );
+
+export const generalData = writable({
+  queries: 0,
+  timeQuerying: 0,
+  slowQueries: 0,
+});

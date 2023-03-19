@@ -2,7 +2,7 @@
   import Input from '../../components/Input.svelte';
   import { IconSearch } from '@tabler/icons-svelte';
   import { router } from 'tinro';
-  import { search, filteredResources } from '../../store';
+  import { search, filteredResources, generalData } from '../../store';
 </script>
 
 <div class="p-4 w-full h-full flex justify-between gap-4">
@@ -25,9 +25,9 @@
   <div class="bg-dark-700 p-4 flex flex-col w-1/3 rounded-md">
     <p class="text-2xl mb-4">General data</p>
     <div class="flex flex-col text-dark-50">
-      <p>Queries: 360</p>
-      <p>Time querying: 332 ms</p>
-      <p>Slow queries: 6</p>
+      <p>Queries: {$generalData.queries}</p>
+      <p>Time querying: {$generalData.timeQuerying} ms</p>
+      <p class="text-yellow-500">Slow queries: {$generalData.slowQueries}</p>
     </div>
   </div>
 </div>
