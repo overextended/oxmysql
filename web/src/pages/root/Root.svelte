@@ -3,14 +3,31 @@
   import { IconSearch } from '@tabler/icons-svelte';
   import { router } from 'tinro';
 
-  const resources = ['ox_core', 'oxmysql', 'ox_inventory', 'ox_doorlock', 'ox_lib', 'ox_vehicleshop', 'ox_target'];
+  const resources = [
+    'ox_core',
+    'oxmysql',
+    'ox_inventory',
+    'ox_doorlock',
+    'ox_lib',
+    'ox_vehicleshop',
+    'ox_target',
+    'ox_core',
+    'oxmysql',
+    'ox_inventory',
+    'ox_doorlock',
+    'ox_lib',
+    'ox_vehicleshop',
+    'ox_target',
+  ];
 </script>
 
 <div class="p-4 w-full h-full flex justify-between gap-4">
-  <div class="bg-dark-700 p-4 flex flex-col w-2/3 rounded-md">
-    <p class="text-2xl mb-4">Resources</p>
-    <Input icon={IconSearch} />
-    <div class="flex flex-col gap-3 mt-6">
+  <div class="bg-dark-700 p-4 pr-0 flex flex-col w-2/3 rounded-md">
+    <div class="pr-4">
+      <p class="text-2xl mb-4">Resources</p>
+      <Input icon={IconSearch} />
+    </div>
+    <div class="flex flex-col gap-3 mt-6 overflow-y-auto pr-4">
       {#each resources as resource}
         <button
           on:click={() => router.goto(`/${resource}`)}
