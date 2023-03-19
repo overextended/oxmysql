@@ -2,8 +2,9 @@
   import Input from '../../components/Input.svelte';
   import { IconSearch } from '@tabler/icons-svelte';
   import { router } from 'tinro';
+  import { search, filteredResources, resources } from '../../store';
 
-  const resources = [
+  $resources = [
     'ox_core',
     'oxmysql',
     'ox_inventory',
@@ -25,10 +26,10 @@
   <div class="bg-dark-700 p-4 pr-0 flex flex-col w-2/3 rounded-md">
     <div class="pr-4">
       <p class="text-2xl mb-4">Resources</p>
-      <Input icon={IconSearch} />
+      <Input icon={IconSearch} bind:value={$search} />
     </div>
     <div class="flex flex-col gap-3 mt-6 overflow-y-auto pr-4">
-      {#each resources as resource}
+      {#each $filteredResources as resource}
         <button
           on:click={() => router.goto(`/${resource}`)}
           class="bg-dark-600 p-3 text-left hover:bg-dark-400 rounded-md"

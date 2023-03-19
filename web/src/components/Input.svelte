@@ -1,5 +1,6 @@
 <script lang="ts">
   export let icon: ConstructorOfATypedSvelteComponent;
+  export let value: string;
 </script>
 
 <div
@@ -8,5 +9,5 @@
   <div class="pr-2">
     <svelte:component this={icon} />
   </div>
-  <input type="text" class="bg-transparent outline-none w-full" placeholder="Search resources..." />
+  <input type="text" bind:value class="bg-transparent outline-none w-full" placeholder="Search resources..." />
 </div>
