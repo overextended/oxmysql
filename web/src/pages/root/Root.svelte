@@ -2,24 +2,7 @@
   import Input from '../../components/Input.svelte';
   import { IconSearch } from '@tabler/icons-svelte';
   import { router } from 'tinro';
-  import { search, filteredResources, resources } from '../../store';
-
-  $resources = [
-    'ox_core',
-    'oxmysql',
-    'ox_inventory',
-    'ox_doorlock',
-    'ox_lib',
-    'ox_vehicleshop',
-    'ox_target',
-    'ox_core',
-    'oxmysql',
-    'ox_inventory',
-    'ox_doorlock',
-    'ox_lib',
-    'ox_vehicleshop',
-    'ox_target',
-  ];
+  import { search, filteredResources } from '../../store';
 </script>
 
 <div class="p-4 w-full h-full flex justify-between gap-4">
