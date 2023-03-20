@@ -4,7 +4,7 @@
 </script>
 
 <div
-  class="p-2 flex items-center outline-none focus-within:outline-1 focus-within:outline-cyan-600 rounded-md bg-dark-600"
+  class="p-2 flex items-center outline-none border-[1px] border-transparent transition-all duration-100 focus-within:border-cyan-600 rounded-md bg-dark-600"
 >
   <div class="pr-2">
     <svelte:component this={icon} />

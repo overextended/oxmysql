@@ -18,7 +18,7 @@
       {#each $filteredResources as resource}
         <button
           on:click={() => router.goto(`/${resource}`)}
-          class="bg-dark-600 p-3 text-left hover:bg-dark-400 rounded-md"
+          class="bg-dark-600 p-3 border-[1px] outline-none border-transparent focus-visible:border-cyan-600 text-left hover:bg-dark-400 rounded-md"
         >
           {resource}
         </button>
