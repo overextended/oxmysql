@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Input from '../../components/Input.svelte';
+  import Search from './components/Search.svelte';
   import { IconFileAnalytics, IconSearch, IconSourceCode } from '@tabler/icons-svelte';
   import { router } from 'tinro';
   import { search, filteredResources, generalData } from '../../store';
@@ -12,7 +12,7 @@
         <p class="text-2xl">Resources</p>
         <IconSourceCode />
       </div>
-      <Input icon={IconSearch} bind:value={$search} />
+      <Search icon={IconSearch} bind:value={$search} />
     </div>
     <div class="flex flex-col gap-3 mt-6 overflow-y-auto pr-4">
       {#each $filteredResources as resource}
