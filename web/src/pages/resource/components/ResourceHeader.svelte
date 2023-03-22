@@ -1,15 +1,21 @@
 <script lang="ts">
   import { IconChevronLeft } from '@tabler/icons-svelte';
+  import { meta, router } from 'tinro';
 
-  import { router } from 'tinro';
+  const data = meta();
 </script>
 
-<div class="p-4 flex items-center">
+<div class="p-4 grid grid-flow-col grid-cols-3 items-center ">
   <button
     on:click={() => router.goto('/')}
-    class="flex p-2 bg-dark-600 text-dark-100 hover:text-white rounded-md justify-center items-center hover:bg-dark-500 outline-none border-[1px] border-transparent focus-visible:border-cyan-600"
+    class="flex p-2 w-12 bg-dark-600 text-dark-100 hover:text-white rounded-md justify-center items-center hover:bg-dark-500 outline-none border-[1px] border-transparent focus-visible:border-cyan-600"
   >
     <IconChevronLeft />
-    Resources
   </button>
+  <p class="text-center text-lg">{data.params.resource}</p>
+  <div class="text-end text-dark-100 flex flex-col text-xs">
+    <p>Queries: 530</p>
+    <p>Time: 3014 ms</p>
+    <p class="text-yellow-500">Slow queries: 3</p>
+  </div>
 </div>
