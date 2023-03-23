@@ -2,7 +2,7 @@
   import { IconChevronLeft } from '@tabler/icons-svelte';
   import { meta, router } from 'tinro';
 
-  const data = meta();
+  const route = meta();
 </script>
 
 <div class="p-4 grid grid-flow-col grid-cols-3 items-center ">
@@ -12,7 +12,7 @@
   >
     <IconChevronLeft />
   </button>
-  <p class="text-center text-lg">{data.params.resource}</p>
+  <p class="text-center text-lg">{route.params.resource}</p>
   <div class="text-end text-dark-100 flex flex-col text-xs">
     <p>Queries: 530</p>
     <p>Time: 3014 ms</p>

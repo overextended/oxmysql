@@ -2,25 +2,9 @@
   import { IconChevronDown, IconChevronUp } from '@tabler/icons-svelte';
   import { createTable, Render, Subscribe } from 'svelte-headless-table';
   import { addSortBy } from 'svelte-headless-table/plugins';
-  import { readable } from 'svelte/store';
+  import { queries } from '../../../store';
 
-  const data = readable([
-    {
-      query: 'SELECT * FROM users WHERE ID = 1',
-      time: 13,
-    },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 15 },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 13 },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 32 },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 13 },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 11 },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 13 },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 15 },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 13 },
-    { query: 'SELECT * FROM users WHERE ID = 1', time: 32 },
-  ]);
-
-  const table = createTable(data, {
+  const table = createTable(queries, {
     sort: addSortBy(),
   });
 
@@ -34,7 +18,7 @@
     }),
     table.column({
       header: 'Time (ms)',
-      accessor: 'time',
+      accessor: 'executionTime',
       plugins: {
         sort: {},
       },

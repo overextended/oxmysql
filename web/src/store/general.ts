@@ -1,7 +1,6 @@
 import { derived, writable } from 'svelte/store';
 
 export const search = writable('');
-
 let timeout: NodeJS.Timeout;
 export const debouncedSearch = derived(search, (value, set: (value: string) => void) => {
   timeout = setTimeout(() => set(value), 500);
