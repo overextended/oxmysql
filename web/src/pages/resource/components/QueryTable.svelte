@@ -61,7 +61,7 @@
                 <td
                   {...attrs}
                   class={`${
-                    cell.id === 'time' && 'text-center'
+                    cell.id === 'executionTime' && 'text-center'
                   } p-2 bg-dark-700 border-b-[0px] border-dark-400 truncate max-w-[200px]`}
                 >
                   <Render of={cell.render()} />
