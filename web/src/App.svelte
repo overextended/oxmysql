@@ -7,6 +7,7 @@
   import { debugData } from './utils/debugData';
   import { visible } from './store';
   import { scale } from 'svelte/transition';
+  import { fetchNui } from './utils/fetchNui';
 
   interface OpenData {
     resources: string[];
@@ -50,7 +51,12 @@
     },
   ]);
 
-  const handleESC = (e: KeyboardEvent) => e.key === 'Escape' && ($visible = false);
+  const handleESC = (e: KeyboardEvent) => {
+    if (e.key !== 'Escape') return;
+
+    $visible = false;
+    fetchNui('exit');
+  };
 
   $: $visible ? window.addEventListener('keydown', handleESC) : window.removeEventListener('keydown', handleESC);
 </script>
