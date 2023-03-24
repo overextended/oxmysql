@@ -60,8 +60,9 @@
               <Subscribe attrs={cell.attrs()} let:attrs>
                 <td
                   {...attrs}
-                  class={`${
-                    cell.id === 'executionTime' && 'text-center'
+                  class={`${cell.id === 'executionTime' && 'text-center'} ${
+                    // @ts-ignore - missing `original` prop on row object
+                    row.original.slow && 'text-yellow-500'
                   } p-2 bg-dark-700 border-b-[0px] border-dark-400 truncate max-w-[200px]`}
                 >
                   <Render of={cell.render()} />

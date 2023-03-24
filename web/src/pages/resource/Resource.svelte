@@ -6,11 +6,28 @@
   import { meta } from 'tinro';
   import { useNuiEvent } from '../../utils/useNuiEvent';
   import { queries, type QueryData } from '../../store';
+  import { debugData } from '../../utils/debugData';
 
   const route = meta();
 
   let page = 0;
   let maxPage = 0;
+
+  debugData<{ queries: QueryData[]; pageCount: number }>([
+    {
+      action: 'loadResource',
+      data: {
+        queries: [
+          { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 3, slow: false, date: Date.now() },
+          { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 23, slow: true, date: Date.now() },
+          { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 15, slow: false, date: Date.now() },
+          { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 122, slow: true, date: Date.now() },
+          { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 17, slow: false, date: Date.now() },
+        ],
+        pageCount: 3,
+      },
+    },
+  ]);
 
   // I miss callbacks :(
   useNuiEvent('loadResource', (data: { queries: QueryData[]; pageCount: number }) => {
