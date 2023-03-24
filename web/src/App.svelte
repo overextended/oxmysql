@@ -5,6 +5,8 @@
   import { useNuiEvent } from './utils/useNuiEvent';
   import { resources, generalData } from './store';
   import { debugData } from './utils/debugData';
+  import { visible } from './store';
+  import { scale } from 'svelte/transition';
 
   interface OpenData {
     resources: string[];
@@ -22,6 +24,7 @@
   router.goto('/');
 
   useNuiEvent('openUI', (data: OpenData) => {
+    $visible = true;
     $resources = data.resources;
     $generalData = {
       queries: data.totalQueries,
@@ -46,15 +49,24 @@
       },
     },
   ]);
+
+  const handleESC = (e: KeyboardEvent) => e.key === 'Escape' && ($visible = false);
+
+  $: $visible ? window.addEventListener('keydown', handleESC) : window.removeEventListener('keydown', handleESC);
 </script>
 
-<main class="w-full h-full flex justify-center items-center font-main">
-  <div class="bg-dark-800 text-white w-[1000px] h-[600px] flex rounded-md">
-    <Route path="/">
-      <Root />
-    </Route>
-    <Route path="/:resource">
-      <Resource />
-    </Route>
-  </div>
-</main>
+{#if $visible}
+  <main
+    transition:scale={{ start: 0.95, duration: 150 }}
+    class="w-full h-full flex justify-center items-center font-main"
+  >
+    <div class="bg-dark-800 text-white w-[1000px] h-[600px] flex rounded-md">
+      <Route path="/">
+        <Root />
+      </Route>
+      <Route path="/:resource">
+        <Resource />
+      </Route>
+    </div>
+  </main>
+{/if}

@@ -66,12 +66,12 @@ jobs:
       - name: Bundle files
         run: |
           mkdir -p ./temp/oxmysql
-          mkdir -p ./temp/oxmysql/ui/
+          mkdir -p ./temp/oxmysql/web/
           mkdir -p ./temp/oxmysql/lib/
           cp ./{LICENSE,README.md,fxmanifest.lua,ui.lua} ./temp/oxmysql
           cp ./lib/{MySQL.lua,define.lua} ./temp/oxmysql/lib
           cp -r ./dist ./temp/oxmysql
-          cp -r ./ui/build ./temp/oxmysql/ui/
+          cp -r ./web/build ./temp/oxmysql/web/
           cd ./temp && zip -r ../oxmysql.zip ./oxmysql
 
       - name: Create Release
