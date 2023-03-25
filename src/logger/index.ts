@@ -87,33 +87,55 @@ RegisterCommand(
   true
 );
 
-onNet(`oxmysql:fetchResource`, (data: { resource: string; pageIndex: number }) => {
-  if (typeof data.resource !== 'string') return;
-  const resourceLog = logStorage[data.resource];
-
-  const startRow = data.pageIndex * 10;
-  const endRow = startRow + 10;
-  const queries = resourceLog.slice(startRow, endRow);
-  const pageCount = Math.ceil(resourceLog.length / 10);
-
-  if (!queries) return;
-
-  let resourceTime = 0;
-  let resourceSlowQueries = 0;
-  const resourceQueriesCount = resourceLog.length;
-
-  for (let i = 0; i < resourceQueriesCount; i++) {
-    const query = resourceLog[i];
-
-    resourceTime += query.executionTime;
-    if (query.slow) resourceSlowQueries += 1;
-  }
-
-  emitNet(`oxmysql:loadResource`, source, {
-    queries,
-    pageCount,
-    resourceQueriesCount,
-    resourceSlowQueries,
-    resourceTime,
+const sortQueries = (queries: QueryData[], sort: { id: 'query' | 'executionTime'; desc: boolean }) => {
+  const sortedQueries = [...queries].sort((a, b) => {
+    switch (sort.id) {
+      case 'query':
+        return a.query > b.query ? 1 : -1;
+      case 'executionTime':
+        return a.executionTime - b.executionTime;
+      default:
+        return 0;
+    }
   });
-});
+
+  return sort.desc ? sortedQueries.reverse() : sortedQueries;
+};
+
+onNet(
+  `oxmysql:fetchResource`,
+  (data: { resource: string; pageIndex: number; sortBy?: { id: 'query' | 'executionTime'; desc: boolean }[] }) => {
+    if (typeof data.resource !== 'string') return;
+    const resourceLog = logStorage[data.resource];
+
+    const sort = data.sortBy && data.sortBy.length > 0 ? data.sortBy[0] : false;
+
+    const startRow = data.pageIndex * 10;
+    const endRow = startRow + 10;
+    const queries = sort
+      ? sortQueries(logStorage[data.resource], sort).slice(startRow, endRow)
+      : logStorage[data.resource].slice(startRow, endRow);
+    const pageCount = Math.ceil(resourceLog.length / 10);
+
+    if (!queries) return;
+
+    let resourceTime = 0;
+    let resourceSlowQueries = 0;
+    const resourceQueriesCount = resourceLog.length;
+
+    for (let i = 0; i < resourceQueriesCount; i++) {
+      const query = resourceLog[i];
+
+      resourceTime += query.executionTime;
+      if (query.slow) resourceSlowQueries += 1;
+    }
+
+    emitNet(`oxmysql:loadResource`, source, {
+      queries,
+      pageCount,
+      resourceQueriesCount,
+      resourceSlowQueries,
+      resourceTime,
+    });
+  }
+);

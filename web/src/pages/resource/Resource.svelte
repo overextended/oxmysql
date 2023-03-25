@@ -26,7 +26,7 @@
     resourceTime: number;
   }
 
-  debugData<{ queries: QueryData[]; pageCount: number }>([
+  debugData<ResourceData>([
     {
       action: 'loadResource',
       data: {
@@ -35,8 +35,10 @@
           { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 23, slow: true, date: Date.now() },
           { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 15, slow: false, date: Date.now() },
           { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 122, slow: true, date: Date.now() },
-          { query: 'SELECT * FROM users WHERE ID = 1', executionTime: 17, slow: false, date: Date.now() },
         ],
+        resourceQueriesCount: 3,
+        resourceSlowQueries: 2,
+        resourceTime: 1342,
         pageCount: 3,
       },
     },
