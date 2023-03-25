@@ -7,11 +7,16 @@
   import { useNuiEvent } from '../../utils/useNuiEvent';
   import { queries, type QueryData } from '../../store';
   import { debugData } from '../../utils/debugData';
+  import { onDestroy } from 'svelte';
 
   const route = meta();
 
   let page = 0;
   let maxPage = 0;
+
+  onDestroy(() => {
+    $queries = [];
+  });
 
   debugData<{ queries: QueryData[]; pageCount: number }>([
     {
