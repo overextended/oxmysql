@@ -5,7 +5,7 @@
   import ResourceHeader from './components/ResourceHeader.svelte';
   import { meta } from 'tinro';
   import { useNuiEvent } from '../../utils/useNuiEvent';
-  import { queries, type QueryData } from '../../store';
+  import { queries, resourceData, type QueryData } from '../../store';
   import { debugData } from '../../utils/debugData';
   import { onDestroy } from 'svelte';
 
@@ -17,6 +17,14 @@
   onDestroy(() => {
     $queries = [];
   });
+
+  interface ResourceData {
+    queries: QueryData[];
+    pageCount: number;
+    resourceQueriesCount: number;
+    resourceSlowQueries: number;
+    resourceTime: number;
+  }
 
   debugData<{ queries: QueryData[]; pageCount: number }>([
     {
@@ -35,9 +43,14 @@
   ]);
 
   // I miss callbacks :(
-  useNuiEvent('loadResource', (data: { queries: QueryData[]; pageCount: number }) => {
+  useNuiEvent('loadResource', (data: ResourceData) => {
     maxPage = data.pageCount;
     $queries = data.queries;
+    $resourceData = {
+      resourceQueriesCount: data.resourceQueriesCount,
+      resourceSlowQueries: data.resourceSlowQueries,
+      resourceTime: data.resourceTime,
+    };
   });
 
   $: fetchNui('fetchResource', { resource: route.params.resource, pageIndex: page });

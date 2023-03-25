@@ -87,37 +87,33 @@ RegisterCommand(
   true
 );
 
-const sortQueries = (queries: QueryData[], sort: { id: 'query' | 'executionTime'; desc: boolean }) => {
-  const sortedQueries = [...queries].sort((a, b) => {
-    switch (sort.id) {
-      case 'query':
-        return a.query > b.query ? 1 : -1;
-      case 'executionTime':
-        return a.executionTime - b.executionTime;
-      default:
-        return 0;
-    }
-  });
+onNet(`oxmysql:fetchResource`, (data: { resource: string; pageIndex: number }) => {
+  if (typeof data.resource !== 'string') return;
+  const resourceLog = logStorage[data.resource];
 
-  return sort.desc ? sortedQueries.reverse() : sortedQueries;
-};
+  const startRow = data.pageIndex * 10;
+  const endRow = startRow + 10;
+  const queries = resourceLog.slice(startRow, endRow);
+  const pageCount = Math.ceil(resourceLog.length / 10);
 
-onNet(
-  `oxmysql:fetchResource`,
-  (data: { resource: string; pageIndex: number; sortBy?: { id: 'query' | 'executionTime'; desc: boolean }[] }) => {
-    if (typeof data.resource !== 'string') return;
+  if (!queries) return;
 
-    const sort = data.sortBy ? data.sortBy[0] : false;
+  let resourceTime = 0;
+  let resourceSlowQueries = 0;
+  const resourceQueriesCount = resourceLog.length;
 
-    const startRow = data.pageIndex * 12;
-    const endRow = startRow + 12;
-    const queries = sort
-      ? sortQueries(logStorage[data.resource], sort).slice(startRow, endRow)
-      : logStorage[data.resource].slice(startRow, endRow);
-    const pageCount = Math.ceil(logStorage[data.resource].length / 12);
+  for (let i = 0; i < resourceQueriesCount; i++) {
+    const query = resourceLog[i];
 
-    if (!queries) return;
-
-    emitNet(`oxmysql:loadResource`, source, { queries, pageCount });
+    resourceTime += query.executionTime;
+    if (query.slow) resourceSlowQueries += 1;
   }
-);
+
+  emitNet(`oxmysql:loadResource`, source, {
+    queries,
+    pageCount,
+    resourceQueriesCount,
+    resourceSlowQueries,
+    resourceTime,
+  });
+});

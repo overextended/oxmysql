@@ -8,3 +8,13 @@ export interface QueryData {
 }
 
 export const queries = writable<QueryData[]>([]);
+
+export const resourceData = writable<{
+  resourceQueriesCount: number;
+  resourceSlowQueries: number;
+  resourceTime: number;
+}>({
+  resourceQueriesCount: 0,
+  resourceSlowQueries: 0,
+  resourceTime: 0,
+});

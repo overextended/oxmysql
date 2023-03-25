@@ -1,6 +1,7 @@
 <script lang="ts">
   import { IconChevronLeft } from '@tabler/icons-svelte';
   import { meta, router } from 'tinro';
+  import { resourceData } from '../../../store';
 
   const route = meta();
 </script>
@@ -14,8 +15,8 @@
   </button>
   <p class="text-center text-lg">{route.params.resource}</p>
   <div class="text-end text-dark-100 flex flex-col text-xs">
-    <p>Queries: 530</p>
-    <p>Time: 3014 ms</p>
-    <p class="text-yellow-500">Slow queries: 3</p>
+    <p>Queries: {$resourceData.resourceQueriesCount}</p>
+    <p>Time: {$resourceData.resourceTime} ms</p>
+    <p class="text-yellow-500">Slow queries: {$resourceData.resourceSlowQueries}</p>
   </div>
 </div>
