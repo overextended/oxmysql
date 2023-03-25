@@ -36,7 +36,11 @@
           <tr {...rowAttrs}>
             {#each headerRow.cells as cell (cell.id)}
               <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props>
-                <th {...attrs} on:click={props.sort.toggle} class="p-1 border-b-[1px] border-dark-400">
+                <th
+                  {...attrs}
+                  on:click={props.sort.toggle}
+                  class={`p-1 border-b-[1px] border-dark-400 ${cell.id === 'executionTime' ? 'w-1/4' : 'w-3/4'}`}
+                >
                   <div class="flex justify-center items-center gap-2 select-none cursor-pointer">
                     <Render of={cell.render()} />
                     {#if props.sort.order === 'asc'}
