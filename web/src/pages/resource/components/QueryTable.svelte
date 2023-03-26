@@ -12,7 +12,7 @@
   import { writable } from 'svelte/store';
   import { meta } from 'tinro';
   import { fetchNui } from '../../../utils/fetchNui';
-  import { tablePage } from '../../../store';
+  import { debouncedTablePage } from '../../../store';
 
   const route = meta();
 
@@ -68,7 +68,7 @@
   $: {
     fetchNui('fetchResource', {
       resource: route.params.resource,
-      pageIndex: $tablePage,
+      pageIndex: $debouncedTablePage,
       sortBy: sorting,
     });
   }
