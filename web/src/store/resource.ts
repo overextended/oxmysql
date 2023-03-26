@@ -18,3 +18,5 @@ export const resourceData = writable<{
   resourceSlowQueries: 0,
   resourceTime: 0,
 });
+
+export const tablePage = writable(0);

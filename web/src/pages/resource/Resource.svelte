@@ -8,14 +8,13 @@
   import { queries, resourceData, type QueryData } from '../../store';
   import { debugData } from '../../utils/debugData';
   import { onDestroy } from 'svelte';
+  import { tablePage } from '../../store';
 
-  const route = meta();
-
-  let page = 0;
   let maxPage = 0;
 
   onDestroy(() => {
     $queries = [];
+    $tablePage = 0;
   });
 
   interface ResourceData {
@@ -54,8 +53,6 @@
       resourceTime: data.resourceTime,
     };
   });
-
-  $: fetchNui('fetchResource', { resource: route.params.resource, pageIndex: page });
 </script>
 
 <div class="flex flex-col w-full justify-between">
@@ -63,5 +60,5 @@
     <ResourceHeader />
     <QueryTable />
   </div>
-  <Pagination {page} {maxPage} />
+  <Pagination {maxPage} />
 </div>
