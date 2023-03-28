@@ -12,6 +12,8 @@ specifiers:
   prettier-plugin-tailwindcss: ^0.2.5
   svelte: ^3.55.1
   svelte-check: ^2.10.3
+  svelte-floating-ui: ^1.5.2
+  svelte-portal: ^2.2.0
   tailwindcss: ^3.2.7
   tinro: ^0.6.12
   tslib: ^2.5.0
@@ -26,6 +28,8 @@ dependencies:
   prettier: 2.8.4
   prettier-plugin-svelte: 2.9.0_k23gl6auqwrxgr3e6o2bajswou
   prettier-plugin-tailwindcss: 0.2.5_yjdjpc7im5hvpskij45owfsns4
+  svelte-floating-ui: 1.5.2
+  svelte-portal: 2.2.0
   tailwindcss: 3.2.7_postcss@8.4.21
   tinro: 0.6.12
 
@@ -237,6 +241,16 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@floating-ui/core/1.2.5:
+    resolution: {integrity: sha512-qrcbyfnRVziRlB6IYwjCopYhO7Vud750JlJyuljruIXcPxr22y8zdckcJGsuOdnQ639uVD1tTXddrcH3t3QYIQ==}
+    dev: false
+
+  /@floating-ui/dom/1.2.5:
+    resolution: {integrity: sha512-+sAUfpQ3Frz+VCbPCqj+cZzvEESy3fjSeT/pDWkYCWOBXYNNKZfuVsHuv8/JO2zze8+Eb/Q7a6hZVgzS81fLbQ==}
+    dependencies:
+      '@floating-ui/core': 1.2.5
+    dev: false
 
   /@jridgewell/resolve-uri/3.1.0:
     resolution: {integrity: sha512-F2msla3tad+Mfht5cJq7LSXcdudKTWCVYUgw6pLFOOHSTtZlj6SWNYAp+AhuqLmWdBO2X5hPrLcu8cVP8fy28w==}
@@ -1068,6 +1082,13 @@ packages:
       - sugarss
     dev: true
 
+  /svelte-floating-ui/1.5.2:
+    resolution: {integrity: sha512-nV50eno74CEsFfFJ6iyN/oNYDEOck1TZjGV3lmJksVRbiiUAVF6bHspyAhR7GZ7c/4qbRWp9UyX24J+UXdEpag==}
+    dependencies:
+      '@floating-ui/core': 1.2.5
+      '@floating-ui/dom': 1.2.5
+    dev: false
+
   /svelte-hmr/0.15.1_svelte@3.57.0:
     resolution: {integrity: sha512-BiKB4RZ8YSwRKCNVdNxK/GfY+r4Kjgp9jCLEy0DuqAKfmQtpL38cQK3afdpjw4sqSs4PLi3jIPJIFp259NkZtA==}
     engines: {node: ^12.20 || ^14.13.1 || >= 16}
@@ -1076,6 +1097,10 @@ packages:
     dependencies:
       svelte: 3.57.0
     dev: true
+
+  /svelte-portal/2.2.0:
+    resolution: {integrity: sha512-jhtZWtD6cUE2nMw46dJ5VXWYiqnER+JH+V/BmNBQ5fNP/YdsJCpJi+DemUy9msklqGb0f+wLhJPBtKHLWQvzjg==}
+    dev: false
 
   /svelte-preprocess/4.10.7_ybrbwhhu54cxvzb5hyvixtn33q:
     resolution: {integrity: sha512-sNPBnqYD6FnmdBrUmBCaqS00RyCsCpj2BG58A1JBswNF7b0OKviwxqVrOL/CKyJrLSClrSeqQv5BXNg2RUbPOw==}

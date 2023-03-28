@@ -13,6 +13,7 @@
   import { meta } from 'tinro';
   import { fetchNui } from '../../../utils/fetchNui';
   import { debouncedTablePage } from '../../../store';
+  import QueryTooltip from './QueryTooltip.svelte';
 
   const route = meta();
 
@@ -105,13 +106,24 @@
       {#each $table.getRowModel().rows as row}
         <tr>
           {#each row.getVisibleCells() as cell}
-            <td
-              class={`${cell.column.id === 'executionTime' && 'text-center'} p-2 bg-dark-700 ${
-                row.original.slow && 'text-yellow-500'
-              }`}
+            <QueryTooltip
+              content={cell.getValue()}
+              let:floatingRef
+              let:displayTooltip
+              let:hideTooltip
+              disabled={cell.column.id !== 'query'}
             >
-              <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
-            </td>
+              <td
+                use:floatingRef
+                on:mouseenter={displayTooltip}
+                on:mouseleave={hideTooltip}
+                class={`${cell.column.id === 'executionTime' && 'text-center'} p-2 bg-dark-700 ${
+                  row.original.slow && 'text-yellow-500'
+                }`}
+              >
+                <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
+              </td>
+            </QueryTooltip>
           {/each}
         </tr>
       {/each}
