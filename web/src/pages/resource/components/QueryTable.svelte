@@ -119,7 +119,7 @@
                 on:mouseleave={hideTooltip}
                 class={`${cell.column.id === 'executionTime' && 'text-center'} p-2 bg-dark-700 ${
                   row.original.slow && 'text-yellow-500'
-                }`}
+                } truncate max-w-[200px]`}
               >
                 <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
               </td>
