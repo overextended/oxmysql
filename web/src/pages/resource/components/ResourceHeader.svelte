@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { IconChevronLeft } from '@tabler/icons-svelte';
+  import IconChevronLeft from '@tabler/icons-svelte/dist/svelte/icons/IconChevronLeft.svelte';
+
   import { meta, router } from 'tinro';
   import { resourceData } from '../../../store';
 

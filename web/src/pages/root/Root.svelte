@@ -1,6 +1,8 @@
 <script lang="ts">
   import Search from './components/Search.svelte';
-  import { IconFileAnalytics, IconSearch, IconSourceCode } from '@tabler/icons-svelte';
+  import IconFileAnalytics from '@tabler/icons-svelte/dist/svelte/icons/IconFileAnalytics.svelte';
+  import IconSearch from '@tabler/icons-svelte/dist/svelte/icons/IconSearch.svelte';
+  import IconSourceCode from '@tabler/icons-svelte/dist/svelte/icons/IconSourceCode.svelte';
   import { router } from 'tinro';
   import { search, filteredResources, generalData } from '../../store';
 </script>

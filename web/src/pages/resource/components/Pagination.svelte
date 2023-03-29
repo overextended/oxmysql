@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from '@tabler/icons-svelte';
+  import IconChevronLeft from '@tabler/icons-svelte/dist/svelte/icons/IconChevronLeft.svelte';
+  import IconChevronRight from '@tabler/icons-svelte/dist/svelte/icons/IconChevronRight.svelte';
+  import IconChevronsLeft from '@tabler/icons-svelte/dist/svelte/icons/IconChevronsLeft.svelte';
+  import IconChevronsRight from '@tabler/icons-svelte/dist/svelte/icons/IconChevronsRight.svelte';
   import { onDestroy } from 'svelte';
   import { tablePage } from '../../../store';
 

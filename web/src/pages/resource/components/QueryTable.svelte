@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { IconChevronDown, IconChevronUp } from '@tabler/icons-svelte';
+  import IconChevronDown from '@tabler/icons-svelte/dist/svelte/icons/IconChevronDown.svelte';
+  import IconChevronUp from '@tabler/icons-svelte/dist/svelte/icons/IconChevronUp.svelte';
+
   import { queries, type QueryData } from '../../../store';
   import {
     createSvelteTable,
