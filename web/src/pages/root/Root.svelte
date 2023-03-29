@@ -5,6 +5,7 @@
   import IconSourceCode from '@tabler/icons-svelte/dist/svelte/icons/IconSourceCode.svelte';
   import { router } from 'tinro';
   import { search, filteredResources, generalData } from '../../store';
+  import Chart from './components/Chart.svelte';
 </script>
 
 <div class="p-2 w-full h-full flex justify-between gap-2">
@@ -27,15 +28,18 @@
       {/each}
     </div>
   </div>
-  <div class="bg-dark-700 p-4 flex flex-col w-1/3 rounded-md">
-    <div class="flex gap-3 items-center mb-4">
-      <p class="text-2xl">General data</p>
-      <IconFileAnalytics />
+  <div class="bg-dark-700 p-4 flex flex-col justify-between w-1/3 rounded-md">
+    <div class="flex flex-col">
+      <div class="flex gap-3 items-center mb-4">
+        <p class="text-2xl">General data</p>
+        <IconFileAnalytics />
+      </div>
+      <div class="flex flex-col text-dark-50">
+        <p>Queries: {$generalData.queries}</p>
+        <p>Time querying: {$generalData.timeQuerying} ms</p>
+        <p class="text-yellow-500">Slow queries: {$generalData.slowQueries}</p>
+      </div>
     </div>
-    <div class="flex flex-col text-dark-50">
-      <p>Queries: {$generalData.queries}</p>
-      <p>Time querying: {$generalData.timeQuerying} ms</p>
-      <p class="text-yellow-500">Slow queries: {$generalData.slowQueries}</p>
-    </div>
+    <Chart />
   </div>
 </div>

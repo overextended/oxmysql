@@ -51,19 +51,7 @@ RegisterCommand(
     let totalQueries: number = 0;
     let totalTime = 0;
     let slowQueries = 0;
-    let chartData: [
-      {
-        x: number; // Number of queries
-        y: number; // Execution time
-        z: string; // Resource name
-      }
-    ] = [
-      {
-        x: 0,
-        y: 0,
-        z: '',
-      },
-    ];
+    let chartData: { labels: string[]; data: { queries: number; time: number }[] } = { labels: [], data: [] };
 
     for (const resource in logStorage) {
       const queries = logStorage[resource];
@@ -73,7 +61,8 @@ RegisterCommand(
       totalTime += queries.reduce((totalTime, query) => (totalTime += query.executionTime), 0);
       slowQueries += queries.reduce((slowQueries, query) => (slowQueries += query.slow ? 1 : 0), 0);
       totalResourceTime += queries.reduce((totalResourceTime, query) => (totalResourceTime += query.executionTime), 0);
-      chartData.push({ x: queries.length, y: totalResourceTime, z: resource });
+      chartData.labels.push(resource);
+      chartData.data.push({ queries: queries.length, time: totalResourceTime });
     }
 
     emitNet(`oxmysql:openUi`, source, {

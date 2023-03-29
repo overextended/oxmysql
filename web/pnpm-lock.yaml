@@ -6,11 +6,13 @@ specifiers:
   '@tanstack/svelte-table': ^8.8.0
   '@tsconfig/svelte': ^3.0.0
   autoprefixer: ^10.4.14
+  chart.js: ^4.2.1
   postcss: ^8.4.21
   prettier: ^2.8.4
   prettier-plugin-svelte: ^2.9.0
   prettier-plugin-tailwindcss: ^0.2.5
   svelte: ^3.55.1
+  svelte-chartjs: ^3.1.2
   svelte-check: ^2.10.3
   svelte-floating-ui: ^1.5.2
   svelte-portal: ^2.2.0
@@ -24,10 +26,12 @@ dependencies:
   '@tabler/icons-svelte': 2.10.0_svelte@3.57.0
   '@tanstack/svelte-table': 8.8.0_svelte@3.57.0
   autoprefixer: 10.4.14_postcss@8.4.21
+  chart.js: 4.2.1
   postcss: 8.4.21
   prettier: 2.8.4
   prettier-plugin-svelte: 2.9.0_k23gl6auqwrxgr3e6o2bajswou
   prettier-plugin-tailwindcss: 0.2.5_yjdjpc7im5hvpskij45owfsns4
+  svelte-chartjs: 3.1.2_ojwxrefj4rbbcloly7f4kymkqq
   svelte-floating-ui: 1.5.2
   svelte-portal: 2.2.0
   tailwindcss: 3.2.7_postcss@8.4.21
@@ -268,6 +272,10 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
+  /@kurkle/color/0.3.2:
+    resolution: {integrity: sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==}
+    dev: false
+
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -442,6 +450,13 @@ packages:
 
   /caniuse-lite/1.0.30001467:
     resolution: {integrity: sha512-cEdN/5e+RPikvl9AHm4uuLXxeCNq8rFsQ+lPHTfe/OtypP3WwnVVbjn+6uBV7PaFL6xUFzTh+sSCOz1rKhcO+Q==}
+    dev: false
+
+  /chart.js/4.2.1:
+    resolution: {integrity: sha512-6YbpQ0nt3NovAgOzbkSSeeAQu/3za1319dPUQTXn9WcOpywM8rGKxJHrhS8V8xEkAlk8YhEfjbuAPfUyp6jIsw==}
+    engines: {pnpm: ^7.0.0}
+    dependencies:
+      '@kurkle/color': 0.3.2
     dev: false
 
   /chokidar/3.5.3:
@@ -1053,6 +1068,16 @@ packages:
   /supports-preserve-symlinks-flag/1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  /svelte-chartjs/3.1.2_ojwxrefj4rbbcloly7f4kymkqq:
+    resolution: {integrity: sha512-3+6gY2IJ9Ua8R9pk3iS1ypa7Z9OoXCJb9oPwIfTp7caJM+X+RrWnH2CTkGAq7FeSxc2nnmW08tYN88Q8Y+5M+w==}
+    peerDependencies:
+      chart.js: ^3.5.0 || ^4.0.0
+      svelte: ^3.45.0
+    dependencies:
+      chart.js: 4.2.1
+      svelte: 3.57.0
+    dev: false
 
   /svelte-check/2.10.3_sd5d5bwhwct4qrvp7ra4wv5wou:
     resolution: {integrity: sha512-Nt1aWHTOKFReBpmJ1vPug0aGysqPwJh2seM1OvICfM2oeyaA62mOiy5EvkXhltGfhCcIQcq2LoE0l1CwcWPjlw==}

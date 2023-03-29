@@ -3,7 +3,7 @@
   import Resource from './pages/resource/Resource.svelte';
   import Root from './pages/root/Root.svelte';
   import { useNuiEvent } from './utils/useNuiEvent';
-  import { resources, generalData } from './store';
+  import { resources, generalData, chartData } from './store';
   import { debugData } from './utils/debugData';
   import { visible } from './store';
   import { scale } from 'svelte/transition';
@@ -15,9 +15,8 @@
     slowQueries: number;
     totalTime: number;
     chartData: {
-      x: number;
-      y: number;
-      z: number;
+      labels: string[];
+      data: { queries: number; time: number }[];
     };
   }
 
@@ -32,6 +31,10 @@
       slowQueries: data.slowQueries,
       timeQuerying: data.totalTime,
     };
+    $chartData = {
+      labels: data.chartData.labels,
+      data: data.chartData.data,
+    };
   });
 
   debugData<OpenData>([
@@ -43,9 +46,13 @@
         totalQueries: 332,
         totalTime: 230123,
         chartData: {
-          x: 2,
-          y: 5,
-          z: 3,
+          labels: ['oxmysql', 'ox_core', 'ox_inventory', 'ox_doorlock'],
+          data: [
+            { queries: 25, time: 133 },
+            { queries: 5, time: 12 },
+            { queries: 3, time: 2 },
+            { queries: 72, time: 133 },
+          ],
         },
       },
     },

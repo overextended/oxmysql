@@ -1,6 +1,6 @@
 import { derived, writable } from 'svelte/store';
 
-export const visible = writable(false)
+export const visible = writable(false);
 
 export const search = writable('');
 let timeout: NodeJS.Timeout;
@@ -26,4 +26,9 @@ export const generalData = writable({
   queries: 0,
   timeQuerying: 0,
   slowQueries: 0,
+});
+
+export const chartData = writable<{ labels: string[]; data: { queries: number; time: number }[] }>({
+  labels: [],
+  data: [],
 });
