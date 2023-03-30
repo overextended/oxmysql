@@ -7,6 +7,9 @@
 </script>
 
 <Pie
+  class="self-center"
+  width={256}
+  height={256}
   data={{
     labels: $chartData.labels,
     datasets: [
@@ -17,6 +20,8 @@
     ],
   }}
   options={{
+    maintainAspectRatio: false,
+    responsive: false,
     parsing: {
       key: 'time',
     },
