@@ -19,7 +19,7 @@
 
   const route = meta();
 
-  const columns: ColumnDef<QueryData>[] = [
+  const columns: ColumnDef<QueryData, number>[] = [
     {
       accessorKey: 'query',
       header: 'Query',
@@ -29,7 +29,7 @@
     {
       accessorKey: 'executionTime',
       header: 'Time (ms)',
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue().toFixed(2),
       enableSorting: true,
     },
   ];
