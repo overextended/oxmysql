@@ -1,0 +1,31 @@
+@import url(https://use.typekit.net/wxh5ury.css);
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 2px;
+}
+
+::-webkit-scrollbar-track {
+  background: #25262b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #909296;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a6a7ab;
+}
