@@ -1,9 +1,3 @@
-Citizen.CreateThread(function()
-    TriggerEvent("dw_morecontrols:getControls", function(cb)
-        MC = cb
-    end)
-end)
-
 RegisterNetEvent('oxmysql:openUi', function(data)
     if not LocalPlayer.state.isAdmin then
         return false
@@ -14,13 +8,11 @@ RegisterNetEvent('oxmysql:openUi', function(data)
         data = data
     })
     SetNuiFocus(true, true)
-    MC.StartFocus(GetCurrentResourceName())
 end)
 
 RegisterNUICallback('exit', function(_, cb)
     cb(true)
     SetNuiFocus(false, false)
-    MC.EndFocus(GetCurrentResourceName())
 end)
 
 RegisterNUICallback('fetchResource', function(data, cb)
