@@ -19,7 +19,7 @@ npm install @overextended/oxmysql
 
 Import as module:
 
-```ts
+```js
 import { oxmysql } from '@overextended/oxmysql';
 ```
 
@@ -34,15 +34,15 @@ const { oxmysql } = require('@overextended/oxmysql');
 [View documentation](https://overextended.github.io/docs/oxmysql)
 
 ```js
-MySQL.scalar('SELECT username FROM uses', (result) => {
+oxmysql.scalar('SELECT username FROM users', (result) => {
     console.log(result)
 }).catch(console.error)
 
-MySQL.scalar('SELECT username FROM uses').then((result) => {
+oxmysql.scalar('SELECT username FROM users').then((result) => {
     console.log(result)
 }).catch(console.error)
 
-const result = await MySQL.scalar('SELECT username FROM uses').catch(console.error)
+const result = await oxmysql.scalar('SELECT username FROM users').catch(console.error)
 console.log(result)
 ```
 

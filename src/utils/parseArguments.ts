@@ -9,9 +9,7 @@ export const parseArguments = (
   parameters?: CFXParameters,
   cb?: CFXCallback
 ): [string, CFXParameters, CFXCallback | undefined] => {
-  if (typeof query !== 'string') throw new Error(`Query expected a string but received ${typeof query} instead`);
-
-  if (convertNamedPlaceholders && typeof parameters === 'object' && !Array.isArray(parameters))
+  if (convertNamedPlaceholders && parameters && typeof parameters === 'object' && !Array.isArray(parameters))
     if (query.includes(':') || query.includes('@')) {
       const placeholders = convertNamedPlaceholders(query, parameters);
       query = placeholders[0];
@@ -25,7 +23,7 @@ export const parseArguments = (
     parameters = [];
   } else if (parameters === null || parameters === undefined) parameters = [];
 
-  if (!Array.isArray(parameters)) {
+  if (parameters && !Array.isArray(parameters)) {
     let arr: unknown[] = [];
     Object.entries(parameters).forEach((entry) => (arr[parseInt(entry[0]) - 1] = entry[1]));
     parameters = arr;
@@ -42,9 +40,11 @@ export const parseArguments = (
       if (diff > 0) {
         for (let i = 0; i < diff; i++) parameters[queryParams.length + i] = null;
       } else if (diff < 0) {
-        throw new Error(`${invokingResource} was unable to execute a query!
-        Expected ${queryParams.length} parameters, but received ${parameters.length}.
-        ${`${query} ${JSON.stringify(parameters)}`}`);
+        throw new Error(
+          `${invokingResource} was unable to execute a query!\nExpected ${
+            queryParams.length
+          } parameters, but received ${parameters.length}.\n${`${query} ${JSON.stringify(parameters)}`}`
+        );
       }
     }
   }
