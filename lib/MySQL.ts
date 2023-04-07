@@ -79,7 +79,7 @@ const safeArgs = (
   return [query, params, cb];
 };
 
-const exp = exports.oxmysql;
+const exp = global.exports.oxmysql;
 const currentResourceName = GetCurrentResourceName()
 
 function execute(method: string, query: Query | Transaction, params?: Params) {

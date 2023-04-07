@@ -20,19 +20,19 @@
     "postinstall": "patch-package && pnpm bootstrap"
   },
   "dependencies": {
-    "@citizenfx/server": "^2.0.5132-1",
-    "@types/node": "^17.0.32",
-    "mysql2": "^2.3.3",
-    "named-placeholders": "^1.1.2",
-    "node-fetch": "^3.2.4",
-    "prettier": "^2.6.2"
+    "@citizenfx/server": "2.0.5132-1",
+    "@milahu/patch-package": "^6.4.14",
+    "@types/node": "^17.0.45",
+    "mysql2": "^3.2.0",
+    "named-placeholders": "^1.1.3",
+    "node-fetch": "^3.3.0",
+    "prettier": "^2.8.3"
   },
   "devDependencies": {
-    "@tellus/patch-package-with-pnpm-support": "github:Tellus/patch-package-with-pnpm-support",
-    "esbuild": "^0.14.39",
+    "esbuild": "^0.14.54",
     "lerna": "^4.0.0",
     "postinstall-postinstall": "^2.1.0",
     "pretty-quick": "^3.1.3",
-    "typescript": "^4.6.4"
+    "typescript": "^4.9.4"
   }
 }

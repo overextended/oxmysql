@@ -15,13 +15,35 @@ export const executeType = (query: string) => {
   }
 };
 
-export const parseExecute = (parameters: CFXParameters) => {
+export const parseExecute = (placeholders: number, parameters: CFXParameters) => {
   if (!Array.isArray(parameters)) {
     if (typeof parameters === 'object') {
       const arr: unknown[] = [];
       Object.entries(parameters).forEach((entry) => (arr[parseInt(entry[0]) - 1] = entry[1]));
       parameters = arr;
     } else throw new Error(`Parameters expected an array but received ${typeof parameters} instead`);
+  }
+
+  if (!parameters.every(Array.isArray)) {
+    if (parameters.every((item) => typeof item === 'object')) {
+      const arr: unknown[][] = [];
+
+      parameters.forEach((value, index) => {
+        arr[index] = new Array(placeholders);
+
+        if (!Array.isArray(value)) {
+          Object.entries(value).forEach((entry) => {
+            arr[index][parseInt(entry[0]) - 1] = entry[1];
+          });
+        } else arr[index] = parameters[index];
+
+        for (let i = 0; i < placeholders; i++) {
+          if (!arr[index][i]) arr[index][i] = null;
+        }
+      });
+
+      parameters = arr;
+    } else parameters = [[...parameters]];
   }
 
   return parameters;

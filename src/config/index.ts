@@ -1,15 +1,25 @@
 export const resourceName = GetCurrentResourceName();
-export const mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
-export const mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
 export const mysql_connection_string = GetConvar('mysql_connection_string', '');
+export let mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
+export let mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
 export let mysql_debug: boolean | string[];
 
-try {
-  const debug = GetConvar('mysql_debug', 'false');
-  mysql_debug = debug === 'false' ? false : JSON.parse(debug);
-} catch (e) {
-  mysql_debug = true;
+function setDebug() {
+  try {
+    const debug = GetConvar('mysql_debug', 'false');
+    mysql_debug = debug === 'false' ? false : JSON.parse(debug);
+  } catch (e) {
+    mysql_debug = true;
+  }
 }
+
+setDebug();
+
+setInterval(() => {
+  setDebug();
+  mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
+  mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
+}, 1000);
 
 export const mysql_transaction_isolation_level = (() => {
   const query = 'SET TRANSACTION ISOLATION LEVEL';
@@ -72,6 +82,16 @@ export const connectionOptions = (() => {
 
   options.namedPlaceholders = options.namedPlaceholders === 'false' ? false : true;
 
+  for (const key in ['dateStrings', 'flags', 'ssl']) {
+    const value = options[key];
+
+    if (typeof value === 'string') {
+      try {
+        options[key] = JSON.parse(value);
+      } catch {}
+    }
+  }
+
   return options;
 })();
 
@@ -83,6 +103,7 @@ RegisterCommand(
       case 'add':
         if (!Array.isArray(mysql_debug)) mysql_debug = [];
         mysql_debug.push(args[1]);
+        SetConvar('mysql_debug', JSON.stringify(mysql_debug))
         return console.log(`^3Added ${args[1]} to mysql_debug^0`);
 
       case 'remove':
@@ -91,6 +112,7 @@ RegisterCommand(
           if (index === -1) return;
           mysql_debug.splice(index, 1);
           if (mysql_debug.length === 0) mysql_debug = false;
+          SetConvar('mysql_debug', JSON.stringify(mysql_debug) || 'false')
           return console.log(`^3Removed ${args[1]} from mysql_debug^0`);
         }
 

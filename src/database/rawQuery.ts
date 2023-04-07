@@ -1,12 +1,12 @@
-import { pool } from '.';
+import { pool, serverReady, waitForConnection } from '.';
 import { parseArguments } from '../utils/parseArguments';
 import { parseResponse } from '../utils/parseResponse';
 import { logQuery } from '../logger';
-import type { CFXCallback, CFXParameters, QueryResponse } from '../types';
+import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
 import { scheduleTick } from '../utils/scheduleTick';
 
-export const rawQuery = async (
+export const rawQuery = (
   type: QueryType,
   invokingResource: string,
   query: string,
@@ -14,11 +14,17 @@ export const rawQuery = async (
   cb?: CFXCallback,
   throwError?: boolean
 ) => {
-  await scheduleTick();
-  [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
+  if (typeof query !== 'string')
+    throw new Error(
+      `${invokingResource} was unable to execute a query!\nExpected query to be a string but received ${typeof query} instead.`
+    );
 
-  return await new Promise((resolve, reject) => {
-    //@ts-expect-error todo: patch type with executionTime
+  [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
+  scheduleTick();
+
+  return new Promise(async (resolve, reject) => {
+    if (!serverReady) await waitForConnection();
+
     pool.query(query, parameters, (err, result, _, executionTime) => {
       if (err) return reject(err);
 
