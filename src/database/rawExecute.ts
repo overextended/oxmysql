@@ -12,7 +12,8 @@ export const rawExecute = (
   query: string,
   parameters: CFXParameters,
   cb?: CFXCallback,
-  throwError?: boolean
+  throwError?: boolean,
+  unpack?: boolean
 ) => {
   if (typeof query !== 'string')
     throw new Error(
@@ -21,8 +22,7 @@ export const rawExecute = (
 
   const type = executeType(query);
   const placeholders = query.split('?').length - 1;
-  parameters = parseExecute(placeholders, parameters);
-  if (parameters.length === 0) throw new Error(`Query received no parameters.`);
+  parameters = parameters ? parseExecute(placeholders, parameters) : [];
   let response = [] as any;
 
   scheduleTick();
@@ -33,10 +33,13 @@ export const rawExecute = (
     pool.getConnection((err, connection) => {
       if (err) return reject(err.message);
 
-      parameters.forEach((values, index) => {
-        const executionTime = process.hrtime();
+      const parametersLength = parameters.length == 0 ? 1 : parameters.length;
 
-        if (placeholders > values.length) {
+      for (let index = 0; index < parametersLength; index++) {
+        const executionTime = process.hrtime();
+        const values = parameters[index];
+
+        if (values && placeholders > values.length) {
           for (let i = values.length; i < placeholders; i++) {
             values[i] = null;
           }
@@ -58,15 +61,15 @@ export const rawExecute = (
 
           logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, values as typeof parameters);
 
-          if (index === parameters.length - 1) {
+          if (index === parametersLength - 1) {
             connection.release();
 
             if (cb) {
               if (response.length === 1) {
-                if (type === null) {
-                  if (response[0][0] && Object.keys(response[0][0]).length === 1)
+                if (unpack && type === null) {
+                  if (response[0][0] && Object.keys(response[0][0]).length === 1) {
                     resolve(Object.values(response[0][0])[0]);
-                  else resolve(response[0][0]);
+                  } else resolve(response[0][0]);
                 } else {
                   resolve(response[0]);
                 }
@@ -76,7 +79,7 @@ export const rawExecute = (
             }
           }
         });
-      });
+      }
     });
   })
     .then(async (response) => {

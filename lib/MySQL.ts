@@ -28,6 +28,7 @@ interface OxMySQL {
   update: <T = number | null> (query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>
   insert: <T = number | null> (query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>
   prepare: <T = any> (query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>
+  rawExecute: <T = Result | null> (query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>
   transaction: (query: Transaction, params?: Params | Callback<boolean>, cb?: Callback<boolean>) => Promise<boolean>
 }
 
@@ -135,6 +136,11 @@ export const oxmysql: OxMySQL = {
   async prepare(query, params, cb) {
     [query, params, cb] = safeArgs(query, params, cb)
     const result = await execute('prepare', query, params)
+    return cb ? cb(result) : result
+  },
+  async rawExecute(query, params, cb) {
+    [query, params, cb] = safeArgs(query, params, cb)
+    const result = await execute('rawExecute', query, params)
     return cb ? cb(result) : result
   },
   async transaction(query, params, cb) {

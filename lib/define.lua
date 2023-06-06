@@ -102,15 +102,26 @@ function MySQL.transaction.await(queries, parameters) end
 MySQL.Sync.transaction = MySQL.transaction.await
 
 ---@param query string
----@param parameters table
+---@param parameters? table
 ---@param cb? fun(result?: MySQLColumn | MySQLRow | MySQLQuery)
 function MySQL.prepare(query, parameters, cb) end
 
 MySQL.Async.prepare = MySQL.prepare
 
 ---@param query string
----@param parameters table
+---@param parameters? table
 ---@return MySQLColumn | MySQLRow | MySQLQuery | nil result
 function MySQL.prepare.await(query, parameters) end
 
 MySQL.Sync.prepare = MySQL.prepare.await
+
+---@param query string
+---@param parameters? table
+---@param cb? fun(result?: MySQLQuery)
+function MySQL.rawExecute(query, parameters, cb) end
+
+---@param query string
+---@param parameters? table
+---@return MySQLQuery? result
+function MySQL.rawExecute.await(query, parameters) end
+

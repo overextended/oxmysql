@@ -72,6 +72,16 @@ MySQL.prepare = (
   invokingResource = GetInvokingResource(),
   throwError?: boolean
 ) => {
+  rawExecute(invokingResource, query, parameters, cb, throwError, true);
+};
+
+MySQL.rawExecute = (
+  query: string,
+  parameters: CFXParameters,
+  cb: CFXCallback,
+  invokingResource = GetInvokingResource(),
+  throwError?: boolean
+) => {
   rawExecute(invokingResource, query, parameters, cb, throwError);
 };
 
