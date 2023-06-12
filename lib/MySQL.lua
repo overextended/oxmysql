@@ -64,16 +64,13 @@ local mysql_method_mt = {
 	end
 }
 
-local MySQL = {
-	ready = function(cb)
-		CreateThread(function()
-			repeat
-				Wait(50)
-			until GetResourceState('oxmysql') == 'started'
-			cb()
-		end)
+local MySQL = setmetatable(MySQL or {}, {
+	__index = function(_, index)
+		return function(...)
+			return oxmysql[index](nil, ...)
+		end
 	end
-}
+})
 
 for _, method in pairs({
 	'scalar', 'single', 'query', 'insert', 'update', 'prepare', 'transaction',
@@ -108,9 +105,6 @@ local alias_mt = {
 	end
 }
 
-setmetatable(MySQL.Async, alias_mt)
-setmetatable(MySQL.Sync, alias_mt)
-
 local function addStore(query, cb)
 	assert(type(query) == 'string', 'The SQL Query must be a string')
 
@@ -120,7 +114,25 @@ local function addStore(query, cb)
 	return cb and cb(storeN) or storeN
 end
 
-MySQL.Sync = { store = addStore }
-MySQL.Async = { store = addStore }
+MySQL.Sync = setmetatable({ store = addStore }, alias_mt)
+MySQL.Async = setmetatable({ store = addStore }, alias_mt)
+
+local function onReady(cb)
+	while GetResourceState('oxmysql') ~= 'started' do
+		Wait(50)
+	end
+
+	oxmysql.awaitConnection()
+
+	return cb and cb() or true
+end
+
+MySQL.ready = setmetatable({
+	await = onReady
+}, {
+	__call = function(_, cb)
+		Citizen.CreateThreadNow(function() onReady(cb) end)
+	end,
+})
 
 _ENV.MySQL = MySQL

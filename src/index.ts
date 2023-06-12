@@ -2,9 +2,19 @@ import { CFXCallback, CFXParameters, TransactionQuery } from './types';
 import { rawQuery } from './database/rawQuery';
 import { rawTransaction } from './database/rawTransaction';
 import { rawExecute } from './database/rawExecute';
+import { isServerConnected, waitForConnection } from './database';
 import('./update');
 
 const MySQL = {} as Record<string, Function>;
+
+MySQL.isReady = () => {
+  return isServerConnected;
+};
+
+MySQL.awaitConnection = async () => {
+  await waitForConnection();
+  return true;
+};
 
 MySQL.query = (
   query: string,
