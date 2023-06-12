@@ -1,4 +1,4 @@
-import { pool, serverReady, waitForConnection } from '.';
+import { pool, isServerConnected, waitForConnection } from '.';
 import { parseArguments } from '../utils/parseArguments';
 import { parseResponse } from '../utils/parseResponse';
 import { logQuery } from '../logger';
@@ -23,7 +23,7 @@ export const rawQuery = (
   scheduleTick();
 
   return new Promise(async (resolve, reject) => {
-    if (!serverReady) await waitForConnection();
+    if (!isServerConnected) await waitForConnection();
 
     pool.query(query, parameters, (err, result, _, executionTime) => {
       if (err) return reject(err);

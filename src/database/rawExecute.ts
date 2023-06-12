@@ -5,7 +5,7 @@ import { CFXCallback, CFXParameters } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
 import { scheduleTick } from '../utils/scheduleTick';
-import { serverReady, waitForConnection } from '../database';
+import { isServerConnected, waitForConnection } from '../database';
 
 export const rawExecute = (
   invokingResource: string,
@@ -28,7 +28,7 @@ export const rawExecute = (
   scheduleTick();
 
   return new Promise(async (resolve, reject) => {
-    if (!serverReady) await waitForConnection();
+    if (!isServerConnected) await waitForConnection();
 
     pool.getConnection((err, connection) => {
       if (err) return reject(err.message);

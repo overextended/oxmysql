@@ -1,4 +1,4 @@
-import { pool, serverReady, waitForConnection } from '.';
+import { pool, isServerConnected, waitForConnection } from '.';
 import { logQuery } from '../logger';
 import { CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
@@ -15,7 +15,7 @@ export const rawTransaction = async (
   parameters: CFXParameters,
   callback?: (result: boolean) => void
 ) => {
-  if (!serverReady) await waitForConnection()
+  if (!isServerConnected) await waitForConnection()
 
   scheduleTick();
 

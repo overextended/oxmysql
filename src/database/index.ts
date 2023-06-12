@@ -3,14 +3,14 @@ import { connectionOptions, mysql_transaction_isolation_level } from '../config'
 import { typeCast } from '../utils/typeCast';
 
 let pool: Pool;
-let serverReady = false;
+let isServerConnected = false;
 
 export async function waitForConnection() {
-  if (!serverReady) {
-    await new Promise<void>((resolve) => {
+  if (!isServerConnected) {
+    return await new Promise<boolean>((resolve) => {
       (function wait() {
-        if (serverReady) {
-          return resolve();
+        if (isServerConnected) {
+          return resolve(true);
         }
         setTimeout(wait);
       })();
@@ -30,8 +30,8 @@ setTimeout(() => {
   pool.query(mysql_transaction_isolation_level, (err) => {
     if (err) return console.error(`^3Unable to establish a connection to the database!\n^3[${err}]^0`);
     console.log(`^2Database server connection established!^0`);
-    serverReady = true;
+    isServerConnected = true;
   });
 });
 
-export { pool, serverReady };
+export { pool, isServerConnected };
