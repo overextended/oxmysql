@@ -12,7 +12,7 @@ export const rawExecute = (
   query: string,
   parameters: CFXParameters,
   cb?: CFXCallback,
-  throwError?: boolean,
+  isPromise?: boolean,
   unpack?: boolean
 ) => {
   if (typeof query !== 'string')
@@ -104,7 +104,7 @@ export const rawExecute = (
         resource: invokingResource,
       });
 
-      if (cb && throwError) return cb(null, error);
-      throw new Error(error);
+      if (cb && isPromise) return cb(null, error);
+      console.error(error);
     });
 };

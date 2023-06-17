@@ -21,9 +21,9 @@ MySQL.query = (
   parameters: CFXParameters,
   cb: CFXCallback,
   invokingResource = GetInvokingResource(),
-  throwError?: boolean
+  isPromise?: boolean
 ) => {
-  rawQuery(null, invokingResource, query, parameters, cb, throwError);
+  rawQuery(null, invokingResource, query, parameters, cb, isPromise);
 };
 
 MySQL.single = (
@@ -31,9 +31,9 @@ MySQL.single = (
   parameters: CFXParameters,
   cb: CFXCallback,
   invokingResource = GetInvokingResource(),
-  throwError?: boolean
+  isPromise?: boolean
 ) => {
-  rawQuery('single', invokingResource, query, parameters, cb, throwError);
+  rawQuery('single', invokingResource, query, parameters, cb, isPromise);
 };
 
 MySQL.scalar = (
@@ -41,9 +41,9 @@ MySQL.scalar = (
   parameters: CFXParameters,
   cb: CFXCallback,
   invokingResource = GetInvokingResource(),
-  throwError?: boolean
+  isPromise?: boolean
 ) => {
-  rawQuery('scalar', invokingResource, query, parameters, cb, throwError);
+  rawQuery('scalar', invokingResource, query, parameters, cb, isPromise);
 };
 
 MySQL.update = (
@@ -51,9 +51,9 @@ MySQL.update = (
   parameters: CFXParameters,
   cb: CFXCallback,
   invokingResource = GetInvokingResource(),
-  throwError?: boolean
+  isPromise?: boolean
 ) => {
-  rawQuery('update', invokingResource, query, parameters, cb, throwError);
+  rawQuery('update', invokingResource, query, parameters, cb, isPromise);
 };
 
 MySQL.insert = (
@@ -61,9 +61,9 @@ MySQL.insert = (
   parameters: CFXParameters,
   cb: CFXCallback,
   invokingResource = GetInvokingResource(),
-  throwError?: boolean
+  isPromise?: boolean
 ) => {
-  rawQuery('insert', invokingResource, query, parameters, cb, throwError);
+  rawQuery('insert', invokingResource, query, parameters, cb, isPromise);
 };
 
 MySQL.transaction = (
@@ -80,9 +80,9 @@ MySQL.prepare = (
   parameters: CFXParameters,
   cb: CFXCallback,
   invokingResource = GetInvokingResource(),
-  throwError?: boolean
+  isPromise?: boolean
 ) => {
-  rawExecute(invokingResource, query, parameters, cb, throwError, true);
+  rawExecute(invokingResource, query, parameters, cb, isPromise, true);
 };
 
 MySQL.rawExecute = (
@@ -90,9 +90,9 @@ MySQL.rawExecute = (
   parameters: CFXParameters,
   cb: CFXCallback,
   invokingResource = GetInvokingResource(),
-  throwError?: boolean
+  isPromise?: boolean
 ) => {
-  rawExecute(invokingResource, query, parameters, cb, throwError);
+  rawExecute(invokingResource, query, parameters, cb, isPromise);
 };
 
 MySQL.execute = MySQL.query;
