@@ -73,7 +73,7 @@ local MySQL = setmetatable(MySQL or {}, {
 })
 
 for _, method in pairs({
-	'scalar', 'single', 'query', 'insert', 'update', 'prepare', 'transaction',
+	'scalar', 'single', 'query', 'insert', 'update', 'prepare', 'transaction', 'rawExecute',
 }) do
 	MySQL[method] = setmetatable({
 		method = method,
