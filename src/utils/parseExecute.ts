@@ -2,8 +2,6 @@ import { CFXParameters } from '../types';
 
 export const executeType = (query: string) => {
   switch (query.substring(0, query.indexOf(' '))) {
-    case 'SELECT':
-      return null;
     case 'INSERT':
       return 'insert';
     case 'UPDATE':
@@ -11,7 +9,7 @@ export const executeType = (query: string) => {
     case 'DELETE':
       return 'update';
     default:
-      throw new Error(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods.`);
+      return null;
   }
 };
 
