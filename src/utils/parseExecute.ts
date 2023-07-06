@@ -36,7 +36,7 @@ export const parseExecute = (placeholders: number, parameters: CFXParameters) =>
         } else arr[index] = parameters[index];
 
         for (let i = 0; i < placeholders; i++) {
-          if (!arr[index][i]) arr[index][i] = null;
+          if (arr[index][i] === undefined) arr[index][i] = null;
         }
       });
 
