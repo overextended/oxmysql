@@ -1,3 +1,4 @@
+import { RowDataPacket } from 'mysql2';
 import { pool, isServerConnected, waitForConnection } from '.';
 import { logQuery } from '../logger';
 import { CFXParameters, TransactionQuery } from '../types';
@@ -27,11 +28,20 @@ export const rawTransaction = async (
     await connection.beginTransaction();
 
     for (const transaction of transactions) {
-      const [result, fields] = await connection.query(transaction.query, transaction.params);
-      // logQuery(invokingResource, transaction.query, transaction.params);
+      await connection.query(transaction.query, transaction.params);
     }
 
     await connection.commit();
+
+    const [profiler] = <RowDataPacket[]>(
+      await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING')
+    );
+
+    if (profiler[0]?.duration) {
+      for (const transaction of transactions) {
+        logQuery(invokingResource, transaction.query, parseFloat(profiler[0].duration) / transactions.length, transaction.params);
+      }
+    }
 
     response = true;
   } catch (e) {

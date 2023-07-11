@@ -59,6 +59,10 @@ export const rawExecute = (
         }
 
         if (index === parametersLength - 1) {
+          const [profiler] = <RowDataPacket[]> await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING');
+
+          if (profiler[0]?.duration) logQuery(invokingResource, query, parseFloat(profiler[0].duration), parameters);
+
           connection.release();
 
           if (cb) {
@@ -108,3 +112,5 @@ export const rawExecute = (
       console.error(error);
     });
 };
+
+

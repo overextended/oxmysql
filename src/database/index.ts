@@ -1,4 +1,4 @@
-import { createPool, Pool } from 'mysql2/promise';
+import { Connection, createPool, Pool } from 'mysql2/promise';
 import { connectionOptions, mysql_transaction_isolation_level, setDebug } from '../config';
 import { typeCast } from '../utils/typeCast';
 
@@ -25,8 +25,8 @@ setInterval(() => {
 }, 1000);
 
 setTimeout(async () => {
-  const flags = []
-  flags.push(connectionOptions.database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB')
+  const flags: string[] = [];
+  flags.push(connectionOptions.database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB');
 
   pool = createPool({
     connectTimeout: 60000,
@@ -35,20 +35,27 @@ setTimeout(async () => {
     ...connectionOptions,
     typeCast,
     namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
-    flags: flags
+    flags: flags,
   });
 
-  const connection = await pool.getConnection();
+  pool.on('connection', (connection) => {
+    connection.query(mysql_transaction_isolation_level);
+  });
+
+  pool.on('acquire', (connection) => {
+    connection.query('SET profiling_history_size = 0');
+    connection.query('SET profiling = 0');
+    connection.query('SET profiling = 1');
+    connection.query('SET profiling_history_size = 1000');
+  });
 
   try {
-    connection.query(mysql_transaction_isolation_level);
+    await pool.query('SELECT DATABASE()');
     console.log(`^2Database server connection established!^0`);
     isServerConnected = true;
   } catch (err) {
     console.error(`^3Unable to establish a connection to the database!\n^3[${err}]^0`);
   }
-
-  connection.release()
 });
 
 export { pool, isServerConnected };

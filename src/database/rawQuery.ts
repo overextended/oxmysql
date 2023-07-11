@@ -34,6 +34,9 @@ export const rawQuery = (
 
     try {
       const [result] = await connection.query(query, parameters);
+      const [profiler] = <RowDataPacket[]> await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING');
+  
+      if (profiler[0]?.duration) logQuery(invokingResource, query, parseFloat(profiler[0].duration), parameters);
 
       resolve(cb ? parseResponse(type, result) : null);
     } catch (err) {
