@@ -25,6 +25,9 @@ setInterval(() => {
 }, 1000);
 
 setTimeout(async () => {
+  const flags = []
+  flags.push(connectionOptions.database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB')
+
   pool = createPool({
     connectTimeout: 60000,
     trace: false,
@@ -32,6 +35,7 @@ setTimeout(async () => {
     ...connectionOptions,
     typeCast,
     namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
+    flags: flags
   });
 
   const connection = await pool.getConnection();
