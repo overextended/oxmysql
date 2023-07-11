@@ -94,11 +94,10 @@ const sortQueries = (queries: QueryData[], sort: { id: 'query' | 'executionTime'
 onNet(
   `oxmysql:fetchResource`,
   (data: { resource: string; pageIndex: number; sortBy?: { id: 'query' | 'executionTime'; desc: boolean }[] }) => {
-    if (typeof data.resource !== 'string') return;
+    if (typeof data.resource !== 'string' || !IsPlayerAceAllowed(source as unknown as string, 'command.mysql')) return;
+
     const resourceLog = logStorage[data.resource];
-
     const sort = data.sortBy && data.sortBy.length > 0 ? data.sortBy[0] : false;
-
     const startRow = data.pageIndex * 10;
     const endRow = startRow + 10;
     const queries = sort
