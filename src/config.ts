@@ -88,7 +88,7 @@ export const connectionOptions = (() => {
     }
   }
 
-  const flags: string[] = [];
+  const flags: string[] = options.flags || [];
   flags.push(options.database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB');
 
   return {
