@@ -5,6 +5,7 @@ import { logQuery } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
 import { scheduleTick } from '../utils/scheduleTick';
+import { RowDataPacket } from 'mysql2';
 
 export const rawQuery = (
   type: QueryType,
@@ -25,12 +26,21 @@ export const rawQuery = (
   return new Promise(async (resolve, reject) => {
     if (!isServerConnected) await waitForConnection();
 
-    pool.query(query, parameters, (err, result, _, executionTime) => {
-      if (err) return reject(err);
-
-      logQuery(invokingResource, query, executionTime, parameters);
-      resolve(cb ? parseResponse(type, result) : null);
+    const connection = await pool.getConnection().catch((err) => {
+      return reject(err.message);
     });
+
+    if (!connection) return;
+
+    try {
+      const [result] = await connection.query(query, parameters);
+
+      resolve(cb ? parseResponse(type, result) : null);
+    } catch (err) {
+      reject(err);
+    } finally {
+      connection.release();
+    }
   })
     .then(async (result) => {
       if (cb)

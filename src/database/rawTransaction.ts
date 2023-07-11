@@ -15,20 +15,20 @@ export const rawTransaction = async (
   parameters: CFXParameters,
   callback?: (result: boolean) => void
 ) => {
-  if (!isServerConnected) await waitForConnection()
+  if (!isServerConnected) await waitForConnection();
 
   scheduleTick();
 
   const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
-  const connection = await pool.promise().getConnection();
+  const connection = await pool.getConnection();
   let response = false;
 
   try {
     await connection.beginTransaction();
 
     for (const transaction of transactions) {
-      const [result, fields, executionTime] = await connection.query(transaction.query, transaction.params);
-      logQuery(invokingResource, transaction.query, executionTime, transaction.params);
+      const [result, fields] = await connection.query(transaction.query, transaction.params);
+      // logQuery(invokingResource, transaction.query, transaction.params);
     }
 
     await connection.commit();

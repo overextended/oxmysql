@@ -30,57 +30,57 @@ export const rawExecute = (
   return new Promise(async (resolve, reject) => {
     if (!isServerConnected) await waitForConnection();
 
-    pool.getConnection((err, connection) => {
-      if (err) return reject(err.message);
+    const connection = await pool.getConnection().catch((err) => {
+      return reject(err.message);
+    });
 
-      const parametersLength = parameters.length == 0 ? 1 : parameters.length;
+    if (!connection) return;
 
-      for (let index = 0; index < parametersLength; index++) {
-        const executionTime = process.hrtime();
-        const values = parameters[index];
+    const parametersLength = parameters.length == 0 ? 1 : parameters.length;
 
-        if (values && placeholders > values.length) {
-          for (let i = values.length; i < placeholders; i++) {
-            values[i] = null;
-          }
+    for (let index = 0; index < parametersLength; index++) {
+      const values = parameters[index];
+
+      if (values && placeholders > values.length) {
+        for (let i = values.length; i < placeholders; i++) {
+          values[i] = null;
+        }
+      }
+
+      try {
+        const [result] = await connection.execute(query, values);
+
+        if (cb) {
+          if (Array.isArray(result) && result.length > 1) {
+            for (const value of result) {
+              response.push(parseResponse(type, value));
+            }
+          } else response.push(parseResponse(type, result));
         }
 
-        connection.execute(query, values, (err, results: RowDataPacket[][]) => {
-          if (err) {
-            connection.release();
-            return reject(err.message);
-          }
+        if (index === parametersLength - 1) {
+          connection.release();
 
           if (cb) {
-            if (results.length > 1) {
-              for (const value of results) {
-                response.push(parseResponse(type, value));
-              }
-            } else response.push(parseResponse(type, results));
-          }
-
-          logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, values as typeof parameters);
-
-          if (index === parametersLength - 1) {
-            connection.release();
-
-            if (cb) {
-              if (response.length === 1) {
-                if (unpack && type === null) {
-                  if (response[0][0] && Object.keys(response[0][0]).length === 1) {
-                    resolve(Object.values(response[0][0])[0]);
-                  } else resolve(response[0][0]);
-                } else {
-                  resolve(response[0]);
-                }
+            if (response.length === 1) {
+              if (unpack && type === null) {
+                if (response[0][0] && Object.keys(response[0][0]).length === 1) {
+                  resolve(Object.values(response[0][0])[0]);
+                } else resolve(response[0][0]);
               } else {
-                resolve(response);
+                resolve(response[0]);
               }
+            } else {
+              resolve(response);
             }
           }
-        });
+        }
+      } catch (err: any) {
+        reject(err.message);
+      } finally {
+        connection.release();
       }
-    });
+    }
   })
     .then(async (response) => {
       if (cb)
