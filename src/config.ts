@@ -1,4 +1,5 @@
-export const resourceName = GetCurrentResourceName();
+import { typeCast } from './utils/typeCast';
+
 export const mysql_connection_string = GetConvar('mysql_connection_string', '');
 export let mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
 export let mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
@@ -87,7 +88,18 @@ export const connectionOptions = (() => {
     }
   }
 
-  return options;
+  const flags: string[] = [];
+  flags.push(options.database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB');
+
+  return {
+    connectTimeout: 60000,
+    trace: false,
+    supportBigNumbers: true,
+    ...options,
+    typeCast,
+    namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
+    flags: flags,
+  };
 })();
 
 RegisterCommand(
