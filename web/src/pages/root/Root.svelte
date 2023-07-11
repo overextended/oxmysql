@@ -36,7 +36,7 @@
       </div>
       <div class="flex flex-col text-dark-50">
         <p>Queries: {$generalData.queries}</p>
-        <p>Time querying: {$generalData.timeQuerying.toFixed(2)} ms</p>
+        <p>Time querying: {$generalData.timeQuerying.toFixed(4)} ms</p>
         <p class="text-yellow-500">Slow queries: {$generalData.slowQueries}</p>
       </div>
     </div>

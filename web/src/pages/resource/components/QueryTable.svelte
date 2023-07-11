@@ -29,7 +29,7 @@
     {
       accessorKey: 'executionTime',
       header: 'Time (ms)',
-      cell: (info) => info.getValue().toFixed(2),
+      cell: (info) => info.getValue().toFixed(4),
       enableSorting: true,
     },
   ];

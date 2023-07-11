@@ -31,7 +31,7 @@
         callbacks: {
           label: (context) => {
             // @ts-ignore
-            return `Queries: ${context.raw.queries}, Time: ${context.raw.time.toFixed(2)} ms`;
+            return `Queries: ${context.raw.queries}, Time: ${context.raw.time.toFixed(4)} ms`;
           },
         },
       },
