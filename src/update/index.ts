@@ -1,30 +1,36 @@
 import fetch from 'node-fetch';
 
-if (GetConvar('mysql_versioncheck', 'true') === 'true') {
+(() => {
+  if (GetConvarInt('mysql_versioncheck', 1) === 0) return;
+
+  const resourceName = GetCurrentResourceName();
+  const currentVersion = GetResourceMetadata(resourceName, 'version', 0)?.match(/(\d)\.(\d)\.(\d)/);
+
+  if (!currentVersion) return console.log(`^1Unable to determine current resource version for '${resourceName}'^0`);
+
   setTimeout(async () => {
-    try {
-      const response = await fetch(`https://api.github.com/repos/overextended/oxmysql/releases/latest`);
-      if (response.status !== 200) return;
+    const response = await fetch(`https://api.github.com/repos/overextended/oxmysql/releases/latest`);
+    if (response.status !== 200) return;
 
-      const release = (await response.json()) as any;
-      if (release.prerelease) return;
+    const release = (await response.json()) as any;
+    if (release.prerelease) return;
 
-      const currentVersion = GetResourceMetadata(GetCurrentResourceName(), 'version', 0).match(/(\d)\.(\d+\.\d+)/);
-      if (!currentVersion) return;
+    const latestVersion = release.tag_name.match(/(\d)\.(\d)\.(\d)/);
+    if (!latestVersion || latestVersion[0] === currentVersion[0]) return;
 
-      const latestVersion = release.tag_name.match(/(\d)\.(\d+\.\d+)/);
-      if (!latestVersion) return;
+    for (let i = 1; i < currentVersion.length; i++) {
+      const current = parseInt(currentVersion[i]);
+      const latest = parseInt(latestVersion[i]);
 
-      if (
-        currentVersion[0] === latestVersion[0] ||
-        parseInt(currentVersion[1]) > parseInt(latestVersion[1]) ||
-        parseFloat(currentVersion[2]) > parseFloat(latestVersion[2])
-      )
-        return;
+      console.log(current, latest);
 
-      console.log(
-        `^3An update is available for oxmysql (current version: ${currentVersion[0]})\r\n${release.html_url}^0`
-      );
-    } catch (e) {}
+      if (current !== latest) {
+        if (current < latest)
+          return console.log(
+            `^3An update is available for ${resourceName} (current version: ${currentVersion[0]})\r\n${release.html_url}^0`
+          );
+        else break;
+      }
+    }
   }, 1000);
-}
+})();
