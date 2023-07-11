@@ -72,7 +72,7 @@ export const connectionOptions = (() => {
         .split(';')
         .reduce<Record<string, string>>((connectionInfo, parameter) => {
           const [key, value] = parameter.split('=');
-          connectionInfo[key] = value;
+          if (key) connectionInfo[key] = value;
           return connectionInfo;
         }, {});
 
