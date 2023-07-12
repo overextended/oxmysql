@@ -1,5 +1,39 @@
+import { PoolConnection, RowDataPacket } from 'mysql2/promise';
 import { mysql_debug, mysql_slow_query_warning, mysql_ui } from '../config';
 import type { CFXParameters } from '../types';
+
+export const profilerStatements = [
+  'SET profiling_history_size = 0',
+  'SET profiling = 0',
+  'SET profiling_history_size = 100',
+  'SET profiling = 1',
+];
+
+export async function profileBatchStatements(
+  connection: PoolConnection,
+  invokingResource: string,
+  query: string | { query: string; params: CFXParameters }[],
+  parameters: CFXParameters | null,
+  offset: number
+) {
+  const [profiler] = <RowDataPacket[]>(
+    await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID')
+  );
+
+  for (const statement of profilerStatements) await connection.query(statement);
+
+  if (profiler.length === 0) return;
+
+  if (typeof query === 'string' && parameters)
+    for (let i = 0; i < profiler.length; i++) {
+      logQuery(invokingResource, query, parseFloat(profiler[i].duration), parameters[offset]);
+    }
+  else if (typeof query === 'object')
+    for (let i = 0; i < profiler.length; i++) {
+      const transaction = query[offset];
+      logQuery(invokingResource, transaction.query, parseFloat(profiler[i].duration), transaction.params);
+    }
+}
 
 interface QueryData {
   date: number;

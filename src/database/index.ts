@@ -1,5 +1,6 @@
 import { createPool, Pool } from 'mysql2/promise';
 import { connectionOptions, mysql_transaction_isolation_level, setDebug } from '../config';
+import { profilerStatements } from '../logger';
 
 let pool: Pool;
 let isServerConnected = false;
@@ -25,10 +26,7 @@ function setConnectionPool() {
   });
 
   pool.on('acquire', (connection) => {
-    connection.query('SET profiling_history_size = 0');
-    connection.query('SET profiling = 0');
-    connection.query('SET profiling_history_size = 1000');
-    connection.query('SET profiling = 1');
+    for (const statement of profilerStatements) connection.query(statement);
   });
 }
 
