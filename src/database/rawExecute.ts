@@ -1,5 +1,5 @@
 import { pool } from '.';
-import { profileBatchStatements } from '../logger';
+import { profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
@@ -36,6 +36,7 @@ export const rawExecute = (
     if (!connection) return;
 
     const parametersLength = parameters.length == 0 ? 1 : parameters.length;
+    const hasProfiler = await runProfiler(connection, invokingResource);
 
     for (let index = 0; index < parametersLength; index++) {
       const values = parameters[index];
@@ -57,8 +58,8 @@ export const rawExecute = (
           } else response.push(parseResponse(type, result));
         }
 
-        if ((index > 0 && index % 99 === 0) || index === parametersLength - 1) {
-          await profileBatchStatements(connection, invokingResource, query, parameters, index);
+        if (hasProfiler && ((index > 0 && index % 100 === 0) || index === parametersLength - 1)) {
+          await profileBatchStatements(connection, invokingResource, query, parameters, index < 100 ? 0 : index);
         }
 
         if (index === parametersLength - 1) {

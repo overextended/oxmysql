@@ -1,7 +1,7 @@
 import { pool, isServerConnected, waitForConnection } from '.';
 import { parseArguments } from '../utils/parseArguments';
 import { parseResponse } from '../utils/parseResponse';
-import { logQuery } from '../logger';
+import { logQuery, runProfiler } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
 import { scheduleTick } from '../utils/scheduleTick';
@@ -32,11 +32,18 @@ export const rawQuery = (
 
     if (!connection) return;
 
+    const hasProfiler = await runProfiler(connection, invokingResource);
+
     try {
       const [result] = await connection.query(query, parameters);
-      const [profiler] = <RowDataPacket[]> await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING');
-  
-      if (profiler[0]?.duration) logQuery(invokingResource, query, parseFloat(profiler[0].duration), parameters);
+
+      if (hasProfiler) {
+        const [profiler] = <RowDataPacket[]>(
+          await connection.query('SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING')
+        );
+
+        if (profiler[0]) logQuery(invokingResource, query, profiler[0].duration, parameters);
+      }
 
       resolve(cb ? parseResponse(type, result) : null);
     } catch (err) {

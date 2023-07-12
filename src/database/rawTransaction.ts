@@ -1,5 +1,5 @@
 import { pool, isServerConnected, waitForConnection } from '.';
-import { profileBatchStatements } from '../logger';
+import { profileBatchStatements, runProfiler } from '../logger';
 import { CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { scheduleTick } from '../utils/scheduleTick';
@@ -21,6 +21,7 @@ export const rawTransaction = async (
 
   const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
   const connection = await pool.getConnection();
+  const hasProfiler = await runProfiler(connection, invokingResource);
   let response = false;
 
   try {
@@ -32,8 +33,8 @@ export const rawTransaction = async (
 
       await connection.query(transaction.query, transaction.params);
 
-      if ((i > 0 && i % 99 === 0) || i === transactionsLength - 1) {
-        await profileBatchStatements(connection, invokingResource, transactions, null, i);
+      if (hasProfiler && ((i > 0 && i % 100 === 0) || i === transactionsLength - 1)) {
+        await profileBatchStatements(connection, invokingResource, transactions, null, i < 100 ? 0 : i);
       }
     }
 

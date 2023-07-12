@@ -24,10 +24,6 @@ function setConnectionPool() {
   pool.on('connection', (connection) => {
     connection.query(mysql_transaction_isolation_level);
   });
-
-  pool.on('acquire', (connection) => {
-    for (const statement of profilerStatements) connection.query(statement);
-  });
 }
 
 setInterval(() => {

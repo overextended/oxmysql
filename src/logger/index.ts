@@ -9,6 +9,15 @@ export const profilerStatements = [
   'SET profiling = 1',
 ];
 
+export async function runProfiler(connection: PoolConnection, invokingResource: string) {
+  if (!mysql_debug && !mysql_ui) return;
+  if (!mysql_ui && mysql_debug && Array.isArray(mysql_debug) && !mysql_debug.includes(invokingResource)) return;
+
+  for (const statement of profilerStatements) await connection.query(statement);
+
+  return true;
+}
+
 export async function profileBatchStatements(
   connection: PoolConnection,
   invokingResource: string,
@@ -17,7 +26,9 @@ export async function profileBatchStatements(
   offset: number
 ) {
   const [profiler] = <RowDataPacket[]>(
-    await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID')
+    await connection.query(
+      'SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID'
+    )
   );
 
   for (const statement of profilerStatements) await connection.query(statement);
@@ -26,12 +37,13 @@ export async function profileBatchStatements(
 
   if (typeof query === 'string' && parameters)
     for (let i = 0; i < profiler.length; i++) {
-      logQuery(invokingResource, query, parseFloat(profiler[i].duration), parameters[offset]);
+      logQuery(invokingResource, query, profiler[i].duration, parameters[offset + i]);
     }
   else if (typeof query === 'object')
     for (let i = 0; i < profiler.length; i++) {
-      const transaction = query[offset];
-      logQuery(invokingResource, transaction.query, parseFloat(profiler[i].duration), transaction.params);
+      const transaction = query[offset + i];
+      if (transaction) logQuery(invokingResource, transaction.query, profiler[i].duration, transaction.params);
+      else break;
     }
 }
 
@@ -46,7 +58,14 @@ type QueryLog = Record<string, QueryData[]>;
 
 const logStorage: QueryLog = {};
 
-export const logQuery = (invokingResource: string, query: string, executionTime: number, parameters: CFXParameters) => {
+export const logQuery = (
+  invokingResource: string,
+  query: string,
+  executionTime: string | number,
+  parameters: CFXParameters
+) => {
+  executionTime = parseFloat(executionTime as string);
+
   if (mysql_debug && Array.isArray(mysql_debug)) {
     if (mysql_debug.includes(invokingResource)) {
       console.log(
