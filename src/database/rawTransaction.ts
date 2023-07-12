@@ -34,12 +34,13 @@ export const rawTransaction = async (
     await connection.commit();
 
     const [profiler] = <RowDataPacket[]>(
-      await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING')
+      await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID')
     );
 
-    if (profiler[0]?.duration) {
-      for (const transaction of transactions) {
-        logQuery(invokingResource, transaction.query, parseFloat(profiler[0].duration) / transactions.length, transaction.params);
+    if (profiler.length > 0) {
+      for (let i = 0; i < transactions.length; i++) {
+        const transaction = transactions[i]
+        logQuery(invokingResource, transaction.query, parseFloat(profiler[i].duration), transaction.params);
       }
     }
 
