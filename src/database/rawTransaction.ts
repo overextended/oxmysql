@@ -1,6 +1,5 @@
-import { RowDataPacket } from 'mysql2';
 import { pool, isServerConnected, waitForConnection } from '.';
-import { logQuery } from '../logger';
+import { profileBatchStatements } from '../logger';
 import { CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { scheduleTick } from '../utils/scheduleTick';
@@ -26,27 +25,23 @@ export const rawTransaction = async (
 
   try {
     await connection.beginTransaction();
+    const transactionsLength = transactions.length;
 
-    for (const transaction of transactions) {
+    for (let i = 0; i < transactionsLength; i++) {
+      const transaction = transactions[i];
+
       await connection.query(transaction.query, transaction.params);
+
+      if ((i > 0 && i % 99 === 0) || i === transactionsLength - 1) {
+        await profileBatchStatements(connection, invokingResource, transactions, null, i);
+      }
     }
 
     await connection.commit();
 
-    const [profiler] = <RowDataPacket[]>(
-      await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID')
-    );
-
-    if (profiler.length > 0) {
-      for (let i = 0; i < transactions.length; i++) {
-        const transaction = transactions[i]
-        logQuery(invokingResource, transaction.query, parseFloat(profiler[i].duration), transaction.params);
-      }
-    }
-
     response = true;
   } catch (e) {
-    await connection.rollback();
+    await connection.rollback().catch(() => {});
 
     const transactionErrorMessage = (e as any).sql || transactionError(transactions, parameters);
     console.error(

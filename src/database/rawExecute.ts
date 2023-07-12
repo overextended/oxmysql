@@ -1,6 +1,5 @@
-import { RowDataPacket } from 'mysql2';
 import { pool } from '.';
-import { logQuery } from '../logger';
+import { profileBatchStatements } from '../logger';
 import { CFXCallback, CFXParameters } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
@@ -58,17 +57,11 @@ export const rawExecute = (
           } else response.push(parseResponse(type, result));
         }
 
-        if (index === parametersLength - 1) {
-          const [profiler] = <RowDataPacket[]>(
-            await connection.query('SELECT SUM(DURATION) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID')
-          );
-      
-          if (profiler.length > 0) {
-            for (let i = 0; i < parametersLength; i++) {
-              logQuery(invokingResource, query, parseFloat(profiler[i].duration), parameters[i]);
-            }
-          }
+        if ((index > 0 && index % 99 === 0) || index === parametersLength - 1) {
+          await profileBatchStatements(connection, invokingResource, query, parameters, index);
+        }
 
+        if (index === parametersLength - 1) {
           connection.release();
 
           if (cb) {
@@ -118,5 +111,3 @@ export const rawExecute = (
       console.error(error);
     });
 };
-
-
