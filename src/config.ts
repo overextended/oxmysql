@@ -61,6 +61,8 @@ const parseUri = (connectionString: string) => {
   return options;
 };
 
+export let convertNamedPlaceholders: null | ((query: string, parameters: Record<string, any>) => [string, any[]]);
+
 export const connectionOptions = (() => {
   const options: Record<string, any> = mysql_connection_string.includes('mysql://')
     ? parseUri(mysql_connection_string)
@@ -76,7 +78,7 @@ export const connectionOptions = (() => {
           return connectionInfo;
         }, {});
 
-  options.namedPlaceholders = options.namedPlaceholders === 'false' ? false : true;
+  convertNamedPlaceholders = options.namedPlaceholders === 'false' ? null : require('named-placeholders')();
 
   for (const key in ['dateStrings', 'flags', 'ssl']) {
     const value = options[key];

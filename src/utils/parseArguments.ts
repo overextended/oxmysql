@@ -1,7 +1,5 @@
 import type { CFXCallback, CFXParameters } from '../types';
-import { connectionOptions } from '../config';
-
-const convertNamedPlaceholders = connectionOptions.namedPlaceholders && require('named-placeholders')();
+import { convertNamedPlaceholders } from '../config';
 
 export const parseArguments = (
   invokingResource: string,
