@@ -1,6 +1,7 @@
 import { PoolConnection, RowDataPacket } from 'mysql2/promise';
 import { mysql_debug, mysql_slow_query_warning, mysql_ui } from '../config';
 import type { CFXParameters } from '../types';
+import { dbVersion } from '../database';
 
 export const profilerStatements = [
   'SET profiling_history_size = 0',
@@ -66,18 +67,16 @@ export const logQuery = (
 ) => {
   executionTime = parseFloat(executionTime as string);
 
-  if (mysql_debug && Array.isArray(mysql_debug)) {
-    if (mysql_debug.includes(invokingResource)) {
-      console.log(
-        `^3[DEBUG] ${invokingResource} took ${executionTime}ms to execute a query!
-      ${query} ${JSON.stringify(parameters)}^0`
-      );
-    }
-  } else if (mysql_debug || executionTime >= mysql_slow_query_warning)
+  if (
+    executionTime >= mysql_slow_query_warning ||
+    (mysql_debug && (!Array.isArray(mysql_debug) || mysql_debug.includes(invokingResource)))
+  ) {
     console.log(
-      `^3[${mysql_debug ? 'DEBUG' : 'WARNING'}] ${invokingResource} took ${executionTime}ms to execute a query!
-    ${query} ${JSON.stringify(parameters)}^0`
+      `${dbVersion} ^3${invokingResource} took ${executionTime}ms to execute a query!\n${query}${
+        parameters ? ` ${JSON.stringify(parameters)}` : ''
+      }^0`
     );
+  }
 
   if (!mysql_ui) return;
 
