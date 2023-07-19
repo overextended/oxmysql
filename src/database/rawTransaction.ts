@@ -46,6 +46,7 @@ export const rawTransaction = async (
     await connection.rollback().catch(() => {});
 
     const transactionErrorMessage = (e as any).sql || transactionError(transactions, parameters);
+  
     console.error(
       `${invokingResource} was unable to execute a transaction!\n${(e as Error).message}\n${transactionErrorMessage}^0`
     );

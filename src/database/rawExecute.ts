@@ -6,7 +6,7 @@ import { executeType, parseExecute } from '../utils/parseExecute';
 import { scheduleTick } from '../utils/scheduleTick';
 import { isServerConnected, waitForConnection } from '../database';
 
-export const rawExecute = (
+export const rawExecute = async (
   invokingResource: string,
   query: string,
   parameters: CFXParameters,
@@ -22,21 +22,17 @@ export const rawExecute = (
   const type = executeType(query);
   const placeholders = query.split('?').length - 1;
   parameters = parameters ? parseExecute(placeholders, parameters) : [];
-  let response = [] as any;
+
+  if (!isServerConnected) await waitForConnection();
 
   scheduleTick();
 
-  return new Promise(async (resolve, reject) => {
-    if (!isServerConnected) await waitForConnection();
+  const connection = await pool.getConnection();
 
-    const connection = await pool.getConnection().catch((err) => {
-      return reject(err.message);
-    });
-
-    if (!connection) return;
-
-    const parametersLength = parameters.length == 0 ? 1 : parameters.length;
+  try {
     const hasProfiler = await runProfiler(connection, invokingResource);
+    const parametersLength = parameters.length == 0 ? 1 : parameters.length;
+    const response = [] as any[];
 
     for (let index = 0; index < parametersLength; index++) {
       const values = parameters[index];
@@ -47,68 +43,57 @@ export const rawExecute = (
         }
       }
 
-      try {
-        const [result] = await connection.execute(query, values);
+      const [result] = await connection.execute(query, values);
 
-        if (cb) {
-          if (Array.isArray(result) && result.length > 1) {
-            for (const value of result) {
-              response.push(parseResponse(type, value));
-            }
-          } else response.push(parseResponse(type, result));
-        }
-
-        if (hasProfiler && ((index > 0 && index % 100 === 0) || index === parametersLength - 1)) {
-          await profileBatchStatements(connection, invokingResource, query, parameters, index < 100 ? 0 : index);
-        }
-
-        if (index === parametersLength - 1) {
-          connection.release();
-
-          if (cb) {
-            if (response.length === 1) {
-              if (unpack && type === null) {
-                if (response[0][0] && Object.keys(response[0][0]).length === 1) {
-                  resolve(Object.values(response[0][0])[0]);
-                } else resolve(response[0][0]);
-              } else {
-                resolve(response[0]);
-              }
-            } else {
-              resolve(response);
-            }
+      if (cb) {
+        if (Array.isArray(result) && result.length > 1) {
+          for (const value of result) {
+            response.push(parseResponse(type, value));
           }
-        }
-      } catch (err: any) {
-        reject(err.message);
-      } finally {
-        connection.release();
+        } else response.push(parseResponse(type, result));
       }
-    }
-  })
-    .then(async (response) => {
-      if (cb)
+
+      if (hasProfiler && ((index > 0 && index % 100 === 0) || index === parametersLength - 1)) {
+        await profileBatchStatements(connection, invokingResource, query, parameters, index < 100 ? 0 : index);
+      }
+
+      if (index === parametersLength - 1) {
+        if (!cb) return;
+
         try {
-          await cb(response);
+          if (response.length === 1) {
+            if (unpack && type === null) {
+              if (response[0][0] && Object.keys(response[0][0]).length === 1) {
+                cb(Object.values(response[0][0])[0]);
+              } else cb(response[0][0]);
+            } else {
+              cb(response[0]);
+            }
+          } else {
+            cb(response);
+          }
         } catch (err) {
           if (typeof err === 'string') {
             if (err.includes('SCRIPT ERROR:')) return console.log(err);
             console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
           }
         }
-    })
-    .catch((err) => {
-      const error = `${invokingResource} was unable to execute a query!\n${err}\n${`${query}`}`;
+      }
+    }
+  } catch (err: any) {
+    const error = `${invokingResource} was unable to execute a query!\n${err}\n${`${query}`}`;
 
-      TriggerEvent('oxmysql:error', {
-        query: query,
-        parameters: parameters,
-        message: err.message,
-        err: err,
-        resource: invokingResource,
-      });
-
-      if (cb && isPromise) return cb(null, error);
-      console.error(error);
+    TriggerEvent('oxmysql:error', {
+      query: query,
+      parameters: parameters,
+      message: (err).message,
+      err: (err),
+      resource: invokingResource,
     });
+
+    if (cb && isPromise) return cb(null, error);
+    console.error(error);
+  } finally {
+    connection.release();
+  }
 };
