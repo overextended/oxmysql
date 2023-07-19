@@ -22,7 +22,7 @@ export async function runProfiler(connection: PoolConnection, invokingResource: 
 export async function profileBatchStatements(
   connection: PoolConnection,
   invokingResource: string,
-  query: string | { query: string; params: CFXParameters }[],
+  query: string | { query: string; params?: CFXParameters }[],
   parameters: CFXParameters | null,
   offset: number
 ) {
@@ -63,7 +63,7 @@ export const logQuery = (
   invokingResource: string,
   query: string,
   executionTime: string | number,
-  parameters: CFXParameters
+  parameters?: CFXParameters
 ) => {
   executionTime = parseFloat(executionTime as string);
 

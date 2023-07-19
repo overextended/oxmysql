@@ -20,12 +20,10 @@ export const parseTransaction = (
 
   if (Array.isArray(queries[0])) {
     const transactions = queries.map((query) => {
-		if (typeof query[1] !== 'object') throw new Error(`Transaction parameters must be array or object, received '${typeof query[1]}'.`);
-      const [parsedQuery, parsedParameters] = parseArguments(
-        invokingResource,
-        query[0],
-        query[1]
-      );
+      if (typeof query[1] !== 'object')
+        throw new Error(`Transaction parameters must be array or object, received '${typeof query[1]}'.`);
+      const [parsedQuery, parsedParameters] = parseArguments(invokingResource, query[0], query[1]);
+
       return { query: parsedQuery, params: parsedParameters };
     });
 
@@ -33,11 +31,16 @@ export const parseTransaction = (
   }
 
   const transactions = queries.map((query) => {
+    if (!isTransactionQuery(query) && !(query.parameters || query.values)) {
+      return { query: query };
+    }
+
     const [parsedQuery, parsedParameters] = parseArguments(
       invokingResource,
       isTransactionQuery(query) ? query.query : query,
-      isTransactionQuery(query) ? query.parameters || query.values : parameters || []
+      isTransactionQuery(query) ? query.parameters || query.values : parameters
     );
+
     return { query: parsedQuery, params: parsedParameters };
   });
 

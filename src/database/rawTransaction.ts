@@ -4,10 +4,11 @@ import { CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { scheduleTick } from '../utils/scheduleTick';
 
-const transactionError = (queries: { query: string; params: CFXParameters }[], parameters: CFXParameters) =>
+const transactionError = (queries: { query: string; params?: CFXParameters }[], parameters: CFXParameters) => {
   `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
     parameters
   )}`;
+};
 
 export const rawTransaction = async (
   invokingResource: string,
