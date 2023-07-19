@@ -1,9 +1,9 @@
-import { createPool, Pool } from 'mysql2/promise';
+import { createPool, Pool, RowDataPacket } from 'mysql2/promise';
 import { connectionOptions, mysql_transaction_isolation_level, setDebug } from '../config';
-import { profilerStatements } from '../logger';
 
 let pool: Pool;
 let isServerConnected = false;
+let dbVersion = '';
 
 export async function waitForConnection() {
   if (!isServerConnected) {
@@ -35,8 +35,12 @@ setTimeout(async () => {
   setConnectionPool();
 
   try {
-    (await pool.getConnection()).release();
-    console.log(`^2Database server connection established!^0`);
+    const connection = await pool.getConnection();
+    const [result] = await <Promise<RowDataPacket[]>> connection.query('SELECT VERSION() as version')
+    dbVersion = `^5[${result[0].version}]`
+    connection.release();
+
+    console.log(`${dbVersion} ^2Database server connection established!^0`);
     isServerConnected = true;
   } catch (err: any) {
     console.log(
@@ -45,4 +49,4 @@ setTimeout(async () => {
   }
 });
 
-export { pool, isServerConnected };
+export { pool, isServerConnected, dbVersion };
