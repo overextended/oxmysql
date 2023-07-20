@@ -1,4 +1,4 @@
-import { CFXParameters, TransactionQuery } from '../types';
+import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseArguments } from './parseArguments';
 
 const isTransactionQuery = (query: TransactionQuery | string): query is TransactionQuery =>
@@ -8,7 +8,7 @@ export const parseTransaction = (
   invokingResource: string,
   queries: TransactionQuery,
   parameters: CFXParameters,
-  cb?: (result: boolean) => void
+  cb?: CFXCallback
 ) => {
   if (!Array.isArray(queries)) throw new Error(`Transaction queries must be array, received '${typeof queries}'.`);
 

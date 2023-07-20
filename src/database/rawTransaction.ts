@@ -1,6 +1,6 @@
 import { pool, isServerConnected, waitForConnection } from '.';
 import { profileBatchStatements, runProfiler } from '../logger';
-import { CFXParameters, TransactionQuery } from '../types';
+import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { scheduleTick } from '../utils/scheduleTick';
 
@@ -14,7 +14,8 @@ export const rawTransaction = async (
   invokingResource: string,
   queries: TransactionQuery,
   parameters: CFXParameters,
-  callback?: (result: boolean) => void
+  callback?: CFXCallback,
+  isPromise?: boolean
 ) => {
   if (!isServerConnected) await waitForConnection();
 

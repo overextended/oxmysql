@@ -69,10 +69,11 @@ MySQL.insert = (
 MySQL.transaction = (
   queries: TransactionQuery,
   parameters: CFXParameters,
-  cb: (result: boolean) => void,
-  invokingResource = GetInvokingResource()
+  cb: CFXCallback,
+  invokingResource = GetInvokingResource(),
+  isPromise?: boolean
 ) => {
-  rawTransaction(invokingResource, queries, parameters, cb);
+  rawTransaction(invokingResource, queries, parameters, cb, isPromise);
 };
 
 MySQL.prepare = (
