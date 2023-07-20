@@ -1,5 +1,5 @@
 import { pool } from '.';
-import { profileBatchStatements, runProfiler } from '../logger';
+import { printError, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
@@ -15,8 +15,12 @@ export const rawExecute = async (
   unpack?: boolean
 ) => {
   if (typeof query !== 'string')
-    throw new Error(
-      `${invokingResource} was unable to execute a query!\nExpected query to be a string but received ${typeof query} instead.`
+    return printError(
+      invokingResource,
+      cb,
+      isPromise,
+      query,
+      `Expected query to be a string but received ${typeof query} instead.`
     );
 
   const type = executeType(query);
@@ -81,18 +85,15 @@ export const rawExecute = async (
       }
     }
   } catch (err: any) {
-    const error = `${invokingResource} was unable to execute a query!\n${err}\n${`${query}`}`;
+    printError(invokingResource, cb, isPromise, query, err.message);
 
     TriggerEvent('oxmysql:error', {
       query: query,
       parameters: parameters,
-      message: (err).message,
-      err: (err),
+      message: err.message,
+      err: err,
       resource: invokingResource,
     });
-
-    if (cb && isPromise) return cb(null, error);
-    console.error(error);
   } finally {
     connection.release();
   }

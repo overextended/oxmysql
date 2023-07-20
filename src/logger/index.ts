@@ -1,7 +1,20 @@
 import { PoolConnection, RowDataPacket } from 'mysql2/promise';
 import { mysql_debug, mysql_slow_query_warning, mysql_ui } from '../config';
-import type { CFXParameters } from '../types';
+import type { CFXCallback, CFXParameters } from '../types';
 import { dbVersion } from '../database';
+
+export function printError(
+  invokingResource: string,
+  cb: CFXCallback | undefined,
+  isPromise: boolean | undefined,
+  ...args: string[]
+) {
+  const err = `${invokingResource} was unable to execute a query!\nQuery: ${args.join('\n')}`;
+
+  if (cb && isPromise) return cb(null, err);
+
+  console.error(err);
+}
 
 export const profilerStatements = [
   'SET profiling_history_size = 0',

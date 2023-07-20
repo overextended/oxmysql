@@ -1,5 +1,5 @@
 import { pool, isServerConnected, waitForConnection } from '.';
-import { profileBatchStatements, runProfiler } from '../logger';
+import { printError, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { scheduleTick } from '../utils/scheduleTick';
@@ -43,20 +43,18 @@ export const rawTransaction = async (
     await connection.commit();
 
     response = true;
-  } catch (e) {
+  } catch (err: any) {
     await connection.rollback().catch(() => {});
 
-    const transactionErrorMessage = (e as any).sql || transactionError(transactions, parameters);
-  
-    console.error(
-      `${invokingResource} was unable to execute a transaction!\n${(e as Error).message}\n${transactionErrorMessage}^0`
-    );
+    const transactionErrorMessage = err.sql || transactionError(transactions, parameters);
+
+    printError(invokingResource, cb, isPromise, transactionErrorMessage, err.message);
 
     TriggerEvent('oxmysql:transaction-error', {
       query: transactionErrorMessage,
       parameters: parameters,
-      message: (e as Error).message,
-      err: e,
+      message: err.message,
+      err: err,
       resource: invokingResource,
     });
   } finally {

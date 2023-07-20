@@ -1,7 +1,7 @@
 import { pool, isServerConnected, waitForConnection } from '.';
 import { parseArguments } from '../utils/parseArguments';
 import { parseResponse } from '../utils/parseResponse';
-import { logQuery, runProfiler } from '../logger';
+import { logQuery, printError, runProfiler } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
 import { scheduleTick } from '../utils/scheduleTick';
@@ -16,8 +16,12 @@ export const rawQuery = async (
   isPromise?: boolean
 ) => {
   if (typeof query !== 'string')
-    throw new Error(
-      `${invokingResource} was unable to execute a query!\nExpected query to be a string but received ${typeof query} instead.`
+    return printError(
+      invokingResource,
+      cb,
+      isPromise,
+      query,
+      `Expected query to be a string but received ${typeof query} instead.`
     );
 
   [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
@@ -50,9 +54,7 @@ export const rawQuery = async (
         }
       }
   } catch (err: any) {
-    const error = `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(
-      parameters
-    )}`}`;
+    printError(invokingResource, cb, isPromise, query, JSON.stringify(parameters), err.message);
 
     TriggerEvent('oxmysql:error', {
       query: query,
@@ -61,9 +63,6 @@ export const rawQuery = async (
       err: err,
       resource: invokingResource,
     });
-
-    if (cb && isPromise) return cb(null, error);
-    console.error(error);
   } finally {
     connection.release();
   }
