@@ -3,6 +3,7 @@ import { printError, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { scheduleTick } from '../utils/scheduleTick';
+import { setCallback } from '../utils/setCallback';
 
 const transactionError = (queries: { query: string; params?: CFXParameters }[], parameters: CFXParameters) => {
   `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
@@ -14,14 +15,15 @@ export const rawTransaction = async (
   invokingResource: string,
   queries: TransactionQuery,
   parameters: CFXParameters,
-  callback?: CFXCallback,
+  cb?: CFXCallback,
   isPromise?: boolean
 ) => {
   if (!isServerConnected) await waitForConnection();
 
   scheduleTick();
 
-  const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
+  cb = setCallback(parameters, cb);
+  const transactions = parseTransaction(invokingResource, queries, parameters);
   const connection = await pool.getConnection();
   const hasProfiler = await runProfiler(connection, invokingResource);
   let response = false;

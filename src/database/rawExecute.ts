@@ -5,6 +5,7 @@ import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
 import { scheduleTick } from '../utils/scheduleTick';
 import { isServerConnected, waitForConnection } from '../database';
+import { setCallback } from '../utils/setCallback'
 
 export const rawExecute = async (
   invokingResource: string,
@@ -25,7 +26,9 @@ export const rawExecute = async (
 
   const type = executeType(query);
   const placeholders = query.split('?').length - 1;
-  parameters = parameters ? parseExecute(placeholders, parameters) : [];
+
+  cb = setCallback(parameters, cb);
+  parameters = parseExecute(placeholders, parameters);
 
   if (!isServerConnected) await waitForConnection();
 

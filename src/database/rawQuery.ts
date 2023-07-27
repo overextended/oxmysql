@@ -1,5 +1,6 @@
 import { pool, isServerConnected, waitForConnection } from '.';
 import { parseArguments } from '../utils/parseArguments';
+import { setCallback } from '../utils/setCallback';
 import { parseResponse } from '../utils/parseResponse';
 import { logQuery, printError, runProfiler } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
@@ -24,7 +25,8 @@ export const rawQuery = async (
       `Expected query to be a string but received ${typeof query} instead.`
     );
 
-  [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
+  cb = setCallback(parameters, cb);
+  [query, parameters] = parseArguments(invokingResource, query, parameters);
 
   if (!isServerConnected) await waitForConnection();
 
