@@ -18,17 +18,24 @@ export const rawTransaction = async (
   cb?: CFXCallback,
   isPromise?: boolean
 ) => {
+  let transactions;
+  cb = setCallback(parameters, cb);
+
+  try {
+    transactions = parseTransaction(queries, parameters);
+  } catch (err: any) {
+    return printError(invokingResource, cb, isPromise, err.message);
+  }
+
   if (!isServerConnected) await waitForConnection();
 
   scheduleTick();
 
-  cb = setCallback(parameters, cb);
-  const transactions = parseTransaction(invokingResource, queries, parameters);
   const connection = await pool.getConnection();
-  const hasProfiler = await runProfiler(connection, invokingResource);
   let response = false;
 
   try {
+    const hasProfiler = await runProfiler(connection, invokingResource);
     await connection.beginTransaction();
     const transactionsLength = transactions.length;
 

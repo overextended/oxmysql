@@ -1,11 +1,11 @@
 import { pool } from '.';
 import { printError, profileBatchStatements, runProfiler } from '../logger';
-import { CFXCallback, CFXParameters } from '../types';
+import { CFXCallback, CFXParameters, QueryType } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
 import { scheduleTick } from '../utils/scheduleTick';
 import { isServerConnected, waitForConnection } from '../database';
-import { setCallback } from '../utils/setCallback'
+import { setCallback } from '../utils/setCallback';
 
 export const rawExecute = async (
   invokingResource: string,
@@ -15,20 +15,18 @@ export const rawExecute = async (
   isPromise?: boolean,
   unpack?: boolean
 ) => {
-  if (typeof query !== 'string')
-    return printError(
-      invokingResource,
-      cb,
-      isPromise,
-      query,
-      `Expected query to be a string but received ${typeof query} instead.`
-    );
-
-  const type = executeType(query);
-  const placeholders = query.split('?').length - 1;
-
   cb = setCallback(parameters, cb);
-  parameters = parseExecute(placeholders, parameters);
+
+  let type: QueryType;
+  let placeholders: number;
+
+  try {
+    type = executeType(query);
+    placeholders = query.split('?').length - 1;
+    parameters = parseExecute(placeholders, parameters);
+  } catch (err: any) {
+    return printError(invokingResource, cb, isPromise, query, err.message);
+  }
 
   if (!isServerConnected) await waitForConnection();
 
@@ -63,32 +61,30 @@ export const rawExecute = async (
       if (hasProfiler && ((index > 0 && index % 100 === 0) || index === parametersLength - 1)) {
         await profileBatchStatements(connection, invokingResource, query, parameters, index < 100 ? 0 : index);
       }
+    }
 
-      if (index === parametersLength - 1) {
-        if (!cb) return;
+    if (!cb) return;
 
-        try {
-          if (response.length === 1) {
-            if (unpack && type === null) {
-              if (response[0][0] && Object.keys(response[0][0]).length === 1) {
-                cb(Object.values(response[0][0])[0]);
-              } else cb(response[0][0]);
-            } else {
-              cb(response[0]);
-            }
-          } else {
-            cb(response);
-          }
-        } catch (err) {
-          if (typeof err === 'string') {
-            if (err.includes('SCRIPT ERROR:')) return console.log(err);
-            console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
-          }
+    try {
+      if (response.length === 1) {
+        if (unpack && type === null) {
+          if (response[0][0] && Object.keys(response[0][0]).length === 1) {
+            cb(Object.values(response[0][0])[0]);
+          } else cb(response[0][0]);
+        } else {
+          cb(response[0]);
         }
+      } else {
+        cb(response);
+      }
+    } catch (err) {
+      if (typeof err === 'string') {
+        if (err.includes('SCRIPT ERROR:')) return console.log(err);
+        console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
       }
     }
   } catch (err: any) {
-    printError(invokingResource, cb, isPromise, query, err.message);
+    printError(invokingResource, cb, isPromise, `Query: ${query}`, err.message);
 
     TriggerEvent('oxmysql:error', {
       query: query,

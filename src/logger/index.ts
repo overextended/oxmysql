@@ -9,7 +9,7 @@ export function printError(
   isPromise: boolean | undefined,
   ...args: string[]
 ) {
-  const err = `${invokingResource} was unable to execute a query!\nQuery: ${args.join('\n')}`;
+  const err = `${invokingResource} was unable to execute a query!\n${args.join('\n')}`;
 
   if (cb && isPromise) return cb(null, err);
 

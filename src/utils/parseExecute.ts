@@ -1,6 +1,8 @@
 import { CFXParameters } from '../types';
 
 export const executeType = (query: string) => {
+  if (typeof query !== 'string') throw new Error(`Expected query to be a string but received ${typeof query} instead.`);
+
   switch (query.substring(0, query.indexOf(' '))) {
     case 'INSERT':
       return 'insert';

@@ -16,17 +16,12 @@ export const rawQuery = async (
   cb?: CFXCallback,
   isPromise?: boolean
 ) => {
-  if (typeof query !== 'string')
-    return printError(
-      invokingResource,
-      cb,
-      isPromise,
-      query,
-      `Expected query to be a string but received ${typeof query} instead.`
-    );
-
   cb = setCallback(parameters, cb);
-  [query, parameters] = parseArguments(invokingResource, query, parameters);
+  try {
+    [query, parameters] = parseArguments(query, parameters);
+  } catch (err: any) {
+    return printError(invokingResource, cb, isPromise, `Query: ${query}`, err.message);
+  }
 
   if (!isServerConnected) await waitForConnection();
 
@@ -56,7 +51,7 @@ export const rawQuery = async (
         }
       }
   } catch (err: any) {
-    printError(invokingResource, cb, isPromise, query, JSON.stringify(parameters), err.message);
+    printError(invokingResource, cb, isPromise, `Query: ${query}`, JSON.stringify(parameters), err.message);
 
     TriggerEvent('oxmysql:error', {
       query: query,

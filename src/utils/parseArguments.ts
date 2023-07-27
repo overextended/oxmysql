@@ -1,11 +1,9 @@
 import type { CFXParameters } from '../types';
 import { convertNamedPlaceholders } from '../config';
 
-export const parseArguments = (
-  invokingResource: string,
-  query: string,
-  parameters?: CFXParameters
-): [string, CFXParameters] => {
+export const parseArguments = (query: string, parameters?: CFXParameters): [string, CFXParameters] => {
+  if (typeof query !== 'string') throw new Error(`Expected query to be a string but received ${typeof query} instead.`);
+
   if (convertNamedPlaceholders && parameters && typeof parameters === 'object' && !Array.isArray(parameters))
     if (query.includes(':') || query.includes('@')) {
       const placeholders = convertNamedPlaceholders(query, parameters);
@@ -32,11 +30,7 @@ export const parseArguments = (
       if (diff > 0) {
         for (let i = 0; i < diff; i++) parameters[queryParams.length + i] = null;
       } else if (diff < 0) {
-        throw new Error(
-          `${invokingResource} was unable to execute a query!\nExpected ${
-            queryParams.length
-          } parameters, but received ${parameters.length}.\n${`${query} ${JSON.stringify(parameters)}`}`
-        );
+        throw new Error(`Expected ${queryParams.length} parameters, but received ${parameters.length}.`);
       }
     }
   }
