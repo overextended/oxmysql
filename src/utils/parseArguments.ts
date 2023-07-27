@@ -1,12 +1,11 @@
-import type { CFXCallback, CFXParameters } from '../types';
+import type { CFXParameters } from '../types';
 import { convertNamedPlaceholders } from '../config';
 
 export const parseArguments = (
   invokingResource: string,
   query: string,
-  parameters?: CFXParameters,
-  cb?: CFXCallback
-): [string, CFXParameters, CFXCallback | undefined] => {
+  parameters?: CFXParameters
+): [string, CFXParameters] => {
   if (convertNamedPlaceholders && parameters && typeof parameters === 'object' && !Array.isArray(parameters))
     if (query.includes(':') || query.includes('@')) {
       const placeholders = convertNamedPlaceholders(query, parameters);
@@ -14,12 +13,7 @@ export const parseArguments = (
       parameters = placeholders[1];
     }
 
-  if (cb && typeof cb !== 'function') cb = undefined;
-
-  if (parameters && typeof parameters === 'function') {
-    cb = parameters;
-    parameters = [];
-  } else if (parameters === null || parameters === undefined) parameters = [];
+  if (!parameters || typeof parameters === 'function') parameters = [];
 
   if (parameters && !Array.isArray(parameters)) {
     let arr: unknown[] = [];
@@ -31,7 +25,7 @@ export const parseArguments = (
     if (queryParams !== null) {
       if (parameters.length === 0) {
         for (let i = 0; i < queryParams.length; i++) parameters[i] = null;
-        return [query, parameters, cb];
+        return [query, parameters];
       }
       const diff = queryParams.length - parameters.length;
 
@@ -47,5 +41,5 @@ export const parseArguments = (
     }
   }
 
-  return [query, parameters, cb];
+  return [query, parameters];
 };

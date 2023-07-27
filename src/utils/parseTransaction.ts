@@ -1,22 +1,13 @@
-import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
+import { CFXParameters, TransactionQuery } from '../types';
 import { parseArguments } from './parseArguments';
 
 const isTransactionQuery = (query: TransactionQuery | string): query is TransactionQuery =>
   (query as TransactionQuery).query !== undefined;
 
-export const parseTransaction = (
-  invokingResource: string,
-  queries: TransactionQuery,
-  parameters: CFXParameters,
-  cb?: CFXCallback
-) => {
+export const parseTransaction = (invokingResource: string, queries: TransactionQuery, parameters: CFXParameters) => {
   if (!Array.isArray(queries)) throw new Error(`Transaction queries must be array, received '${typeof queries}'.`);
 
-  if (cb && typeof cb !== 'function') cb = undefined;
-
-  if (parameters && typeof parameters === 'function') cb = parameters;
-
-  if (parameters === null || parameters === undefined || typeof parameters === 'function') parameters = [];
+  if (!parameters || typeof parameters === 'function') parameters = [];
 
   if (Array.isArray(queries[0])) {
     const transactions = queries.map((query) => {
@@ -27,7 +18,7 @@ export const parseTransaction = (
       return { query: parsedQuery, params: parsedParameters };
     });
 
-    return { transactions, cb };
+    return transactions;
   }
 
   const transactions = queries.map((query) => {
@@ -44,5 +35,5 @@ export const parseTransaction = (
     return { query: parsedQuery, params: parsedParameters };
   });
 
-  return { transactions, cb };
+  return transactions;
 };

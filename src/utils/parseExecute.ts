@@ -14,6 +14,10 @@ export const executeType = (query: string) => {
 };
 
 export const parseExecute = (placeholders: number, parameters: CFXParameters) => {
+  const parametersType = typeof parameters;
+
+  if (!parameters || parametersType !== 'object') return [];
+
   if (!Array.isArray(parameters)) {
     if (typeof parameters === 'object') {
       const arr: unknown[] = [];
