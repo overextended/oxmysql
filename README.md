@@ -2,16 +2,18 @@
 
 A FiveM resource to communicate with a MySQL database using [node-mysql2](https://github.com/sidorares/node-mysql2).
 
+![](https://img.shields.io/github/downloads/overextended/oxmysql/total?logo=github)
+![](https://img.shields.io/github/downloads/overextended/oxmysql/latest/total?logo=github)
+![](https://img.shields.io/github/contributors/overextended/oxmysql?logo=github)
+![](https://img.shields.io/github/v/release/overextended/oxmysql?logo=github) 
+
 ## 📚 Documentation
 
-https://overextended.github.io/docs/oxmysql/
+https://overextended.dev/oxmysql
 
 ## 💾 Download
 
 https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
-
-![](https://img.shields.io/github/downloads/overextended/oxmysql/total?logo=github)
-![](https://img.shields.io/github/downloads/overextended/oxmysql/latest/total?logo=github)
 
 ## ✨ Features
 
