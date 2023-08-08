@@ -56,8 +56,9 @@ export const rawTransaction = async (
     await connection.rollback().catch(() => {});
 
     const transactionErrorMessage = err.sql || transactionError(transactions, parameters);
+    const msg = `${invokingResource} was unable to complete a transaction!\n${transactionErrorMessage}\n${err.message}`;
 
-    printError(invokingResource, cb, isPromise, transactionErrorMessage, err.message);
+    console.error(msg);
 
     TriggerEvent('oxmysql:transaction-error', {
       query: transactionErrorMessage,
