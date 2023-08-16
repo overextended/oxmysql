@@ -22,8 +22,6 @@ import fetch from 'node-fetch';
       const current = parseInt(currentVersion[i]);
       const latest = parseInt(latestVersion[i]);
 
-      console.log(current, latest);
-
       if (current !== latest) {
         if (current < latest)
           return console.log(
