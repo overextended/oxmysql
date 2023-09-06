@@ -78,7 +78,8 @@ for _, method in pairs({
 	MySQL[method] = setmetatable({
 		method = method,
 		await = function(query, parameters)
-			return await(oxmysql[method], safeArgs(query, parameters, nil, method == 'transaction'))
+			query, parameters = safeArgs(query, parameters, nil, method == 'transaction')
+			return await(oxmysql[method], query, parameters)
 		end
 	}, mysql_method_mt)
 end
