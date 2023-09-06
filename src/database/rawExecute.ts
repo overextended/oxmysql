@@ -53,9 +53,9 @@ export const rawExecute = async (
       if (cb) {
         if (Array.isArray(result) && result.length > 1) {
           for (const value of result) {
-            response.push(parseResponse(type, value));
+            response.push(unpack ? parseResponse(type, value) : value);
           }
-        } else response.push(parseResponse(type, result));
+        } else response.push(unpack ? parseResponse(type, result) : result);
       }
 
       if (hasProfiler && ((index > 0 && index % 100 === 0) || index === parametersLength - 1)) {
