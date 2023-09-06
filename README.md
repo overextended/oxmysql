@@ -31,6 +31,4 @@ https://www.npmjs.com/package/@overextended/oxmysql
 ## Lua Language Server
 
 - Install [Lua Language Server](https://marketplace.visualstudio.com/items?itemName=sumneko.lua) to ease development with annotations, type checking, diagnostics, and more.
-- Install [cfxlua-vscode](https://marketplace.visualstudio.com/items?itemName=overextended.cfxlua-vscode) to add natives and cfxlua runtime declarations to LLS.
-- You can load oxmysql into your global development environment by modifying workspace/user settings "Lua.workspace.library" with the resource path.
-  - e.g. "c:\\fxserver\\resources\\oxmysql\\lib\\define.lua"
+- See [ox_types](https://github.com/overextended/ox_types) for our Lua type definitions.
