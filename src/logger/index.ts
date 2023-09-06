@@ -3,7 +3,7 @@ import { mysql_debug, mysql_slow_query_warning, mysql_ui } from '../config';
 import type { CFXCallback, CFXParameters } from '../types';
 import { dbVersion } from '../database';
 
-export function printError(
+export function logError(
   invokingResource: string,
   cb: CFXCallback | undefined,
   isPromise: boolean | undefined,

@@ -2,7 +2,7 @@ import { pool, isServerConnected, waitForConnection } from '.';
 import { parseArguments } from '../utils/parseArguments';
 import { setCallback } from '../utils/setCallback';
 import { parseResponse } from '../utils/parseResponse';
-import { logQuery, printError, runProfiler } from '../logger';
+import { logQuery, logError, runProfiler } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
 import { scheduleTick } from '../utils/scheduleTick';
@@ -20,7 +20,7 @@ export const rawQuery = async (
   try {
     [query, parameters] = parseArguments(query, parameters);
   } catch (err: any) {
-    return printError(invokingResource, cb, isPromise, `Query: ${query}`, err.message);
+    return logError(invokingResource, cb, isPromise, `Query: ${query}`, err.message);
   }
 
   if (!isServerConnected) await waitForConnection();
@@ -51,7 +51,7 @@ export const rawQuery = async (
         }
       }
   } catch (err: any) {
-    printError(invokingResource, cb, isPromise, `Query: ${query}`, JSON.stringify(parameters), err.message);
+    logError(invokingResource, cb, isPromise, `Query: ${query}`, JSON.stringify(parameters), err.message);
 
     TriggerEvent('oxmysql:error', {
       query: query,

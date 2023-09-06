@@ -1,5 +1,5 @@
 import { pool, isServerConnected, waitForConnection } from '.';
-import { printError, profileBatchStatements, runProfiler } from '../logger';
+import { logError, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { scheduleTick } from '../utils/scheduleTick';
@@ -24,7 +24,7 @@ export const rawTransaction = async (
   try {
     transactions = parseTransaction(queries, parameters);
   } catch (err: any) {
-    return printError(invokingResource, cb, isPromise, err.message);
+    return logError(invokingResource, cb, isPromise, err.message);
   }
 
   if (!isServerConnected) await waitForConnection();

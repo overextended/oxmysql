@@ -1,5 +1,5 @@
 import { pool } from '.';
-import { printError, profileBatchStatements, runProfiler } from '../logger';
+import { logError, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, QueryType } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
@@ -25,7 +25,7 @@ export const rawExecute = async (
     placeholders = query.split('?').length - 1;
     parameters = parseExecute(placeholders, parameters);
   } catch (err: any) {
-    return printError(invokingResource, cb, isPromise, query, err.message);
+    return logError(invokingResource, cb, isPromise, query, err.message);
   }
 
   if (!isServerConnected) await waitForConnection();
@@ -84,7 +84,7 @@ export const rawExecute = async (
       }
     }
   } catch (err: any) {
-    printError(invokingResource, cb, isPromise, `Query: ${query}`, err.message);
+    logError(invokingResource, cb, isPromise, `Query: ${query}`, err.message);
 
     TriggerEvent('oxmysql:error', {
       query: query,
