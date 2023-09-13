@@ -1,10 +1,8 @@
-import { pool } from '.';
 import { logError, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, QueryType } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
-import { scheduleTick } from '../utils/scheduleTick';
-import { isServerConnected, waitForConnection } from '../database';
+import { getPoolConnection } from './connection';
 import { setCallback } from '../utils/setCallback';
 
 export const rawExecute = async (
@@ -28,11 +26,9 @@ export const rawExecute = async (
     return logError(invokingResource, cb, isPromise, query, err.message);
   }
 
-  if (!isServerConnected) await waitForConnection();
+  const connection = await getPoolConnection();
 
-  scheduleTick();
-
-  const connection = await pool.getConnection();
+  if (!connection) return;
 
   try {
     const hasProfiler = await runProfiler(connection, invokingResource);

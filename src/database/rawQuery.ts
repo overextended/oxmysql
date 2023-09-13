@@ -1,11 +1,10 @@
-import { pool, isServerConnected, waitForConnection } from '.';
 import { parseArguments } from '../utils/parseArguments';
 import { setCallback } from '../utils/setCallback';
 import { parseResponse } from '../utils/parseResponse';
 import { logQuery, logError, runProfiler } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
-import { scheduleTick } from '../utils/scheduleTick';
+import { getPoolConnection } from './connection';
 import { RowDataPacket } from 'mysql2';
 
 export const rawQuery = async (
@@ -23,11 +22,9 @@ export const rawQuery = async (
     return logError(invokingResource, cb, isPromise, `Query: ${query}`, err.message);
   }
 
-  if (!isServerConnected) await waitForConnection();
+  const connection = await getPoolConnection();
 
-  scheduleTick();
-
-  const connection = await pool.getConnection();
+  if (!connection) return;
 
   try {
     const hasProfiler = await runProfiler(connection, invokingResource);

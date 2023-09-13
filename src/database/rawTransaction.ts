@@ -1,8 +1,7 @@
-import { pool, isServerConnected, waitForConnection } from '.';
+import { getPoolConnection } from './connection';
 import { logError, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
-import { scheduleTick } from '../utils/scheduleTick';
 import { setCallback } from '../utils/setCallback';
 
 const transactionError = (queries: { query: string; params?: CFXParameters }[], parameters: CFXParameters) => {
@@ -27,11 +26,10 @@ export const rawTransaction = async (
     return logError(invokingResource, cb, isPromise, err.message);
   }
 
-  if (!isServerConnected) await waitForConnection();
+  const connection = await getPoolConnection();
 
-  scheduleTick();
+  if (!connection) return;
 
-  const connection = await pool.getConnection();
   let response = false;
 
   try {

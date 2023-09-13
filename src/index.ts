@@ -1,8 +1,5 @@
-import { CFXCallback, CFXParameters, TransactionQuery } from './types';
-import { rawQuery } from './database/rawQuery';
-import { rawTransaction } from './database/rawTransaction';
-import { rawExecute } from './database/rawExecute';
-import { isServerConnected, waitForConnection } from './database';
+import type { CFXCallback, CFXParameters, TransactionQuery } from './types';
+import { rawQuery, rawExecute, rawTransaction, isServerConnected, waitForConnection } from './database';
 import('./update');
 
 const MySQL = {} as Record<string, Function>;
