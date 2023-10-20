@@ -88,7 +88,7 @@ export const connectionOptions = (() => {
         options[key] = JSON.parse(value);
       } catch (err) {
         console.log(
-          `^3Unable to parse ${key} configuration (${err})!^0`
+          `^3Failed to parse property ${key} in configuration (${err})!^0`
         )
       }
     }
