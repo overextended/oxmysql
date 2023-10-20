@@ -86,7 +86,11 @@ export const connectionOptions = (() => {
     if (typeof value === 'string') {
       try {
         options[key] = JSON.parse(value);
-      } catch {}
+      } catch (err) {
+        console.log(
+          `^3Unable to parse ${key} configuration (${err})!^0`
+        )
+      }
     }
   }
 
