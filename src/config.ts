@@ -80,13 +80,17 @@ export const connectionOptions = (() => {
 
   convertNamedPlaceholders = options.namedPlaceholders === 'false' ? null : require('named-placeholders')();
 
-  for (const key in ['dateStrings', 'flags', 'ssl']) {
+  for (const key of ['dateStrings', 'flags', 'ssl']) {
     const value = options[key];
 
     if (typeof value === 'string') {
       try {
         options[key] = JSON.parse(value);
-      } catch {}
+      } catch (err) {
+        console.log(
+          `^3Failed to parse property ${key} in configuration (${err})!^0`
+        )
+      }
     }
   }
 
