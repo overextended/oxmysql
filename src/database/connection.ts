@@ -1,21 +1,15 @@
 import { createPool, Pool, RowDataPacket } from 'mysql2/promise';
 import { connectionOptions, mysql_transaction_isolation_level } from '../config';
 import { scheduleTick } from '../utils/scheduleTick';
+import { sleep } from '../utils/sleep';
 
 export let pool: Pool;
 export let isServerConnected = false;
 export let dbVersion = '';
 
 export async function waitForConnection() {
-  if (!isServerConnected) {
-    return await new Promise<boolean>((resolve) => {
-      (function wait() {
-        if (isServerConnected) {
-          return resolve(true);
-        }
-        setTimeout(wait);
-      })();
-    });
+  while (!isServerConnected) {
+    await sleep(0);
   }
 }
 
