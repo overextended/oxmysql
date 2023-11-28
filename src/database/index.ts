@@ -1,9 +1,15 @@
 import { setDebug } from '../config';
-import { getPoolConnection } from './connection';
+import { sleep } from '../utils/sleep';
+import { createConnectionPool, isServerConnected } from './connection';
 
-setTimeout(() => {
+setTimeout(async () => {
   setDebug();
-  getPoolConnection();
+
+  while (!isServerConnected) {
+    await createConnectionPool();
+
+    if (!isServerConnected) await sleep(30000);
+  }
 });
 
 setInterval(() => {
