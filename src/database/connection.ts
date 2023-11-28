@@ -13,7 +13,7 @@ export async function waitForConnection() {
   }
 }
 
-async function createConnectionPool() {
+export async function createConnectionPool() {
   try {
     pool = createPool(connectionOptions);
 
@@ -39,11 +39,7 @@ async function createConnectionPool() {
 }
 
 export async function getPoolConnection() {
-  if (!pool) {
-    await createConnectionPool();
-
-    if (!pool) return;
-  }
+  if (!isServerConnected) await waitForConnection()
 
   scheduleTick();
 
