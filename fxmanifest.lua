@@ -15,8 +15,6 @@ client_script 'ui.lua'
 server_script 'dist/build.js'
 
 files {
-	'web/build/index.html',
-	'web/build/**/*'
 }
 
 ui_page 'web/build/index.html'
