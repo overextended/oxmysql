@@ -7,13 +7,24 @@ export function logError(
   invokingResource: string,
   cb: CFXCallback | undefined,
   isPromise: boolean | undefined,
-  ...args: string[]
+  err: any,
+  query?: string,
+  parameters?: CFXParameters,
+  includeParameters?: boolean,
 ) {
-  const err = `${invokingResource} was unable to execute a query!\n${args.join('\n')}`;
+  const message = `${invokingResource} was unable to execute a query!${query ? `\n${`Query: ${query}`}` : ''}${includeParameters ? `\n${JSON.stringify(parameters)}` : ''}\n${err.message}`;
 
-  if (cb && isPromise) return cb(null, err);
+  TriggerEvent('oxmysql:error', {
+    query: query,
+    parameters: parameters,
+    message: err.message,
+    err: err,
+    resource: invokingResource,
+  });
 
-  console.error(err);
+  if (cb && isPromise) return cb(null, message);
+
+  console.error(message);
 }
 
 export const profilerStatements = [

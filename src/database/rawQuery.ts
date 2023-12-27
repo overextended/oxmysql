@@ -19,7 +19,7 @@ export const rawQuery = async (
   try {
     [query, parameters] = parseArguments(query, parameters);
   } catch (err: any) {
-    return logError(invokingResource, cb, isPromise, `Query: ${query}`, err.message);
+    return logError(invokingResource, cb, err, isPromise, query, parameters);
   }
 
   const connection = await getPoolConnection();
@@ -48,15 +48,7 @@ export const rawQuery = async (
         }
       }
   } catch (err: any) {
-    logError(invokingResource, cb, isPromise, `Query: ${query}`, JSON.stringify(parameters), err.message);
-
-    TriggerEvent('oxmysql:error', {
-      query: query,
-      parameters: parameters,
-      message: err.message,
-      err: err,
-      resource: invokingResource,
-    });
+    logError(invokingResource, cb, isPromise, err, query, parameters, true);
   } finally {
     connection.release();
   }

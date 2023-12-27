@@ -23,7 +23,7 @@ export const rawTransaction = async (
   try {
     transactions = parseTransaction(queries, parameters);
   } catch (err: any) {
-    return logError(invokingResource, cb, isPromise, err.message);
+    return logError(invokingResource, cb, isPromise, err);
   }
 
   const connection = await getPoolConnection();
