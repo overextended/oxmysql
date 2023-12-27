@@ -1,9 +1,10 @@
-import { logError, profileBatchStatements, runProfiler } from '../logger';
+import { logError, logQuery, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, QueryType } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
 import { getPoolConnection } from './connection';
 import { setCallback } from '../utils/setCallback';
+import { performance } from 'perf_hooks';
 
 export const rawExecute = async (
   invokingResource: string,
@@ -44,6 +45,7 @@ export const rawExecute = async (
         }
       }
 
+      const startTime = !hasProfiler && performance.now();
       const [result] = await connection.execute(query, values);
 
       if (cb) {
@@ -56,6 +58,8 @@ export const rawExecute = async (
 
       if (hasProfiler && ((index > 0 && index % 100 === 0) || index === parametersLength - 1)) {
         await profileBatchStatements(connection, invokingResource, query, parameters, index < 100 ? 0 : index);
+      } else if (startTime) {
+        logQuery(invokingResource, query, performance.now() - startTime, values);
       }
     }
 

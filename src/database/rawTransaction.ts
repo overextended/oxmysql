@@ -1,8 +1,9 @@
 import { getPoolConnection } from './connection';
-import { logError, profileBatchStatements, runProfiler } from '../logger';
+import { logError, logQuery, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { setCallback } from '../utils/setCallback';
+import { performance } from 'perf_hooks';
 
 const transactionError = (queries: { query: string; params?: CFXParameters }[], parameters: CFXParameters) => {
   `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
@@ -39,11 +40,13 @@ export const rawTransaction = async (
 
     for (let i = 0; i < transactionsLength; i++) {
       const transaction = transactions[i];
-
+      const startTime = !hasProfiler && performance.now();
       await connection.query(transaction.query, transaction.params);
 
       if (hasProfiler && ((i > 0 && i % 100 === 0) || i === transactionsLength - 1)) {
         await profileBatchStatements(connection, invokingResource, transactions, null, i < 100 ? 0 : i);
+      } else if (startTime) {
+        logQuery(invokingResource, transaction.query, performance.now() - startTime, transaction.params);
       }
     }
 

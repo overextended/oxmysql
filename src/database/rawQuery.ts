@@ -6,6 +6,7 @@ import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
 import { getPoolConnection } from './connection';
 import { RowDataPacket } from 'mysql2';
+import { performance } from 'perf_hooks';
 
 export const rawQuery = async (
   type: QueryType,
@@ -28,6 +29,7 @@ export const rawQuery = async (
 
   try {
     const hasProfiler = await runProfiler(connection, invokingResource);
+    const startTime = !hasProfiler && performance.now();
     const [result] = await connection.query(query, parameters);
 
     if (hasProfiler) {
@@ -35,7 +37,9 @@ export const rawQuery = async (
         await connection.query('SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING')
       );
 
-      if (profiler[0]) logQuery(invokingResource, query, profiler[0].duration, parameters);
+      if (profiler[0]) logQuery(invokingResource, query, parseFloat(profiler[0].duration), parameters);
+    } else if (startTime) {
+      logQuery(invokingResource, query, performance.now() - startTime, parameters);
     }
 
     if (cb)
