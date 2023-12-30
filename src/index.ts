@@ -93,30 +93,26 @@ MySQL.rawExecute = (
   rawExecute(invokingResource, query, parameters, cb, isPromise);
 };
 
+// provide the store export for compatibility (ghmatti/mysql-async); simply returns the query as-is
+MySQL.store = (query: string, cb: Function) => {
+  cb(query);
+};
+
+// deprecated export names
 MySQL.execute = MySQL.query;
 MySQL.fetch = MySQL.query;
 
-function provide(name: string, cb: Function, sync: Function) {
-  on(`__cfx_export_ghmattimysql_${name}`, (setCb: Function) => setCb(cb));
-  on(`__cfx_export_ghmattimysql_${name}Sync`, (setCb: Function) => setCb(sync));
+function provide(resourceName: string, method: string, cb: Function) {
+  on(`__cfx_export_${resourceName}_${method}`, (setCb: Function) => setCb(cb));
 }
 
-// provide the "store" and "storeSync" exports, to provide compatibility for ghmattimysql
-// these are not actually used to do anything, simply returning the query as-is
-provide(
-  'store',
-  (query: string, cb: Function) => {
-    cb(query);
-  },
-  (query: string) => {
-    return query;
-  }
-);
+import ghmatti from './compatibility/ghmattimysql';
+import mysqlAsync from './compatibility/mysql-async';
 
 for (const key in MySQL) {
-  global.exports(key, MySQL[key]);
+  const exp = MySQL[key];
 
-  const exp = (query: string, parameters: CFXParameters, invokingResource = GetInvokingResource()) => {
+  const async_exp = (query: string, parameters: CFXParameters, invokingResource = GetInvokingResource()) => {
     return new Promise((resolve, reject) => {
       MySQL[key](
         query,
@@ -131,8 +127,22 @@ for (const key in MySQL) {
     });
   };
 
-  global.exports(`${key}_async`, exp);
-  global.exports(`${key}Sync`, exp);
+  global.exports(key, exp);
+  // async_retval
+  global.exports(`${key}_async`, async_exp);
+  // deprecated aliases for async_retval
+  global.exports(`${key}Sync`, async_exp);
 
-  if (key === 'execute' || key === 'scalar' || key === 'transaction') provide(key, MySQL[key], exp);
+  let alias = (ghmatti as any)[key];
+
+  if (alias) {
+    provide('ghmattimysql', alias, exp);
+    provide('ghmattimysql', `${alias}Sync`, async_exp);
+  }
+
+  alias = (mysqlAsync as any)[key];
+
+  if (alias) {
+    provide('mysql-async', alias, exp);
+  }
 }
