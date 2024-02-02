@@ -1,10 +1,19 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "noImplicitAny": true,
+    "module": "es2020",
+    "target": "es2021",
+    "lib": ["es2021"],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "allowUnreachableCode": false,
+    "strictFunctionTypes": true,
+    "moduleResolution": "bundler",
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
     "strict": true,
-    "lib": ["ESNext"],
-    "module": "CommonJS",
-    "target": "ESNext",
-    "moduleResolution": "node",
-    "types": ["@citizenfx/server", "@types/node"]
+    "types": ["@types/node", "@citizenfx/server"]
   }
 }
