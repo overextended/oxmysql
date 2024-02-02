@@ -3,7 +3,11 @@ import { typeCast } from './utils/typeCast';
 export const mysql_connection_string = GetConvar('mysql_connection_string', '');
 export let mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
 export let mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
-export let mysql_debug: boolean | string[];
+export let mysql_debug: boolean | string[] = false;
+
+// max array size of individual resource query logs
+// prevent excessive memory use when people use debug/ui in production
+export let mysql_log_size = 0;
 
 export function setDebug() {
   mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
@@ -15,6 +19,8 @@ export function setDebug() {
   } catch (e) {
     mysql_debug = true;
   }
+
+  mysql_log_size = mysql_debug ? 10000 : GetConvarInt('mysql_log_size', 100);
 }
 
 export const mysql_transaction_isolation_level = (() => {
@@ -87,9 +93,7 @@ export const connectionOptions = (() => {
       try {
         options[key] = JSON.parse(value);
       } catch (err) {
-        console.log(
-          `^3Failed to parse property ${key} in configuration (${err})!^0`
-        )
+        console.log(`^3Failed to parse property ${key} in configuration (${err})!^0`);
       }
     }
   }

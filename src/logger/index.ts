@@ -1,5 +1,5 @@
 import { PoolConnection, RowDataPacket } from 'mysql2/promise';
-import { mysql_debug, mysql_slow_query_warning, mysql_ui } from '../config';
+import { mysql_debug, mysql_log_size, mysql_slow_query_warning, mysql_ui } from '../config';
 import type { CFXCallback, CFXParameters } from '../types';
 import { dbVersion } from '../database';
 
@@ -109,7 +109,9 @@ export const logQuery = (
 
   if (!mysql_ui) return;
 
-  if (logStorage[invokingResource] === undefined) logStorage[invokingResource] = [];
+  if (!logStorage[invokingResource]) logStorage[invokingResource] = [];
+  else if (logStorage[invokingResource].length > mysql_log_size) logStorage[invokingResource].splice(0, 1);
+
   logStorage[invokingResource].push({
     query,
     executionTime,
