@@ -14,7 +14,7 @@ export function logError(
 ) {
   const message = `${invokingResource} was unable to execute a query!${query ? `\n${`Query: ${query}`}` : ''}${
     includeParameters ? `\n${JSON.stringify(parameters)}` : ''
-  }\n${err.message}`;
+  }\n${err.message || (err as string).replace(/SCRIPT ERROR: citizen:[\w\/\.]+:\d+[:\s]+/, '')}`;
 
   TriggerEvent('oxmysql:error', {
     query: query,
