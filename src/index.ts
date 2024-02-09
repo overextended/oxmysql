@@ -73,6 +73,19 @@ MySQL.transaction = (
   rawTransaction(invokingResource, queries, parameters, cb, isPromise);
 };
 
+global.exports(
+  'experimentalTransaction',
+  async (
+    transactions: () => Promise<boolean>,
+    parameters: CFXParameters,
+    cb: CFXCallback,
+    invokingResource = GetInvokingResource(),
+    isPromise?: boolean
+  ) => {
+    return await startTransaction(invokingResource, transactions, parameters, cb, isPromise);
+  }
+);
+
 MySQL.prepare = (
   query: string,
   parameters: CFXParameters,
@@ -108,6 +121,7 @@ function provide(resourceName: string, method: string, cb: Function) {
 
 import ghmatti from './compatibility/ghmattimysql';
 import mysqlAsync from './compatibility/mysql-async';
+import { startTransaction } from 'database/startTransaction';
 
 for (const key in MySQL) {
   const exp = MySQL[key];
