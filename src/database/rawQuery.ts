@@ -14,7 +14,8 @@ export const rawQuery = async (
   query: string,
   parameters: CFXParameters,
   cb?: CFXCallback,
-  isPromise?: boolean
+  isPromise?: boolean,
+  connectionId?: number
 ) => {
   cb = setCallback(parameters, cb);
   try {
@@ -23,7 +24,7 @@ export const rawQuery = async (
     return logError(invokingResource, cb, err, isPromise, query, parameters);
   }
 
-  const connection = await getPoolConnection();
+  const connection = await getPoolConnection(connectionId);
 
   if (!connection) return;
 
@@ -42,16 +43,19 @@ export const rawQuery = async (
       logQuery(invokingResource, query, performance.now() - startTime, parameters);
     }
 
-    if (cb)
-      try {
-        cb(parseResponse(type, result));
-      } catch (err) {
-        if (typeof err === 'string') {
-          if (err.includes('SCRIPT ERROR:')) return console.log(err);
-          console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
-        }
+    if (!cb) return parseResponse(type, result);
+
+    try {
+      cb(parseResponse(type, result));
+    } catch (err) {
+      if (typeof err === 'string') {
+        if (err.includes('SCRIPT ERROR:')) return console.log(err);
+        console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
       }
+    }
   } catch (err: any) {
+    if (!cb) throw new Error(err.message || err);
+
     logError(invokingResource, cb, isPromise, err, query, parameters, true);
   } finally {
     connection.release();

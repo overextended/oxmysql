@@ -77,12 +77,11 @@ global.exports(
   'experimentalTransaction',
   async (
     transactions: () => Promise<boolean>,
-    parameters: CFXParameters,
     cb: CFXCallback,
     invokingResource = GetInvokingResource(),
     isPromise?: boolean
   ) => {
-    return await startTransaction(invokingResource, transactions, parameters, cb, isPromise);
+    return await startTransaction(invokingResource, transactions, cb, isPromise);
   }
 );
 

@@ -12,7 +12,8 @@ export const rawExecute = async (
   parameters: CFXParameters,
   cb?: CFXCallback,
   isPromise?: boolean,
-  unpack?: boolean
+  unpack?: boolean,
+  connectionId?: number
 ) => {
   cb = setCallback(parameters, cb);
 
@@ -27,7 +28,7 @@ export const rawExecute = async (
     return logError(invokingResource, cb, isPromise, err, query, parameters);
   }
 
-  const connection = await getPoolConnection();
+  const connection = await getPoolConnection(connectionId);
 
   if (!connection) return;
 
@@ -48,13 +49,11 @@ export const rawExecute = async (
       const startTime = !hasProfiler && performance.now();
       const [result] = await connection.execute(query, values);
 
-      if (cb) {
-        if (Array.isArray(result) && result.length > 1) {
-          for (const value of result) {
-            response.push(unpack ? parseResponse(type, value) : value);
-          }
-        } else response.push(unpack ? parseResponse(type, result) : result);
-      }
+      if (Array.isArray(result) && result.length > 1) {
+        for (const value of result) {
+          response.push(unpack ? parseResponse(type, value) : value);
+        }
+      } else response.push(unpack ? parseResponse(type, result) : result);
 
       if (hasProfiler && ((index > 0 && index % 100 === 0) || index === parametersLength - 1)) {
         await profileBatchStatements(connection, invokingResource, query, parameters, index < 100 ? 0 : index);
@@ -63,7 +62,7 @@ export const rawExecute = async (
       }
     }
 
-    if (!cb) return;
+    if (!cb) return response.length === 1 ? response[0] : response;
 
     try {
       if (response.length === 1) {
@@ -84,6 +83,8 @@ export const rawExecute = async (
       }
     }
   } catch (err: any) {
+    if (!cb) throw new Error(err.message || err);
+
     logError(invokingResource, cb, isPromise, err, query, parameters);
   } finally {
     connection.release();

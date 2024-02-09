@@ -1,17 +1,15 @@
 import { getPoolConnection } from './connection';
 import { logError } from '../logger';
 import { CFXCallback, CFXParameters } from '../types';
-import { setCallback } from '../utils/setCallback';
+import { rawQuery } from './rawQuery';
+import { rawExecute } from './rawExecute';
 
 export const startTransaction = async (
   invokingResource: string,
   queries: (...args: any[]) => Promise<boolean>,
-  parameters: CFXParameters,
   cb?: CFXCallback,
   isPromise?: boolean
 ) => {
-  cb = setCallback(parameters, cb);
-
   const conn = await getPoolConnection();
 
   if (!conn) return;
@@ -19,17 +17,19 @@ export const startTransaction = async (
   let response = false;
 
   try {
+    const connectionId = (conn as any).connection.connectionId;
     await conn.beginTransaction();
 
     const commit = await queries({
-      query: async (sql: string, values?: CFXParameters) => {
-        const [rows] = await conn.query(sql, values);
-        return rows;
+      query: (sql: string, values: CFXParameters) => {
+        return rawQuery(null, invokingResource, sql, values, undefined, isPromise, connectionId);
+      },
+      execute: (sql: string, values: CFXParameters) => {
+        return rawExecute(invokingResource, sql, values, undefined, isPromise, connectionId);
       },
     });
 
-    response = !!commit;
-
+    response = commit === false ? false : true;
     response ? conn.commit() : conn.rollback();
   } catch (err: any) {
     conn.rollback();
