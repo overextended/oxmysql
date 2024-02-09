@@ -1,4 +1,4 @@
-import { createPool, Pool, RowDataPacket } from 'mysql2/promise';
+import { createPool, Pool, PoolConnection, RowDataPacket } from 'mysql2/promise';
 import { connectionOptions, mysql_transaction_isolation_level } from '../config';
 import { scheduleTick } from '../utils/scheduleTick';
 import { sleep } from '../utils/sleep';
@@ -13,12 +13,24 @@ export async function waitForConnection() {
   }
 }
 
+const activeConnections: Record<string, PoolConnection> = {};
+
 export async function createConnectionPool() {
   try {
     pool = createPool(connectionOptions);
 
     pool.on('connection', (connection) => {
       connection.query(mysql_transaction_isolation_level);
+    });
+
+    pool.on('acquire', (conn) => {
+      const connectionId: number = (conn as any).connectionId;
+      activeConnections[connectionId] = conn;
+    });
+
+    pool.on('release', (conn) => {
+      const connectionId: number = (conn as any).connectionId;
+      delete activeConnections[connectionId];
     });
 
     const connection = await pool.getConnection();
@@ -38,10 +50,10 @@ export async function createConnectionPool() {
   }
 }
 
-export async function getPoolConnection() {
-  if (!isServerConnected) await waitForConnection()
+export async function getPoolConnection(id?: number) {
+  if (!isServerConnected) await waitForConnection();
 
   scheduleTick();
 
-  return pool.getConnection();
+  return id ? activeConnections[id] : pool.getConnection();
 }
