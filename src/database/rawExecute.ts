@@ -83,8 +83,6 @@ export const rawExecute = async (
       }
     }
   } catch (err: any) {
-    if (!cb) throw new Error(err.message || err);
-
     logError(invokingResource, cb, isPromise, err, query, parameters);
   } finally {
     connection.release();

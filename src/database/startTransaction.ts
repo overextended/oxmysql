@@ -1,8 +1,6 @@
 import { getPoolConnection } from './connection';
 import { logError } from '../logger';
 import { CFXCallback, CFXParameters } from '../types';
-import { rawQuery } from './rawQuery';
-import { rawExecute } from './rawExecute';
 
 export const startTransaction = async (
   invokingResource: string,
@@ -17,15 +15,14 @@ export const startTransaction = async (
   let response = false;
 
   try {
-    const connectionId = (conn as any).connection.connectionId;
     await conn.beginTransaction();
 
     const commit = await queries({
       query: (sql: string, values: CFXParameters) => {
-        return rawQuery(null, invokingResource, sql, values, undefined, isPromise, connectionId);
+        return conn.query(sql, values);
       },
       execute: (sql: string, values: CFXParameters) => {
-        return rawExecute(invokingResource, sql, values, undefined, isPromise, connectionId);
+        return conn.execute(sql, values);
       },
     });
 

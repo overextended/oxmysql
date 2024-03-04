@@ -21,7 +21,7 @@ export const rawQuery = async (
   try {
     [query, parameters] = parseArguments(query, parameters);
   } catch (err: any) {
-    return logError(invokingResource, cb, err, isPromise, query, parameters);
+    return logError(invokingResource, cb, isPromise, err, query, parameters);
   }
 
   const connection = await getPoolConnection(connectionId);
@@ -54,8 +54,6 @@ export const rawQuery = async (
       }
     }
   } catch (err: any) {
-    if (!cb) throw new Error(err.message || err);
-
     logError(invokingResource, cb, isPromise, err, query, parameters, true);
   } finally {
     connection.release();
