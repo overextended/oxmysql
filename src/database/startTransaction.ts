@@ -7,13 +7,14 @@ import { PoolConnection } from 'mysql2/promise';
 async function runQuery(conn: PoolConnection | null, sql: string, values: CFXParameters) {
   [sql, values] = parseArguments(sql, values);
 
-  if (!conn)
-    throw new Error(
-      `Query: ${sql}\n${JSON.stringify(values)}\nConnection used by transaction timed out after 30 seconds.`
-    );
+  try {
+    if (!conn) throw new Error(`Connection used by transaction timed out after 30 seconds.`);
 
-  const [rows] = await conn.query(sql, values);
-  return rows;
+    const [rows] = await conn.query(sql, values);
+    return rows;
+  } catch (err: any) {
+    throw new Error(`Query: ${sql}\n${JSON.stringify(values)}\n${err.message}`);
+  }
 }
 
 export const startTransaction = async (
