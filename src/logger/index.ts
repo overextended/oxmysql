@@ -12,8 +12,7 @@ export function logError(
   parameters?: CFXParameters,
   includeParameters?: boolean
 ) {
-  const message =
-    typeof err === 'object' ? err.message : err.replace(/SCRIPT ERROR: citizen:[\w\/\.]+:\d+[:\s]+/, '');
+  const message = typeof err === 'object' ? err.message : err.replace(/SCRIPT ERROR: citizen:[\w\/\.]+:\d+[:\s]+/, '');
 
   const output = `${invokingResource} was unable to execute a query!${query ? `\n${`Query: ${query}`}` : ''}${
     includeParameters ? `\n${JSON.stringify(parameters)}` : ''
@@ -179,16 +178,24 @@ const sortQueries = (queries: QueryData[], sort: { id: 'query' | 'executionTime'
 
 onNet(
   `oxmysql:fetchResource`,
-  (data: { resource: string; pageIndex: number; sortBy?: { id: 'query' | 'executionTime'; desc: boolean }[] }) => {
+  (data: {
+    resource: string;
+    pageIndex: number;
+    search: string;
+    sortBy?: { id: 'query' | 'executionTime'; desc: boolean }[];
+  }) => {
     if (typeof data.resource !== 'string' || !IsPlayerAceAllowed(source as unknown as string, 'command.mysql')) return;
 
-    const resourceLog = logStorage[data.resource];
+    if (data.search) data.search = data.search.toLowerCase();
+
+    const resourceLog = data.search
+      ? logStorage[data.resource].filter((q) => q.query.toLowerCase().includes(data.search))
+      : logStorage[data.resource];
+
     const sort = data.sortBy && data.sortBy.length > 0 ? data.sortBy[0] : false;
     const startRow = data.pageIndex * 10;
     const endRow = startRow + 10;
-    const queries = sort
-      ? sortQueries(logStorage[data.resource], sort).slice(startRow, endRow)
-      : logStorage[data.resource].slice(startRow, endRow);
+    const queries = sort ? sortQueries(resourceLog, sort).slice(startRow, endRow) : resourceLog.slice(startRow, endRow);
     const pageCount = Math.ceil(resourceLog.length / 10);
 
     if (!queries) return;

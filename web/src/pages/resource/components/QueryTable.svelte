@@ -1,7 +1,6 @@
 <script lang="ts">
   import IconChevronDown from '@tabler/icons-svelte/dist/svelte/icons/IconChevronDown.svelte';
   import IconChevronUp from '@tabler/icons-svelte/dist/svelte/icons/IconChevronUp.svelte';
-
   import { queries, type QueryData } from '../../../store';
   import {
     createSvelteTable,
@@ -14,7 +13,7 @@
   import { writable } from 'svelte/store';
   import { meta } from 'tinro';
   import { fetchNui } from '../../../utils/fetchNui';
-  import { debouncedTablePage } from '../../../store';
+  import { filterData } from '../../../store';
   import QueryTooltip from './QueryTooltip.svelte';
 
   const route = meta();
@@ -68,12 +67,17 @@
 
   const table = createSvelteTable(options);
 
+  let timer: NodeJS.Timeout;
   $: {
-    fetchNui('fetchResource', {
-      resource: route.params.resource,
-      pageIndex: $debouncedTablePage,
-      sortBy: sorting,
-    });
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      fetchNui('fetchResource', {
+        resource: route.params.resource,
+        pageIndex: $filterData.page,
+        search: $filterData.search,
+        sortBy: sorting,
+      });
+    }, 300);
   }
 </script>
 
@@ -83,12 +87,12 @@
       {#each $table.getHeaderGroups() as headerGroup}
         <tr>
           {#each headerGroup.headers as header}
-            <th class={`p-1 bg-dark-600 select-none ${header.id === 'executionTime' ? 'w-1/4' : 'w-3/4'}`}>
+            <th class={`bg-dark-600 select-none p-1 ${header.id === 'executionTime' ? 'w-1/4' : 'w-3/4'}`}>
               {#if !header.isPlaceholder}
                 <button
                   class:cursor-pointer={header.column.getCanSort()}
                   class:select-none={header.column.getCanSort()}
-                  class="flex items-center justify-center w-full gap-1"
+                  class="flex w-full items-center justify-center gap-1"
                   on:click={header.column.getToggleSortingHandler()}
                 >
                   <svelte:component this={flexRender(header.column.columnDef.header, header.getContext())} />
@@ -119,9 +123,9 @@
                 use:floatingRef
                 on:mouseenter={displayTooltip}
                 on:mouseleave={hideTooltip}
-                class={`${cell.column.id === 'executionTime' && 'text-center'} p-2 bg-dark-700 ${
+                class={`${cell.column.id === 'executionTime' && 'text-center'} bg-dark-700 p-2 ${
                   row.original.slow && 'text-yellow-500'
-                } truncate max-w-[200px]`}
+                } max-w-[200px] truncate`}
               >
                 <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
               </td>

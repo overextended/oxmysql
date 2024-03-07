@@ -8,13 +8,15 @@
   import { queries, resourceData, type QueryData } from '../../store';
   import { debugData } from '../../utils/debugData';
   import { onDestroy } from 'svelte';
-  import { tablePage } from '../../store';
+  import { filterData } from '../../store';
+  import QuerySearch from './components/QuerySearch.svelte';
+  import IconSearch from '@tabler/icons-svelte/dist/svelte/icons/IconSearch.svelte';
 
   let maxPage = 0;
 
   onDestroy(() => {
     $queries = [];
-    $tablePage = 0;
+    $filterData.page = 0;
   });
 
   interface ResourceData {
@@ -55,9 +57,10 @@
   });
 </script>
 
-<div class="flex flex-col w-full justify-between">
+<div class="flex w-full flex-col justify-between">
   <div>
     <ResourceHeader />
+    <QuerySearch icon={IconSearch} />
     <QueryTable />
   </div>
   <Pagination {maxPage} />
