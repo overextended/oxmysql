@@ -7,6 +7,7 @@ import type { QueryType } from '../types';
 import { getPoolConnection } from './connection';
 import { RowDataPacket } from 'mysql2';
 import { performance } from 'perf_hooks';
+import validateResultSet from 'utils/validateResultSet';
 
 export const rawQuery = async (
   type: QueryType,
@@ -42,6 +43,8 @@ export const rawQuery = async (
     } else if (startTime) {
       logQuery(invokingResource, query, performance.now() - startTime, parameters);
     }
+
+    validateResultSet(invokingResource, query, result);
 
     if (!cb) return parseResponse(type, result);
 

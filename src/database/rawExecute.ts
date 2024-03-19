@@ -5,6 +5,7 @@ import { executeType, parseExecute } from '../utils/parseExecute';
 import { getPoolConnection } from './connection';
 import { setCallback } from '../utils/setCallback';
 import { performance } from 'perf_hooks';
+import validateResultSet from 'utils/validateResultSet';
 
 export const rawExecute = async (
   invokingResource: string,
@@ -60,6 +61,8 @@ export const rawExecute = async (
       } else if (startTime) {
         logQuery(invokingResource, query, performance.now() - startTime, values);
       }
+
+      validateResultSet(invokingResource, query, result);
     }
 
     if (!cb) return response.length === 1 ? response[0] : response;
