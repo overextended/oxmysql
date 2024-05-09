@@ -44,8 +44,14 @@ export async function createConnectionPool() {
   } catch (err: any) {
     isServerConnected = false;
 
+    const message = err.message.includes('auth_gssapi_client')
+      ? `Server requests authentication using unknown plugin auth_gssapi_client.\nSee https://github.com/overextended/oxmysql/issues/213.`
+      : err.message;
+
     console.log(
-      `^3Unable to establish a connection to the database (${err.code})!\n^1Error ${err.errno}: ${err.message}^0`
+      `^3Unable to establish a connection to the database (${err.code})!\n^1Error${
+        err.errno ? ` ${err.errno}` : ''
+      }: ${message}^0`
     );
   }
 }
