@@ -4,9 +4,9 @@ import fetch from 'node-fetch';
   if (GetConvarInt('mysql_versioncheck', 1) === 0) return;
 
   const resourceName = GetCurrentResourceName();
-  const currentVersion = GetResourceMetadata(resourceName, 'version', 0)?.match(/(\d)\.(\d)\.(\d)/);
+  const currentVersion = GetResourceMetadata(resourceName, 'version', 0)?.match(/(\d+)\.(\d+)\.(\d+)/);
 
-  if (!currentVersion) return console.log(`^1Unable to determine current resource version for '${resourceName}'^0`);
+  if (!currentVersion) return;
 
   setTimeout(async () => {
     const response = await fetch(`https://api.github.com/repos/overextended/oxmysql/releases/latest`);
@@ -15,7 +15,7 @@ import fetch from 'node-fetch';
     const release = (await response.json()) as any;
     if (release.prerelease) return;
 
-    const latestVersion = release.tag_name.match(/(\d)\.(\d)\.(\d)/);
+    const latestVersion = release.tag_name.match(/(\d+)\.(\d+)\.(\d+)/);
     if (!latestVersion || latestVersion[0] === currentVersion[0]) return;
 
     for (let i = 1; i < currentVersion.length; i++) {
