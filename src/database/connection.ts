@@ -50,7 +50,7 @@ export class MySql {
 
   commit() {
     delete this.transaction;
-    this.connection.commit();
+    return this.connection.commit();
   }
 
   [Symbol.dispose]() {
