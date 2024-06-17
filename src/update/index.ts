@@ -9,8 +9,11 @@ import fetch from 'node-fetch';
   if (!currentVersion) return;
 
   setTimeout(async () => {
-    const response = await fetch(`https://api.github.com/repos/overextended/oxmysql/releases/latest`);
-    if (response.status !== 200) return;
+    const response = await fetch(`https://api.github.com/repos/overextended/oxmysql/releases/latest`).catch((err) => {
+      console.warn(`Failed to retrieve latest version of oxmysql (${err.code}).`);
+    });
+
+    if (response?.status !== 200) return;
 
     const release = (await response.json()) as any;
     if (release.prerelease) return;
