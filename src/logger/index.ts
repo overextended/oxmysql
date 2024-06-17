@@ -1,7 +1,7 @@
-import { PoolConnection, RowDataPacket } from 'mysql2/promise';
+import type { RowDataPacket } from 'mysql2/promise';
 import { mysql_debug, mysql_log_size, mysql_slow_query_warning, mysql_ui } from '../config';
 import type { CFXCallback, CFXParameters } from '../types';
-import { dbVersion } from '../database';
+import { MySql, dbVersion } from '../database';
 
 export function logError(
   invokingResource: string,
@@ -41,7 +41,7 @@ export const profilerStatements = [
 /**
  * Executes MySQL queries to fetch accurate query profiling results when `mysql_debug` is enabled.
  */
-export async function runProfiler(connection: PoolConnection, invokingResource: string) {
+export async function runProfiler(connection: MySql, invokingResource: string) {
   if (!mysql_debug) return;
 
   if (Array.isArray(mysql_debug) && !mysql_debug.includes(invokingResource)) return;
@@ -52,13 +52,13 @@ export async function runProfiler(connection: PoolConnection, invokingResource: 
 }
 
 export async function profileBatchStatements(
-  connection: PoolConnection,
+  connection: MySql,
   invokingResource: string,
   query: string | { query: string; params?: CFXParameters }[],
   parameters: CFXParameters | null,
   offset: number
 ) {
-  const [profiler] = <RowDataPacket[]>(
+  const profiler = <RowDataPacket[]>(
     await connection.query(
       'SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID'
     )

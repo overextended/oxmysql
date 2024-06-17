@@ -4,7 +4,7 @@ import { parseResponse } from '../utils/parseResponse';
 import { logQuery, logError, runProfiler } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
-import { getPoolConnection } from './connection';
+import { getConnection } from './connection';
 import { RowDataPacket } from 'mysql2';
 import { performance } from 'perf_hooks';
 import validateResultSet from 'utils/validateResultSet';
@@ -25,17 +25,17 @@ export const rawQuery = async (
     return logError(invokingResource, cb, isPromise, err, query, parameters);
   }
 
-  const connection = await getPoolConnection(connectionId);
+  using connection = await getConnection(connectionId);
 
   if (!connection) return;
 
   try {
     const hasProfiler = await runProfiler(connection, invokingResource);
     const startTime = !hasProfiler && performance.now();
-    const [result] = await connection.query(query, parameters);
+    const result = await connection.query(query, parameters);
 
     if (hasProfiler) {
-      const [profiler] = <RowDataPacket[]>(
+      const profiler = <RowDataPacket[]>(
         await connection.query('SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING')
       );
 
@@ -58,7 +58,5 @@ export const rawQuery = async (
     }
   } catch (err: any) {
     logError(invokingResource, cb, isPromise, err, query, parameters, true);
-  } finally {
-    connection.release();
   }
 };

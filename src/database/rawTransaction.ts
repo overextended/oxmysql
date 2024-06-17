@@ -1,4 +1,4 @@
-import { getPoolConnection } from './connection';
+import { getConnection } from './connection';
 import { logError, logQuery, profileBatchStatements, runProfiler } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
@@ -27,7 +27,7 @@ export const rawTransaction = async (
     return logError(invokingResource, cb, isPromise, err);
   }
 
-  const connection = await getPoolConnection();
+  using connection = await getConnection();
 
   if (!connection) return;
 
@@ -68,8 +68,6 @@ export const rawTransaction = async (
       err: err,
       resource: invokingResource,
     });
-  } finally {
-    connection.release();
   }
 
   if (cb)

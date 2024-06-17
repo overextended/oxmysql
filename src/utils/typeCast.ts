@@ -31,7 +31,7 @@ export const typeCast = (field: Field, next: () => void) => {
     case 'BLOB':
       if (field.charset === BINARY_CHARSET) {
         const value = field.buffer();
-		if (value === null) return [value]
+        if (value === null) return [value];
         return [...value];
       }
       return field.string();

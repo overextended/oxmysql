@@ -2,10 +2,11 @@ import { logError, logQuery, profileBatchStatements, runProfiler } from '../logg
 import { CFXCallback, CFXParameters, QueryType } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
-import { getPoolConnection } from './connection';
+import { getConnection } from './connection';
 import { setCallback } from '../utils/setCallback';
 import { performance } from 'perf_hooks';
 import validateResultSet from 'utils/validateResultSet';
+import { RowDataPacket } from 'mysql2';
 
 export const rawExecute = async (
   invokingResource: string,
@@ -29,7 +30,7 @@ export const rawExecute = async (
     return logError(invokingResource, cb, isPromise, err, query, parameters);
   }
 
-  const connection = await getPoolConnection(connectionId);
+  using connection = await getConnection(connectionId);
 
   if (!connection) return;
 
@@ -48,11 +49,11 @@ export const rawExecute = async (
       }
 
       const startTime = !hasProfiler && performance.now();
-      const [result] = await connection.execute(query, values);
+      const result = await connection.execute(query, values);
 
       if (Array.isArray(result) && result.length > 1) {
         for (const value of result) {
-          response.push(unpack ? parseResponse(type, value) : value);
+          response.push(unpack ? parseResponse(type, value as RowDataPacket[]) : value);
         }
       } else response.push(unpack ? parseResponse(type, result) : result);
 
@@ -87,7 +88,5 @@ export const rawExecute = async (
     }
   } catch (err: any) {
     logError(invokingResource, cb, isPromise, err, query, parameters);
-  } finally {
-    connection.release();
   }
 };
