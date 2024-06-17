@@ -2,21 +2,17 @@ import type { TypeCastField, TypeCastNext } from 'mysql2/promise';
 
 const BINARY_CHARSET = 63;
 
-interface Field extends TypeCastField {
-  charset: number;
-}
-
 /**
  * node-mysql2 v3.9.0 introduced (breaking) typecasting for execute methods.
  */
-export function typeCastExecute(field: Field, next: TypeCastNext) {
+export function typeCastExecute(field: TypeCastField, next: TypeCastNext) {
   return next();
 }
 
 /**
  * mysql-async compatible typecasting.
  */
-export function typeCast(field: Field, next: TypeCastNext) {
+export function typeCast(field: TypeCastField, next: TypeCastNext) {
   switch (field.type) {
     case 'DATETIME':
     case 'DATETIME2':

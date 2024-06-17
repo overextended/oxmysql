@@ -38,7 +38,7 @@ export class MySql {
     const [result] = await this.connection.execute({
       sql: query,
       values: values,
-      typeCast: typeCastExecute as TypeCast,
+      typeCast: typeCastExecute,
     });
     return result;
   }

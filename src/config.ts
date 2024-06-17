@@ -106,6 +106,7 @@ export function getConnectionOptions(): ConnectionOptions {
     connectTimeout: 60000,
     trace: false,
     supportBigNumbers: true,
+    jsonStrings: true,
     ...options,
     typeCast,
     namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
