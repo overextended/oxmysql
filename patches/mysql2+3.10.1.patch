@@ -128,7 +128,7 @@ index daf1df9..0862ce1 100644
        case 'number':
          type = Types.DOUBLE;
 diff --git a/node_modules/mysql2/lib/parsers/binary_parser.js b/node_modules/mysql2/lib/parsers/binary_parser.js
-index bf0995d..3e3ce6d 100644
+index bf0995d..9d52cc4 100644
 --- a/node_modules/mysql2/lib/parsers/binary_parser.js
 +++ b/node_modules/mysql2/lib/parsers/binary_parser.js
 @@ -75,7 +75,7 @@ function readCodeFor(field, config, options, fieldNum) {
@@ -140,3 +140,35 @@ index bf0995d..3e3ce6d 100644
        }
        return `packet.readLengthCodedString(fields[${fieldNum}].encoding)`;
    }
+@@ -92,6 +92,7 @@ function compile(fields, options, config) {
+       db: field.schema,
+       table: field.table,
+       name: field.name,
++      charset: field.characterSet,
+       string: function (encoding = field.encoding) {
+         if (field.columnType === Types.JSON && encoding === field.encoding) {
+           // Since for JSON columns mysql always returns charset 63 (BINARY),
+diff --git a/node_modules/mysql2/lib/parsers/text_parser.js b/node_modules/mysql2/lib/parsers/text_parser.js
+index f66a185..55c8b63 100644
+--- a/node_modules/mysql2/lib/parsers/text_parser.js
++++ b/node_modules/mysql2/lib/parsers/text_parser.js
+@@ -88,6 +88,7 @@ function compile(fields, options, config) {
+       db: field.schema,
+       table: field.table,
+       name: field.name,
++      charset: field.characterSet,
+       string: function (encoding = field.encoding) {
+         if (field.columnType === Types.JSON && encoding === field.encoding) {
+           // Since for JSON columns mysql always returns charset 63 (BINARY),
+diff --git a/node_modules/mysql2/typings/mysql/lib/parsers/typeCast.d.ts b/node_modules/mysql2/typings/mysql/lib/parsers/typeCast.d.ts
+index 65bfaa8..52ab677 100644
+--- a/node_modules/mysql2/typings/mysql/lib/parsers/typeCast.d.ts
++++ b/node_modules/mysql2/typings/mysql/lib/parsers/typeCast.d.ts
+@@ -43,6 +43,7 @@ export type Field = Type & {
+   db: string;
+   table: string;
+   name: string;
++  charset: number;
+   string: (encoding?: BufferEncoding | string | undefined) => string | null;
+   buffer: () => Buffer | null;
+   geometry: () => Geometry | Geometry[] | null;
