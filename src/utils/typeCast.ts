@@ -22,10 +22,14 @@ export function typeCast(field: Field, next: TypeCastNext) {
     case 'DATETIME2':
     case 'TIMESTAMP':
     case 'TIMESTAMP2':
-    case 'NEWDATE':
-      return new Date(field.string() || '').getTime();
-    case 'DATE':
-      return new Date(field.string() + ' 00:00:00').getTime();
+    case 'NEWDATE': {
+      const value = field.string();
+      return value ? new Date(value).getTime() : null;
+    }
+    case 'DATE': {
+      const value = field.string();
+      return value ? new Date(value + ' 00:00:00').getTime() : null;
+    }
     case 'TINY':
       return field.length === 1 ? field.string() === '1' : next();
     case 'BIT':
