@@ -7,13 +7,13 @@ A FiveM resource to communicate with a MySQL database using [node-mysql2](https:
 ![](https://img.shields.io/github/contributors/overextended/oxmysql?logo=github)
 ![](https://img.shields.io/github/v/release/overextended/oxmysql?logo=github) 
 
-## 📚 Documentation
-
-https://overextended.dev/oxmysql
-
-## 💾 Download
-
-https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
+## 🔗 Links
+- 💾 [Download](https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip)
+  - Download the latest release directly.
+- 📚 [Documentation](https://overextended.dev/oxmysql)
+  - For installation, setup, and everything else.
+- 📦 [npm](https://www.npmjs.com/package/@overextended/oxmysql)
+  - Use our npm package for enhanced functionality and TypeScript support.
 
 ## ✨ Features
 
@@ -24,9 +24,9 @@ https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
 - Support for URI connection strings and semicolon separated values.
 - Improved parameter checking and error handling.
 
-## npm Package
+## 🧾 Logging
 
-https://www.npmjs.com/package/@overextended/oxmysql
+We have included a module for submitting error logs to [Fivemanage](https://fivemanage.com/?ref=overextended), a cloud management service tailored for game servers. Additional logging options and support for other services will be available in the future.
 
 ## Lua Language Server
 
