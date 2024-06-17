@@ -1,8 +1,9 @@
-import type { Connection, PoolConnection } from 'mysql2/promise';
+import type { Connection, PoolConnection, TypeCast } from 'mysql2/promise';
 import { scheduleTick } from '../utils/scheduleTick';
 import { sleep } from '../utils/sleep';
 import { pool } from './pool';
 import type { CFXParameters } from 'types';
+import { typeCastExecute } from 'utils/typeCast';
 
 (Symbol as any).dispose ??= Symbol('Symbol.dispose');
 
@@ -34,7 +35,11 @@ export class MySql {
   async execute(query: string, values: CFXParameters = []) {
     scheduleTick();
 
-    const [result] = await this.connection.execute(query, values);
+    const [result] = await this.connection.execute({
+      sql: query,
+      values: values,
+      typeCast: typeCastExecute as TypeCast,
+    });
     return result;
   }
 
