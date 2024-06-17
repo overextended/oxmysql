@@ -22,6 +22,11 @@ export async function createConnectionPool() {
     dbVersion = `^5[${result[0].version}]`;
 
     console.log(`${dbVersion} ^2Database server connection established!^0`);
+
+    if (config.multipleStatements) {
+      console.warn(`multipleStatements is enabled. Used incorrectly, this option may cause SQL injection.\nSee https://github.com/overextended/oxmysql/issues/102)`)
+    }
+    
   } catch (err: any) {
     const message = err.message.includes('auth_gssapi_client')
       ? `Server requests authentication using unknown plugin auth_gssapi_client.\nSee https://github.com/overextended/oxmysql/issues/213.`
