@@ -1,4 +1,4 @@
-import { logError, logQuery, profileBatchStatements, runProfiler } from '../logger';
+import { logError, logQuery } from '../logger';
 import { CFXCallback, CFXParameters, QueryType } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
@@ -7,6 +7,7 @@ import { setCallback } from '../utils/setCallback';
 import { performance } from 'perf_hooks';
 import validateResultSet from 'utils/validateResultSet';
 import { RowDataPacket } from 'mysql2';
+import { profileBatchStatements, runProfiler } from 'profiler';
 
 export const rawExecute = async (
   invokingResource: string,

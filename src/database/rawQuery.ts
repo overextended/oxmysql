@@ -1,13 +1,14 @@
 import { parseArguments } from '../utils/parseArguments';
 import { setCallback } from '../utils/setCallback';
 import { parseResponse } from '../utils/parseResponse';
-import { logQuery, logError, runProfiler } from '../logger';
+import { logQuery, logError } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
 import { getConnection } from './connection';
 import { RowDataPacket } from 'mysql2';
 import { performance } from 'perf_hooks';
 import validateResultSet from 'utils/validateResultSet';
+import { runProfiler } from 'profiler';
 
 export const rawQuery = async (
   type: QueryType,
