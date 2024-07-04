@@ -6,7 +6,22 @@ const BINARY_CHARSET = 63;
  * node-mysql2 v3.9.0 introduced (breaking) typecasting for execute methods.
  */
 export function typeCastExecute(field: TypeCastField, next: TypeCastNext) {
-  return next();
+  switch (field.type) {
+    case 'DATETIME':
+    case 'DATETIME2':
+    case 'TIMESTAMP':
+    case 'TIMESTAMP2':
+    case 'NEWDATE': {
+      const value = field.string();
+      return value ? new Date(value).getTime() : null;
+    }
+    case 'DATE': {
+      const value = field.string();
+      return value ? new Date(value + ' 00:00:00').getTime() : null;
+    }
+    default:
+      return next();
+  }
 }
 
 /**
