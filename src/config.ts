@@ -56,7 +56,7 @@ function parseUri(connectionString: string) {
     password: authTarget[1] || undefined,
     host: splitMatchGroups[3],
     port: parseInt(splitMatchGroups[4]),
-    database: splitMatchGroups[5].replace(/^\/+/, ''),
+    database: splitMatchGroups[5]?.replace(/^\/+/, ''),
     ...(splitMatchGroups[6] &&
       splitMatchGroups[6].split('&').reduce<Record<string, string>>((connectionInfo, parameter) => {
         const [key, value] = parameter.split('=');
