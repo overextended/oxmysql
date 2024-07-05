@@ -70,7 +70,7 @@ build({
   dropLabels: ['DEV'],
   legalComments: 'inline',
   platform: 'node',
-  target: ['node16'],
+  target: ['node20.12.2'],
   format: 'cjs',
   logLevel: 'info',
 });

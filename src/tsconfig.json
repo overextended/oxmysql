@@ -2,9 +2,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "noImplicitAny": true,
-    "module": "es2020",
-    "target": "es2021",
-    "lib": ["es2021", "esnext.disposable"],
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["es2022", "esnext.disposable"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noEmit": true,
