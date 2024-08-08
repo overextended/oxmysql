@@ -1,14 +1,14 @@
 import { setDebug } from '../config';
 import { sleep } from '../utils/sleep';
-import { createConnectionPool, isServerConnected } from './connection';
+import { pool, createConnectionPool } from './pool';
 
 setTimeout(async () => {
   setDebug();
 
-  while (!isServerConnected) {
+  while (!pool) {
     await createConnectionPool();
 
-    if (!isServerConnected) await sleep(30000);
+    if (!pool) await sleep(30000);
   }
 });
 
@@ -20,3 +20,4 @@ export * from './connection';
 export * from './rawQuery';
 export * from './rawExecute';
 export * from './rawTransaction';
+export * from './pool';

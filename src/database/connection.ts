@@ -1,65 +1,75 @@
-import { createPool, Pool, PoolConnection, RowDataPacket } from 'mysql2/promise';
-import { connectionOptions, mysql_transaction_isolation_level } from '../config';
+import type { Connection, PoolConnection, TypeCast } from 'mysql2/promise';
 import { scheduleTick } from '../utils/scheduleTick';
 import { sleep } from '../utils/sleep';
+import { pool } from './pool';
+import type { CFXParameters } from 'types';
+import { typeCastExecute } from 'utils/typeCast';
 
-export let pool: Pool;
-export let isServerConnected = false;
-export let dbVersion = '';
+(Symbol as any).dispose ??= Symbol('Symbol.dispose');
 
-export async function waitForConnection() {
-  while (!isServerConnected) {
-    await sleep(0);
+const activeConnections: Record<string, MySql> = {};
+
+interface PromisePoolConnection extends Connection {
+  connection: PoolConnection;
+  release: PoolConnection['release'];
+}
+
+export class MySql {
+  id: number;
+  connection: PromisePoolConnection;
+  transaction?: boolean;
+
+  constructor(connection: PromisePoolConnection) {
+    this.id = connection.connection.threadId;
+    this.connection = connection;
+    activeConnections[this.id] = this;
+  }
+
+  async query(query: string, values: CFXParameters = []) {
+    scheduleTick();
+
+    const [result] = await this.connection.query(query, values);
+    return result;
+  }
+
+  async execute(query: string, values: CFXParameters = []) {
+    scheduleTick();
+
+    const [result] = await this.connection.execute({
+      sql: query,
+      values: values,
+      typeCast: typeCastExecute,
+    });
+    return result;
+  }
+
+  beginTransaction() {
+    this.transaction = true;
+    return this.connection.beginTransaction();
+  }
+
+  rollback() {
+    delete this.transaction;
+    return this.connection.rollback();
+  }
+
+  commit() {
+    delete this.transaction;
+    return this.connection.commit();
+  }
+
+  [Symbol.dispose]() {
+    if (this.transaction) this.commit();
+
+    delete activeConnections[this.id];
+    this.connection.release();
   }
 }
 
-const activeConnections: Record<string, PoolConnection> = {};
+export async function getConnection(connectionId?: number) {
+  while (!pool) await sleep(0);
 
-export async function createConnectionPool() {
-  try {
-    pool = createPool(connectionOptions);
-
-    pool.on('connection', (connection) => {
-      connection.query(mysql_transaction_isolation_level);
-    });
-
-    pool.on('acquire', (conn) => {
-      const connectionId: number = (conn as any).connectionId;
-      activeConnections[connectionId] = conn;
-    });
-
-    pool.on('release', (conn) => {
-      const connectionId: number = (conn as any).connectionId;
-      delete activeConnections[connectionId];
-    });
-
-    const connection = await pool.getConnection();
-    const [result] = await (<Promise<RowDataPacket[]>>connection.query('SELECT VERSION() as version'));
-    dbVersion = `^5[${result[0].version}]`;
-
-    connection.release();
-    console.log(`${dbVersion} ^2Database server connection established!^0`);
-
-    isServerConnected = true;
-  } catch (err: any) {
-    isServerConnected = false;
-
-    const message = err.message.includes('auth_gssapi_client')
-      ? `Server requests authentication using unknown plugin auth_gssapi_client.\nSee https://github.com/overextended/oxmysql/issues/213.`
-      : err.message;
-
-    console.log(
-      `^3Unable to establish a connection to the database (${err.code})!\n^1Error${
-        err.errno ? ` ${err.errno}` : ''
-      }: ${message}^0`
-    );
-  }
-}
-
-export async function getPoolConnection(id?: number) {
-  if (!isServerConnected) await waitForConnection();
-
-  scheduleTick();
-
-  return id ? activeConnections[id] : pool.getConnection();
+  return connectionId
+    ? activeConnections[connectionId]
+    : new MySql((await pool.getConnection()) as unknown as PromisePoolConnection);
 }

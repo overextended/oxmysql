@@ -1,3 +1,4 @@
+import type { ConnectionOptions } from 'mysql2';
 import { typeCast } from './utils/typeCast';
 
 export const mysql_connection_string = GetConvar('mysql_connection_string', '');
@@ -39,7 +40,7 @@ export const mysql_transaction_isolation_level = (() => {
   }
 })();
 
-const parseUri = (connectionString: string) => {
+function parseUri(connectionString: string) {
   const splitMatchGroups = connectionString.match(
     new RegExp(
       '^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?$'
@@ -55,7 +56,7 @@ const parseUri = (connectionString: string) => {
     password: authTarget[1] || undefined,
     host: splitMatchGroups[3],
     port: parseInt(splitMatchGroups[4]),
-    database: splitMatchGroups[5].replace(/^\/+/, ''),
+    database: splitMatchGroups[5]?.replace(/^\/+/, ''),
     ...(splitMatchGroups[6] &&
       splitMatchGroups[6].split('&').reduce<Record<string, string>>((connectionInfo, parameter) => {
         const [key, value] = parameter.split('=');
@@ -65,11 +66,11 @@ const parseUri = (connectionString: string) => {
   };
 
   return options;
-};
+}
 
 export let convertNamedPlaceholders: null | ((query: string, parameters: Record<string, any>) => [string, any[]]);
 
-export const connectionOptions = (() => {
+export function getConnectionOptions(): ConnectionOptions {
   const options: Record<string, any> = mysql_connection_string.includes('mysql://')
     ? parseUri(mysql_connection_string)
     : mysql_connection_string
@@ -105,12 +106,13 @@ export const connectionOptions = (() => {
     connectTimeout: 60000,
     trace: false,
     supportBigNumbers: true,
+    jsonStrings: true,
     ...options,
     typeCast,
     namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
     flags: flags,
   };
-})();
+}
 
 RegisterCommand(
   'oxmysql_debug',

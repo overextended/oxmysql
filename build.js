@@ -37,7 +37,10 @@ dependencies {
 }
 
 client_script 'ui.lua'
-server_script 'dist/build.js'
+server_scripts {
+	'dist/build.js',
+	'logger/fivemanage.js'
+}
 
 files {
 	'web/build/index.html',

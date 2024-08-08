@@ -1,9 +1,10 @@
-import { getPoolConnection } from './connection';
-import { logError, logQuery, profileBatchStatements, runProfiler } from '../logger';
+import { getConnection } from './connection';
+import { logError, logQuery } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { setCallback } from '../utils/setCallback';
 import { performance } from 'perf_hooks';
+import { profileBatchStatements, runProfiler } from 'profiler';
 
 const transactionError = (queries: { query: string; params?: CFXParameters }[], parameters: CFXParameters) => {
   `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
@@ -27,7 +28,7 @@ export const rawTransaction = async (
     return logError(invokingResource, cb, isPromise, err);
   }
 
-  const connection = await getPoolConnection();
+  using connection = await getConnection();
 
   if (!connection) return;
 
@@ -68,8 +69,6 @@ export const rawTransaction = async (
       err: err,
       resource: invokingResource,
     });
-  } finally {
-    connection.release();
   }
 
   if (cb)
