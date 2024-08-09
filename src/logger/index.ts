@@ -2,11 +2,14 @@ import { mysql_debug, mysql_log_size, mysql_slow_query_warning, mysql_ui } from 
 import type { CFXCallback, CFXParameters } from '../types';
 import { dbVersion } from '../database';
 
+const loggerService = GetConvar('mysql_logger_service', '');
+export const logger = new Function(LoadResourceFile('oxmysql', `logger/${loggerService}.js`))() || (() => {});
+
 export function logError(
   invokingResource: string,
   cb: CFXCallback | undefined,
   isPromise: boolean | undefined,
-  err: Error | string = '',
+  err: any | string = '', // i cbf typing the error right now
   query?: string,
   parameters?: CFXParameters,
   includeParameters?: boolean
@@ -23,6 +26,15 @@ export function logError(
     message: message,
     err: err,
     resource: invokingResource,
+  });
+
+  if (typeof err === 'object' && err.message) delete err.sqlMessage;
+
+  logger({
+    level: 'error',
+    resource: invokingResource,
+    message: message,
+    metadata: err,
   });
 
   if (cb && isPromise) return cb(null, output);

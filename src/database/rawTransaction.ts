@@ -1,5 +1,5 @@
 import { getConnection } from './connection';
-import { logError, logQuery } from '../logger';
+import { logError, logger, logQuery } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
 import { setCallback } from '../utils/setCallback';
@@ -68,6 +68,15 @@ export const rawTransaction = async (
       message: err.message,
       err: err,
       resource: invokingResource,
+    });
+
+    if (typeof err === 'object' && err.message) delete err.sqlMessage;
+
+    logger({
+      level: 'error',
+      resource: invokingResource,
+      message: msg,
+      metadata: err,
     });
   }
 

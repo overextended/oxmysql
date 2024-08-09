@@ -1,15 +1,16 @@
 // https://fivemanage.com/?ref=overextended
 
 const apiKey = GetConvar('FIVEMANAGE_LOGS_API_KEY', '');
-const endpoint = 'https://api.fivemanage.com/api/logs/batch';
 
+if (!apiKey) return console.warning(`convar "FIVEMANAGE_LOGS_API_KEY" has not been set`);
+
+const batchedLogs = [];
+const endpoint = 'https://api.fivemanage.com/api/logs/batch';
 const headers = {
   ['Content-Type']: 'application/json',
   ['Authorization']: apiKey,
   ['User-Agent']: 'oxmysql',
 };
-
-const batchedLogs = [];
 
 async function sendLogs() {
   try {
@@ -30,23 +31,8 @@ async function sendLogs() {
   }
 }
 
-async function logger(level, resource, message, metadata) {
-  if (!apiKey) return;
-
+return function logger(data) {
   if (batchedLogs.length === 0) setTimeout(sendLogs, 500);
 
-  batchedLogs.push({
-    level: level,
-    message: message,
-    resource: resource,
-    metadata: metadata,
-  });
-}
-
-function errorEvent(data) {
-  delete data.err.sqlMessage;
-  logger('error', data.resource, `${data.resource} was unable to execute a query!`, data.err);
-}
-
-on('oxmysql:error', errorEvent);
-on('oxmysql:transaction-error', errorEvent);
+  batchedLogs.push(data);
+};
