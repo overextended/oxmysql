@@ -1,17 +1,28 @@
 local promise = promise
 local Await = Citizen.Await
-local GetCurrentResourceName = GetCurrentResourceName()
+local resourceName = GetCurrentResourceName()
 local GetResourceState = GetResourceState
+
+local options = {
+	return_callback_errors = false
+}
+
+for i = 1, GetNumResourceMetadata(resourceName, 'mysql_option') do
+	local option = GetResourceMetadata(resourceName, 'mysql_option', i - 1)
+	options[option] = true
+end
 
 local function await(fn, query, parameters)
 	local p = promise.new()
+
 	fn(nil, query, parameters, function(result, error)
 		if error then
 			return p:reject(error)
 		end
 
 		p:resolve(result)
-	end, GetCurrentResourceName, true)
+	end, resourceName, true)
+
 	return Await(p)
 end
 
@@ -60,7 +71,7 @@ local oxmysql = exports.oxmysql
 local mysql_method_mt = {
 	__call = function(self, query, parameters, cb)
 		query, parameters, cb = safeArgs(query, parameters, cb, self.method == 'transaction')
-		return oxmysql[self.method](nil, query, parameters, cb, GetCurrentResourceName, false)
+		return oxmysql[self.method](nil, query, parameters, cb, resourceName, options.return_callback_errors)
 	end
 }
 
