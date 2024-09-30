@@ -24,12 +24,12 @@ export async function createConnectionPool() {
     console.log(`${dbVersion} ^2Database server connection established!^0`);
 
     if (config.multipleStatements) {
-      console.warn(`multipleStatements is enabled. Used incorrectly, this option may cause SQL injection.\nSee https://github.com/overextended/oxmysql/issues/102)`)
+      console.warn(`multipleStatements is enabled. Used incorrectly, this option may cause SQL injection.`)
     }
     
   } catch (err: any) {
     const message = err.message.includes('auth_gssapi_client')
-      ? `Server requests authentication using unknown plugin auth_gssapi_client.\nSee https://github.com/overextended/oxmysql/issues/213.`
+      ? `Requested authentication using unknown plugin auth_gssapi_client.`
       : err.message;
 
     console.log(
@@ -37,6 +37,8 @@ export async function createConnectionPool() {
         err.errno ? ` ${err.errno}` : ''
       }: ${message}^0`
     );
+
+    console.log(`See https://github.com/overextended/oxmysql/issues/154 for more information.`)
 
     if (config.password) config.password = '******';
 
