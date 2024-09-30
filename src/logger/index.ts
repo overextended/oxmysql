@@ -37,7 +37,13 @@ export function logError(
     metadata: err,
   });
 
-  if (cb && isPromise) return cb(null, output);
+  if (cb && isPromise) {
+    try {
+      return cb(null, output);
+    } catch (e) {}
+
+    return;
+  }
 
   console.error(output);
 }
