@@ -2,8 +2,24 @@ import { mysql_debug, mysql_log_size, mysql_slow_query_warning, mysql_ui } from 
 import type { CFXCallback, CFXParameters } from '../types';
 import { dbVersion } from '../database';
 
-const loggerService = GetConvar('mysql_logger_service', '');
-export const logger = new Function(LoadResourceFile('oxmysql', `logger/${loggerService}.js`))() || (() => {});
+let loggerResource = '';
+let loggerService = GetConvar('mysql_logger_service', '');
+
+if (loggerService) {
+  if (loggerService.startsWith('@')) {
+    const [resource, ...path] = loggerService.slice(1).split('/');
+
+    if (resource && path) {
+      loggerResource = resource;
+      loggerService = path.join('/');
+    }
+  } else loggerService = `logger/${loggerService}`;
+}
+
+export const logger =
+  (loggerService &&
+    new Function(LoadResourceFile(loggerResource || GetCurrentResourceName(), `${loggerService}.js`))()) ||
+  (() => {});
 
 export function logError(
   invokingResource: string,
