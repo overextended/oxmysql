@@ -44,6 +44,9 @@ interface OxMySQL {
   transaction: (query: Transaction, params?: Params | Callback<boolean>, cb?: Callback<boolean>) => Promise<boolean>;
   isReady: () => boolean;
   awaitConnection: () => Promise<true>;
+  startTransaction: (
+    cb: (query: <T = Result | null>(statement: string, params?: Params) => Promise<T>) => Promise<boolean | void>
+  ) => Promise<boolean>;
 }
 
 const QueryStore: string[] = [];
@@ -157,5 +160,8 @@ export const oxmysql: OxMySQL = {
   },
   async awaitConnection() {
     return await exp.awaitConnection();
+  },
+  async startTransaction(cb) {
+    return exp.experimentalTransaction(cb, currentResourceName);
   },
 };

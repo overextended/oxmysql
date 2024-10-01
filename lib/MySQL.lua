@@ -148,4 +148,8 @@ MySQL.ready = setmetatable({
 	end,
 })
 
+function MySQL.startTransaction(cb)
+	return oxmysql:startTransaction(cb, resourceName)
+end
+
 _ENV.MySQL = MySQL

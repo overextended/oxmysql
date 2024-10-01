@@ -78,17 +78,13 @@ MySQL.transaction = (
   rawTransaction(invokingResource, queries, parameters, cb, isPromise);
 };
 
-global.exports(
-  'experimentalTransaction',
-  async (
-    transactions: () => Promise<boolean>,
-    cb: CFXCallback,
-    invokingResource = GetInvokingResource(),
-    isPromise?: boolean
-  ) => {
-    return await startTransaction(invokingResource, transactions, cb, isPromise);
-  }
-);
+MySQL.startTransaction = (
+  transactions: () => Promise<boolean>,
+  invokingResource = GetInvokingResource()
+) => {
+  console.warn(`MySQL.startTransaction is "experimental" and may receive breaking changes.`)
+  return startTransaction(invokingResource, transactions, undefined, true);
+};
 
 MySQL.prepare = (
   query: string,
