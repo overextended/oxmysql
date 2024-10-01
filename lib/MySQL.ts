@@ -53,7 +53,10 @@ function assert(condition: boolean, message: string) {
 }
 
 const safeArgs = (query: Query | Transaction, params?: any, cb?: Function, transaction?: true) => {
-  if (typeof query === 'number') query = QueryStore[query];
+  if (typeof query === 'number') {
+    query = QueryStore[query];
+    assert(typeof query === 'string', 'First argument received invalid query store reference');
+  }
 
   if (transaction) {
     assert(typeof query === 'object', `First argument expected object, recieved ${typeof query}`);

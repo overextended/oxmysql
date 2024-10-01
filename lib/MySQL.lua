@@ -34,6 +34,7 @@ local function safeArgs(query, parameters, cb, transaction)
 
 	if queryType == 'number' then
 		query = queryStore[query]
+		assert(query, "First argument received invalid query store reference")
 	elseif transaction then
 		if queryType ~= 'table' then
 			error(("First argument expected table, received '%s'"):format(query))
