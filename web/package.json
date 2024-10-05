@@ -24,7 +24,7 @@
     "@tanstack/svelte-table": "^8.8.0",
     "autoprefixer": "^10.4.14",
     "chart.js": "^4.2.1",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.31",
     "prettier": "^2.8.4",
     "prettier-plugin-svelte": "^2.9.0",
     "prettier-plugin-tailwindcss": "^0.2.5",
