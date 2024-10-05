@@ -32,7 +32,7 @@
   "devDependencies": {
     "@citizenfx/server": "2.0.5132-1",
     "@milahu/patch-package": "^6.4.14",
-    "@types/node": "^17.0.45",
+    "@types/node": "^22.7.4",
     "esbuild": "^0.21.5",
     "lerna": "^4.0.0",
     "postinstall-postinstall": "^2.1.0",
