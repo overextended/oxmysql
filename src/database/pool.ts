@@ -16,9 +16,7 @@ export async function createConnectionPool() {
       connection.query(mysql_transaction_isolation_level);
     });
 
-    using conn = await getConnection();
-
-    const result = (await conn.query('SELECT VERSION() as version')) as RowDataPacket[];
+    const [result] = (await dbPool.query('SELECT VERSION() as version')) as RowDataPacket[];
     dbVersion = `^5[${result[0].version}]`;
 
     console.log(`${dbVersion} ^2Database server connection established!^0`);
