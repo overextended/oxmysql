@@ -1,56 +1,83 @@
-import { pool, serverReady, waitForConnection } from '.';
-import { logQuery } from '../logger';
-import { CFXParameters, TransactionQuery } from '../types';
+import { getConnection } from './connection';
+import { logError, logger, logQuery } from '../logger';
+import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
-import { scheduleTick } from '../utils/scheduleTick';
+import { setCallback } from '../utils/setCallback';
+import { performance } from 'perf_hooks';
+import { profileBatchStatements, runProfiler } from 'profiler';
 
-const transactionError = (queries: { query: string; params: CFXParameters }[], parameters: CFXParameters) =>
+const transactionError = (queries: { query: string; params?: CFXParameters }[], parameters: CFXParameters) => {
   `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
     parameters
   )}`;
+};
 
 export const rawTransaction = async (
   invokingResource: string,
   queries: TransactionQuery,
   parameters: CFXParameters,
-  callback?: (result: boolean) => void
+  cb?: CFXCallback,
+  isPromise?: boolean
 ) => {
-  if (!serverReady) await waitForConnection()
+  let transactions;
+  cb = setCallback(parameters, cb);
 
-  scheduleTick();
+  try {
+    transactions = parseTransaction(queries, parameters);
+  } catch (err: any) {
+    return logError(invokingResource, cb, isPromise, err);
+  }
 
-  const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
-  const connection = await pool.promise().getConnection();
+  using connection = await getConnection();
+
+  if (!connection) return;
+
   let response = false;
 
   try {
+    const hasProfiler = await runProfiler(connection, invokingResource);
     await connection.beginTransaction();
+    const transactionsLength = transactions.length;
 
-    for (const transaction of transactions) {
-      const [result, fields, executionTime] = await connection.query(transaction.query, transaction.params);
-      logQuery(invokingResource, transaction.query, executionTime, transaction.params);
+    for (let i = 0; i < transactionsLength; i++) {
+      const transaction = transactions[i];
+      const startTime = !hasProfiler && performance.now();
+      await connection.query(transaction.query, transaction.params);
+
+      if (hasProfiler && ((i > 0 && i % 100 === 0) || i === transactionsLength - 1)) {
+        await profileBatchStatements(connection, invokingResource, transactions, null, i < 100 ? 0 : i);
+      } else if (startTime) {
+        logQuery(invokingResource, transaction.query, performance.now() - startTime, transaction.params);
+      }
     }
 
     await connection.commit();
 
     response = true;
-  } catch (e) {
-    await connection.rollback();
+  } catch (err: any) {
+    await connection.rollback().catch(() => {});
 
-    const transactionErrorMessage = (e as any).sql || transactionError(transactions, parameters);
-    console.error(
-      `${invokingResource} was unable to execute a transaction!\n${(e as Error).message}\n${transactionErrorMessage}^0`
-    );
+    const transactionErrorMessage = err.sql || transactionError(transactions, parameters);
+    const msg = `${invokingResource} was unable to complete a transaction!\n${transactionErrorMessage}\n${err.message}`;
+
+    console.error(msg);
 
     TriggerEvent('oxmysql:transaction-error', {
       query: transactionErrorMessage,
       parameters: parameters,
-      message: (e as Error).message,
-      err: e,
+      message: err.message,
+      err: err,
       resource: invokingResource,
     });
-  } finally {
-    connection.release();
+
+    if (typeof err === 'object' && err.message) delete err.sqlMessage;
+
+    logger({
+      level: 'error',
+      resource: invokingResource,
+      message: msg,
+      metadata: err,
+    });
   }
 
   if (cb)

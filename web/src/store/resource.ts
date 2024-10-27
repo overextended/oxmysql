@@ -1,4 +1,4 @@
-import { derived, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 export interface QueryData {
   date: number;
@@ -19,12 +19,4 @@ export const resourceData = writable<{
   resourceTime: 0,
 });
 
-export const tablePage = writable(0);
-
-let timer: NodeJS.Timer;
-export const debouncedTablePage = derived(tablePage, ($tablePage, set) => {
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    set($tablePage);
-  }, 300);
-});
+export const filterData = writable({ search: '', page: 0 });

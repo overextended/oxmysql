@@ -4,40 +4,40 @@
   import IconChevronsLeft from '@tabler/icons-svelte/dist/svelte/icons/IconChevronsLeft.svelte';
   import IconChevronsRight from '@tabler/icons-svelte/dist/svelte/icons/IconChevronsRight.svelte';
   import { onDestroy } from 'svelte';
-  import { tablePage } from '../../../store';
+  import { filterData } from '../../../store';
 
   export let maxPage: number;
 
   onDestroy(() => (maxPage = 0));
 </script>
 
-<div class="flex justify-center items-center gap-6 pb-5">
+<div class="flex items-center justify-center gap-6 pb-5">
   <button
-    disabled={$tablePage === 0}
-    on:click={() => ($tablePage = 0)}
-    class="bg-dark-600 disabled:bg-dark-300 disabled:text-dark-400 disabled:cursor-not-allowed text-dark-100 hover:text-white focus-visible:text-white rounded-md hover:bg-dark-500 p-2 active:translate-y-[3px] outline-none border-[1px] border-transparent focus-visible:border-cyan-600"
+    disabled={$filterData.page === 0}
+    on:click={() => ($filterData.page = 0)}
+    class="bg-dark-600 disabled:bg-dark-300 disabled:text-dark-400 text-dark-100 hover:bg-dark-500 rounded-md border-[1px] border-transparent p-2 outline-none hover:text-white focus-visible:border-cyan-600 focus-visible:text-white active:translate-y-[3px] disabled:cursor-not-allowed"
   >
     <IconChevronsLeft />
   </button>
   <button
-    disabled={$tablePage === 0}
-    on:click={() => $tablePage--}
-    class="bg-dark-600 disabled:bg-dark-300 disabled:text-dark-400 disabled:cursor-not-allowed text-dark-100 hover:text-white focus-visible:text-white rounded-md hover:bg-dark-500 p-2 active:translate-y-[3px] outline-none border-[1px] border-transparent focus-visible:border-cyan-600"
+    disabled={$filterData.page === 0}
+    on:click={() => $filterData.page--}
+    class="bg-dark-600 disabled:bg-dark-300 disabled:text-dark-400 text-dark-100 hover:bg-dark-500 rounded-md border-[1px] border-transparent p-2 outline-none hover:text-white focus-visible:border-cyan-600 focus-visible:text-white active:translate-y-[3px] disabled:cursor-not-allowed"
   >
     <IconChevronLeft />
   </button>
-  <p>Page {$tablePage + 1} of {maxPage}</p>
+  <p>Page {$filterData.page + 1} of {maxPage}</p>
   <button
-    disabled={$tablePage >= maxPage - 1}
-    on:click={() => $tablePage++}
-    class="bg-dark-600 disabled:bg-dark-300 disabled:text-dark-400 disabled:cursor-not-allowed text-dark-100 hover:text-white focus-visible:text-white rounded-md hover:bg-dark-500 p-2 active:translate-y-[3px] outline-none border-[1px] border-transparent focus-visible:border-cyan-600"
+    disabled={$filterData.page >= maxPage - 1}
+    on:click={() => $filterData.page++}
+    class="bg-dark-600 disabled:bg-dark-300 disabled:text-dark-400 text-dark-100 hover:bg-dark-500 rounded-md border-[1px] border-transparent p-2 outline-none hover:text-white focus-visible:border-cyan-600 focus-visible:text-white active:translate-y-[3px] disabled:cursor-not-allowed"
   >
     <IconChevronRight />
   </button>
   <button
-    disabled={$tablePage === maxPage - 1}
-    on:click={() => ($tablePage = maxPage - 1)}
-    class="bg-dark-600 disabled:bg-dark-300 disabled:text-dark-400 disabled:cursor-not-allowed text-dark-100 hover:text-white focus-visible:text-white rounded-md hover:bg-dark-500 p-2 active:translate-y-[3px] outline-none border-[1px] border-transparent focus-visible:border-cyan-600"
+    disabled={$filterData.page === maxPage - 1}
+    on:click={() => ($filterData.page = maxPage - 1)}
+    class="bg-dark-600 disabled:bg-dark-300 disabled:text-dark-400 text-dark-100 hover:bg-dark-500 rounded-md border-[1px] border-transparent p-2 outline-none hover:text-white focus-visible:border-cyan-600 focus-visible:text-white active:translate-y-[3px] disabled:cursor-not-allowed"
   >
     <IconChevronsRight />
   </button>

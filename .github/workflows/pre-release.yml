@@ -34,7 +34,7 @@ jobs:
           mkdir -p ./temp/oxmysql/web/
           mkdir -p ./temp/oxmysql/lib/
           cp ./{LICENSE,README.md,fxmanifest.lua,ui.lua} ./temp/oxmysql
-          cp ./lib/{MySQL.lua,define.lua} ./temp/oxmysql/lib
+          cp ./lib/MySQL.lua ./temp/oxmysql/lib
           cp -r ./dist ./temp/oxmysql
           cp -r ./web/build ./temp/oxmysql/web/
           cd ./temp && zip -r ../oxmysql.zip ./oxmysql

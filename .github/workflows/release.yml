@@ -15,15 +15,16 @@ jobs:
         run: sudo apt install zip
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
+          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2.0.1
+        uses: pnpm/action-setup@v4.0.0
         with:
-          version: 6.20.3
+          version: 9
 
       - name: Get variables
         id: get_vars
@@ -34,43 +35,32 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16.x
+          node-version: 18.x
           cache: 'pnpm'
           cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: Install dependencies
-        run: pnpm i
+        run: pnpm i --frozen-lockfile
 
       - name: Run build
         run: pnpm build
-
-      - name: Bump manifest version
-        run: node .github/actions/bump-manifest-version.js
         env:
           TGT_RELEASE_VERSION: ${{ github.ref_name }}
 
-      - name: Push manifest change
-        uses: EndBug/add-and-commit@v8
-        with:
-          add: fxmanifest.lua
-          push: true
-          author_name: Manifest Bumper
-          author_email: 41898282+github-actions[bot]@users.noreply.github.com
-          message: 'chore: bump manifest version to ${{ github.ref_name }}'
-
-      - name: Update tag ref
-        uses: EndBug/latest-tag@latest
-        with:
-          tag-name: ${{ github.ref_name }}
+      - name: Update repository
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -am '${{ github.ref_name }}'
+          git push
 
       - name: Bundle files
         run: |
-          mkdir -p ./temp/oxmysql
-          mkdir -p ./temp/oxmysql/web/
-          mkdir -p ./temp/oxmysql/lib/
+          mkdir -p ./temp/oxmysql/{web,lib}
           cp ./{LICENSE,README.md,fxmanifest.lua,ui.lua} ./temp/oxmysql
-          cp ./lib/{MySQL.lua,define.lua} ./temp/oxmysql/lib
-          cp -r ./dist ./temp/oxmysql
+          cp ./lib/MySQL.lua ./temp/oxmysql/lib
+          cp -r ./dist ./logger ./temp/oxmysql
           cp -r ./web/build ./temp/oxmysql/web/
           cd ./temp && zip -r ../oxmysql.zip ./oxmysql
 

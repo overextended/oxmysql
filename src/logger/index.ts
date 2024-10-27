@@ -1,5 +1,68 @@
-import { mysql_debug, mysql_slow_query_warning, mysql_ui } from '../config';
-import type { CFXParameters } from '../types';
+import { mysql_debug, mysql_log_size, mysql_slow_query_warning, mysql_ui } from '../config';
+import type { CFXCallback, CFXParameters } from '../types';
+import { dbVersion } from '../database';
+
+let loggerResource = '';
+let loggerService = GetConvar('mysql_logger_service', '');
+
+if (loggerService) {
+  if (loggerService.startsWith('@')) {
+    const [resource, ...path] = loggerService.slice(1).split('/');
+
+    if (resource && path) {
+      loggerResource = resource;
+      loggerService = path.join('/');
+    }
+  } else loggerService = `logger/${loggerService}`;
+}
+
+export const logger =
+  (loggerService &&
+    new Function(LoadResourceFile(loggerResource || GetCurrentResourceName(), `${loggerService}.js`))()) ||
+  (() => {});
+
+export function logError(
+  invokingResource: string,
+  cb: CFXCallback | undefined,
+  isPromise: boolean | undefined,
+  err: any | string = '', // i cbf typing the error right now
+  query?: string,
+  parameters?: CFXParameters,
+  includeParameters?: boolean
+) {
+  const message = typeof err === 'object' ? err.message : err.replace(/SCRIPT ERROR: citizen:[\w\/\.]+:\d+[:\s]+/, '');
+
+  const output = `${invokingResource} was unable to execute a query!${query ? `\n${`Query: ${query}`}` : ''}${
+    includeParameters ? `\n${JSON.stringify(parameters)}` : ''
+  }\n${message}`;
+
+  TriggerEvent('oxmysql:error', {
+    query: query,
+    parameters: parameters,
+    message: message,
+    err: err,
+    resource: invokingResource,
+  });
+
+  if (typeof err === 'object' && err.message) delete err.sqlMessage;
+
+  logger({
+    level: 'error',
+    resource: invokingResource,
+    message: message,
+    metadata: err,
+  });
+
+  if (cb && isPromise) {
+    try {
+      return cb(null, output);
+    } catch (e) {}
+
+    return;
+  }
+
+  console.error(output);
+}
 
 interface QueryData {
   date: number;
@@ -12,23 +75,28 @@ type QueryLog = Record<string, QueryData[]>;
 
 const logStorage: QueryLog = {};
 
-export const logQuery = (invokingResource: string, query: string, executionTime: number, parameters: CFXParameters) => {
-  if (mysql_debug && Array.isArray(mysql_debug)) {
-    if (mysql_debug.includes(invokingResource)) {
-      console.log(
-        `^3[DEBUG] ${invokingResource} took ${executionTime}ms to execute a query!
-      ${query} ${JSON.stringify(parameters)}^0`
-      );
-    }
-  } else if (mysql_debug || executionTime >= mysql_slow_query_warning)
+export const logQuery = (
+  invokingResource: string,
+  query: string,
+  executionTime: number,
+  parameters?: CFXParameters
+) => {
+  if (
+    executionTime >= mysql_slow_query_warning ||
+    (mysql_debug && (!Array.isArray(mysql_debug) || mysql_debug.includes(invokingResource)))
+  ) {
     console.log(
-      `^3[${mysql_debug ? 'DEBUG' : 'WARNING'}] ${invokingResource} took ${executionTime}ms to execute a query!
-    ${query} ${JSON.stringify(parameters)}^0`
+      `${dbVersion} ^3${invokingResource} took ${executionTime.toFixed(4)}ms to execute a query!\n${query}${
+        parameters ? ` ${JSON.stringify(parameters)}` : ''
+      }^0`
     );
+  }
 
   if (!mysql_ui) return;
 
-  if (logStorage[invokingResource] === undefined) logStorage[invokingResource] = [];
+  if (!logStorage[invokingResource]) logStorage[invokingResource] = [];
+  else if (logStorage[invokingResource].length > mysql_log_size) logStorage[invokingResource].splice(0, 1);
+
   logStorage[invokingResource].push({
     query,
     executionTime,
@@ -93,17 +161,24 @@ const sortQueries = (queries: QueryData[], sort: { id: 'query' | 'executionTime'
 
 onNet(
   `oxmysql:fetchResource`,
-  (data: { resource: string; pageIndex: number; sortBy?: { id: 'query' | 'executionTime'; desc: boolean }[] }) => {
-    if (typeof data.resource !== 'string') return;
-    const resourceLog = logStorage[data.resource];
+  (data: {
+    resource: string;
+    pageIndex: number;
+    search: string;
+    sortBy?: { id: 'query' | 'executionTime'; desc: boolean }[];
+  }) => {
+    if (typeof data.resource !== 'string' || !IsPlayerAceAllowed(source as unknown as string, 'command.mysql')) return;
+
+    if (data.search) data.search = data.search.toLowerCase();
+
+    const resourceLog = data.search
+      ? logStorage[data.resource].filter((q) => q.query.toLowerCase().includes(data.search))
+      : logStorage[data.resource];
 
     const sort = data.sortBy && data.sortBy.length > 0 ? data.sortBy[0] : false;
-
     const startRow = data.pageIndex * 10;
     const endRow = startRow + 10;
-    const queries = sort
-      ? sortQueries(logStorage[data.resource], sort).slice(startRow, endRow)
-      : logStorage[data.resource].slice(startRow, endRow);
+    const queries = sort ? sortQueries(resourceLog, sort).slice(startRow, endRow) : resourceLog.slice(startRow, endRow);
     const pageCount = Math.ceil(resourceLog.length / 10);
 
     if (!queries) return;

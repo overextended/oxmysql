@@ -1,62 +1,63 @@
-import { pool, serverReady, waitForConnection } from '.';
 import { parseArguments } from '../utils/parseArguments';
+import { setCallback } from '../utils/setCallback';
 import { parseResponse } from '../utils/parseResponse';
-import { logQuery } from '../logger';
+import { logQuery, logError } from '../logger';
 import type { CFXCallback, CFXParameters } from '../types';
 import type { QueryType } from '../types';
-import { scheduleTick } from '../utils/scheduleTick';
+import { getConnection } from './connection';
+import { RowDataPacket } from 'mysql2';
+import { performance } from 'perf_hooks';
+import validateResultSet from 'utils/validateResultSet';
+import { runProfiler } from 'profiler';
 
-export const rawQuery = (
+export const rawQuery = async (
   type: QueryType,
   invokingResource: string,
   query: string,
   parameters: CFXParameters,
   cb?: CFXCallback,
-  throwError?: boolean
+  isPromise?: boolean,
+  connectionId?: number
 ) => {
-  if (typeof query !== 'string')
-    throw new Error(
-      `${invokingResource} was unable to execute a query!\nExpected query to be a string but received ${typeof query} instead.`
-    );
+  cb = setCallback(parameters, cb);
+  try {
+    [query, parameters] = parseArguments(query, parameters);
+  } catch (err: any) {
+    return logError(invokingResource, cb, isPromise, err, query, parameters);
+  }
 
-  [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
-  scheduleTick();
+  using connection = await getConnection(connectionId);
 
-  return new Promise(async (resolve, reject) => {
-    if (!serverReady) await waitForConnection();
+  if (!connection) return;
 
-    pool.query(query, parameters, (err, result, _, executionTime) => {
-      if (err) return reject(err);
+  try {
+    const hasProfiler = await runProfiler(connection, invokingResource);
+    const startTime = !hasProfiler && performance.now();
+    const result = await connection.query(query, parameters);
 
-      logQuery(invokingResource, query, executionTime, parameters);
-      resolve(cb ? parseResponse(type, result) : null);
-    });
-  })
-    .then(async (result) => {
-      if (cb)
-        try {
-          await cb(result);
-        } catch (err) {
-          if (typeof err === 'string') {
-            if (err.includes('SCRIPT ERROR:')) return console.log(err);
-            console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
-          }
-        }
-    })
-    .catch((err) => {
-      const error = `${invokingResource} was unable to execute a query!\n${err.message}\n${`${query} ${JSON.stringify(
-        parameters
-      )}`}`;
+    if (hasProfiler) {
+      const profiler = <RowDataPacket[]>(
+        await connection.query('SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING')
+      );
 
-      TriggerEvent('oxmysql:error', {
-        query: query,
-        parameters: parameters,
-        message: err.message,
-        err: err,
-        resource: invokingResource,
-      });
+      if (profiler[0]) logQuery(invokingResource, query, parseFloat(profiler[0].duration), parameters);
+    } else if (startTime) {
+      logQuery(invokingResource, query, performance.now() - startTime, parameters);
+    }
 
-      if (cb && throwError) return cb(null, error);
-      throw new Error(error);
-    });
+    validateResultSet(invokingResource, query, result);
+
+    if (!cb) return parseResponse(type, result);
+
+    try {
+      cb(parseResponse(type, result));
+    } catch (err) {
+      if (typeof err === 'string') {
+        if (err.includes('SCRIPT ERROR:')) return console.log(err);
+        console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
+      }
+    }
+  } catch (err: any) {
+    logError(invokingResource, cb, isPromise, err, query, parameters, true);
+  }
 };

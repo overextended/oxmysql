@@ -71,9 +71,9 @@
 {#if $visible}
   <main
     transition:scale={{ start: 0.95, duration: 150 }}
-    class="w-full h-full flex justify-center items-center font-main"
+    class="font-main flex h-full w-full items-center justify-center"
   >
-    <div class="bg-dark-800 text-white w-[1000px] h-[600px] flex rounded-md">
+    <div class="bg-dark-800 flex h-[700px] w-[1200px] rounded-md text-white">
       <Route path="/">
         <Root />
       </Route>

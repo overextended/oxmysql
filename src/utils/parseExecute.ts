@@ -1,9 +1,9 @@
 import { CFXParameters } from '../types';
 
 export const executeType = (query: string) => {
+  if (typeof query !== 'string') throw new Error(`Expected query to be a string but received ${typeof query} instead.`);
+
   switch (query.substring(0, query.indexOf(' '))) {
-    case 'SELECT':
-      return null;
     case 'INSERT':
       return 'insert';
     case 'UPDATE':
@@ -11,11 +11,15 @@ export const executeType = (query: string) => {
     case 'DELETE':
       return 'update';
     default:
-      throw new Error(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods.`);
+      return null;
   }
 };
 
 export const parseExecute = (placeholders: number, parameters: CFXParameters) => {
+  const parametersType = typeof parameters;
+
+  if (!parameters || parametersType !== 'object') return [];
+
   if (!Array.isArray(parameters)) {
     if (typeof parameters === 'object') {
       const arr: unknown[] = [];
@@ -38,7 +42,7 @@ export const parseExecute = (placeholders: number, parameters: CFXParameters) =>
         } else arr[index] = parameters[index];
 
         for (let i = 0; i < placeholders; i++) {
-          if (!arr[index][i]) arr[index][i] = null;
+          if (arr[index][i] === undefined) arr[index][i] = null;
         }
       });
 
