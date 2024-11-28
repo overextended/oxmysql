@@ -1,4 +1,4 @@
-import type { Connection, PoolConnection, TypeCast } from 'mysql2/promise';
+import type { Connection, PoolConnection } from 'mysql2/promise';
 import { scheduleTick } from '../utils/scheduleTick';
 import { sleep } from '../utils/sleep';
 import { pool } from './pool';

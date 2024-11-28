@@ -9,7 +9,7 @@ import('./update');
 const MySQL = {} as Record<string, Function>;
 
 MySQL.isReady = () => {
-  return pool ? true : false;
+  return !!pool;
 };
 
 MySQL.awaitConnection = async () => {
