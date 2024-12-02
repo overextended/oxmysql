@@ -52,7 +52,7 @@ function parseUri(connectionString: string) {
 
   const authTarget = splitMatchGroups[2] ? splitMatchGroups[2].split(':') : [];
 
-  const options = {
+  return {
     user: authTarget[0] || undefined,
     password: authTarget[1] || undefined,
     host: splitMatchGroups[3],
@@ -65,8 +65,6 @@ function parseUri(connectionString: string) {
         return connectionInfo;
       }, {})),
   };
-
-  return options;
 }
 
 export let convertNamedPlaceholders: null | ((query: string, parameters: Record<string, any>) => [string, any[]]);
@@ -75,7 +73,7 @@ function calculateConnectionLimit(): number {
   const cpuCount: number = os.cpus().length;
   const systemMemory: number = os.totalmem();
   const freeMemory: number = os.freemem();
-  const baseLimit: number = cpuCount * 2 + 1
+  const baseLimit: number = cpuCount * 2 + 1;
   const memoryFactor: number = freeMemory / systemMemory;
   return GetConvarInt('mysql_connection_limit', Math.max(1, Math.floor(baseLimit * memoryFactor)));
 }
@@ -135,7 +133,7 @@ export function getConnectionOptions(): ConnectionOptions {
     typeCast,
     namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
     flags: flags,
-    connectionLimit: calculateConnectionLimit()
+    connectionLimit: calculateConnectionLimit(),
   };
 }
 
