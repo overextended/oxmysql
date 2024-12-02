@@ -76,6 +76,16 @@ function calculateConnectionLimit(): number {
   return GetConvarInt('mysql_connection_limit', cpuCount * 2 + 1);
 }
 
+function buildFlags(existingFlags: string[], database?: string): string[] {
+  const flags = [...existingFlags];
+
+  flags.push(database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB');
+  flags.push('LONG_FLAG_NO_BACKSLASH_ESCAPES');
+  flags.push('CLIENT_MULTI_STATEMENTS');
+
+  return flags;
+}
+
 export function getConnectionOptions(): ConnectionOptions {
   const options: Record<string, any> = mysql_connection_string.includes('mysql://')
     ? parseUri(mysql_connection_string)
@@ -105,8 +115,7 @@ export function getConnectionOptions(): ConnectionOptions {
     }
   }
 
-  const flags: string[] = options.flags || [];
-  flags.push(options.database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB');
+  const flags: string[] = buildFlags(options.flags || [], options.database);
 
   return {
     connectTimeout: 60000,
