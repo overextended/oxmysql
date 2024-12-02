@@ -1,5 +1,6 @@
 import type { ConnectionOptions } from 'mysql2';
 import { typeCast } from './utils/typeCast';
+import * as os from 'node:os';
 
 export const mysql_connection_string = GetConvar('mysql_connection_string', '');
 export let mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
@@ -70,6 +71,11 @@ function parseUri(connectionString: string) {
 
 export let convertNamedPlaceholders: null | ((query: string, parameters: Record<string, any>) => [string, any[]]);
 
+function calculateConnectionLimit(): number {
+  const cpuCount = os.cpus().length;
+  return GetConvarInt('mysql_connection_limit', cpuCount * 2 + 1);
+}
+
 export function getConnectionOptions(): ConnectionOptions {
   const options: Record<string, any> = mysql_connection_string.includes('mysql://')
     ? parseUri(mysql_connection_string)
@@ -111,6 +117,7 @@ export function getConnectionOptions(): ConnectionOptions {
     typeCast,
     namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
     flags: flags,
+    connectionLimit: calculateConnectionLimit()
   };
 }
 
