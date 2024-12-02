@@ -72,8 +72,12 @@ function parseUri(connectionString: string) {
 export let convertNamedPlaceholders: null | ((query: string, parameters: Record<string, any>) => [string, any[]]);
 
 function calculateConnectionLimit(): number {
-  const cpuCount = os.cpus().length;
-  return GetConvarInt('mysql_connection_limit', cpuCount * 2 + 1);
+  const cpuCount: number = os.cpus().length;
+  const systemMemory: number = os.totalmem();
+  const freeMemory: number = os.freemem();
+  const baseLimit: number = cpuCount * 2 + 1
+  const memoryFactor: number = freeMemory / systemMemory;
+  return GetConvarInt('mysql_connection_limit', Math.max(1, Math.floor(baseLimit * memoryFactor)));
 }
 
 function buildFlags(existingFlags: string[], database?: string, enabledCompression?: boolean): string[] {
