@@ -76,12 +76,16 @@ function calculateConnectionLimit(): number {
   return GetConvarInt('mysql_connection_limit', cpuCount * 2 + 1);
 }
 
-function buildFlags(existingFlags: string[], database?: string): string[] {
+function buildFlags(existingFlags: string[], database?: string, enabledCompression?: boolean): string[] {
   const flags = [...existingFlags];
 
   flags.push(database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB');
   flags.push('LONG_FLAG_NO_BACKSLASH_ESCAPES');
   flags.push('CLIENT_MULTI_STATEMENTS');
+
+  if (enabledCompression) {
+    flags.push('CLIENT_COMPRESS');
+  }
 
   return flags;
 }
@@ -115,7 +119,8 @@ export function getConnectionOptions(): ConnectionOptions {
     }
   }
 
-  const flags: string[] = buildFlags(options.flags || [], options.database);
+  const enabledCompression: boolean = options.enabledCompression === 'true' || options.enabledCompression === true;
+  const flags: string[] = buildFlags(options.flags || [], options.database, enabledCompression);
 
   return {
     connectTimeout: 60000,
