@@ -4,7 +4,7 @@
     "outDir": ".",
     "strict": true,
     "module": "CommonJS",
-    "types": ["@citizenfx/server", "@types/node"],
+    "types": ["@citizenfx/server"],
     "declaration": true,
     "sourceMap": true,
     "target": "ESNext",

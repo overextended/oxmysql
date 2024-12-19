@@ -85,6 +85,7 @@ const safeArgs = (query: Query | Transaction, params?: any, cb?: Function, trans
   return [query, params, cb];
 };
 
+declare var global: any;
 const exp = global.exports.oxmysql;
 const currentResourceName = GetCurrentResourceName();
 
@@ -111,7 +112,7 @@ export const oxmysql: OxMySQL = {
   },
   ready(callback) {
     setImmediate(async () => {
-      while (GetResourceState('oxmysql') !== 'started') await new Promise((resolve) => setTimeout(resolve, 50));
+      while (GetResourceState('oxmysql') !== 'started') await new Promise((resolve) => setTimeout(resolve, 50, null));
       callback();
     });
   },
@@ -162,6 +163,6 @@ export const oxmysql: OxMySQL = {
     return await exp.awaitConnection();
   },
   async startTransaction(cb) {
-    return exp.experimentalTransaction(cb, currentResourceName);
+    return exp.startTransaction(cb, currentResourceName);
   },
 };
