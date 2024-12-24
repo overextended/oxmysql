@@ -1,4 +1,4 @@
-import { getConnection } from './connection';
+import { getConnection, MySql } from './connection';
 import { logError, logger, logQuery } from '../logger';
 import { CFXCallback, CFXParameters, TransactionQuery } from '../types';
 import { parseTransaction } from '../utils/parseTransaction';
@@ -28,7 +28,13 @@ export const rawTransaction = async (
     return logError(invokingResource, cb, isPromise, err);
   }
 
-  using connection = await getConnection();
+  let connection: MySql;
+  try {
+    connection = await getConnection();
+  } catch (err: any) {
+    if (!cb) return;
+    return logError(invokingResource, cb, isPromise, err, queries.toString(), parameters, true);
+  }
 
   if (!connection) return;
 
