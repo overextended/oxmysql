@@ -53,8 +53,9 @@ export function logError(
     metadata: err,
   });
 
-  if (cb && isPromise) {
+  if (cb) {
     try {
+      if(isPromise) return cb(null);
       return cb(null, output);
     } catch (e) {}
 
