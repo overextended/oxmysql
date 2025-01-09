@@ -162,6 +162,6 @@ export const oxmysql: OxMySQL = {
     return await exp.awaitConnection();
   },
   async startTransaction(cb) {
-    return exp.experimentalTransaction(cb, currentResourceName);
+    return exp.startTransaction(cb, currentResourceName);
   },
 };
