@@ -2,7 +2,7 @@ import { logError, logQuery } from '../logger';
 import { CFXCallback, CFXParameters, QueryType } from '../types';
 import { parseResponse } from '../utils/parseResponse';
 import { executeType, parseExecute } from '../utils/parseExecute';
-import { getConnection } from './connection';
+import { getConnection, MySql } from './connection';
 import { setCallback } from '../utils/setCallback';
 import { performance } from 'perf_hooks';
 import validateResultSet from 'utils/validateResultSet';
@@ -31,9 +31,13 @@ export const rawExecute = async (
     return logError(invokingResource, cb, isPromise, err, query, parameters);
   }
 
-  using connection = await getConnection(connectionId);
-
-  if (!connection) return;
+  let connection: MySql;
+  try {
+    connection = await getConnection(connectionId);
+  } catch (err: any) {
+    if (!cb) return;
+    return logError(invokingResource, cb, isPromise, err, query, parameters, true);
+  }
 
   try {
     const hasProfiler = await runProfiler(connection, invokingResource);
