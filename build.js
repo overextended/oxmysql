@@ -24,6 +24,7 @@ writeFileSync(
 game 'common'
 use_experimental_fxv2_oal 'yes'
 lua54 'yes'
+node_version '22'
 
 name '${packageJson.name}'
 author '${packageJson.author}'
@@ -33,7 +34,7 @@ repository '${packageJson.repository.url}'
 description '${packageJson.description}'
 
 dependencies {
-    '/server:7290',
+    '/server:12913',
 }
 
 client_script 'ui.lua'
@@ -67,7 +68,7 @@ build({
   dropLabels: ['DEV'],
   legalComments: 'inline',
   platform: 'node',
-  target: ['node16'],
+  target: ['node22'],
   format: 'cjs',
   logLevel: 'info',
 });
