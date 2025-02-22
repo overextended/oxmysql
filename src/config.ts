@@ -1,10 +1,21 @@
 import type { ConnectionOptions } from 'mysql2';
 import { typeCast } from './utils/typeCast';
 
+interface PoolsOpts {
+  maxIdle: number;
+  idleTimeout: number;
+  maxActive: number;
+}
+
 export const mysql_connection_string = GetConvar('mysql_connection_string', '');
 export let mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
 export let mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
 export let mysql_debug: boolean | string[] = false;
+
+// example value
+// maxIdle=50,idleTimeout=1000,connectionLimit=100
+// reference https://sidorares.github.io/node-mysql2/docs#using-connection-pools
+export const mysql_connection_pools = GetConvar('mysql_connection_pools', '');
 
 // max array size of individual resource query logs
 // prevent excessive memory use when people use debug/ui in production
@@ -68,6 +79,18 @@ function parseUri(connectionString: string) {
   return options;
 }
 
+function parsePoolsOpts(configStr: string): PoolsOpts {
+  const keyValuePairs = configStr.split(',');
+  const config: any = {};
+
+  keyValuePairs.forEach((pair) => {
+    const [key, value] = pair.split('=');
+    config[key] = Number(value);
+  });
+
+  return config;
+}
+
 export let convertNamedPlaceholders: null | ((query: string, parameters: Record<string, any>) => [string, any[]]);
 
 export function getConnectionOptions(): ConnectionOptions {
@@ -102,15 +125,26 @@ export function getConnectionOptions(): ConnectionOptions {
   const flags: string[] = options.flags || [];
   flags.push(options.database ? 'CONNECT_WITH_DB' : '-CONNECT_WITH_DB');
 
+  let poolsOpts = parsePoolsOpts(mysql_connection_pools);
+  if (poolsOpts.maxIdle != 0 && (poolsOpts.maxIdle >= poolsOpts.maxActive || poolsOpts.idleTimeout < 1000)) {
+    console.log(
+      `^3maxIdle must less than maxActive connection avoid resource leak or if use maxIdle idleTimeout must more than 1000 (1s)^0`
+    );
+    poolsOpts = {};
+  }
+
   return {
-    connectTimeout: 60000,
-    trace: false,
-    supportBigNumbers: true,
-    jsonStrings: true,
-    ...options,
-    typeCast,
-    namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
-    flags: flags,
+    ...{
+      connectTimeout: 60000,
+      trace: false,
+      supportBigNumbers: true,
+      jsonStrings: true,
+      ...options,
+      typeCast,
+      namedPlaceholders: false, // we use our own named-placeholders patch, disable mysql2s
+      flags: flags,
+    },
+    ...poolsOpts,
   };
 }
 
