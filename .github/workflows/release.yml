@@ -17,11 +17,6 @@ jobs:
       - name: Install zip
         run: sudo apt install zip
 
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
       - name: Generate GitHub App token
         id: app_token
         uses: tibdex/github-app-token@v2
@@ -36,11 +31,18 @@ jobs:
           ref: ${{ github.event.repository.default_branch }}
           token: ${{ steps.app_token.outputs.token }}
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - run: npm install -g npm@version
 
-      - name: Run build script
-        run: bun run build
+      - name: Checking npm authentication
+        run: set -e npm whoami || { echo "npm not authenticated — aborting"; exit 1; }
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+      - run: bun run build
         env:
           TGT_RELEASE_VERSION: ${{ github.ref_name }}
 
@@ -60,11 +62,6 @@ jobs:
           cp -r ./dist ./logger ./temp/oxmysql
           cp -r ./web/build ./temp/oxmysql/web/
           cd ./temp && zip -r ../oxmysql.zip ./oxmysql
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
 
       - name: Publish package to npm registry
         run: npm publish --provenance --access public
