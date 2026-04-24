@@ -19,10 +19,10 @@ jobs:
 
       - name: Generate GitHub App token
         id: app_token
-        uses: tibdex/github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Get latest code
         uses: actions/checkout@v6
@@ -30,9 +30,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
           token: ${{ steps.app_token.outputs.token }}
+          persist-credentials: false
 
-      - name: Update npm
-        run: npm install -g npm@latest
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
 
       - name: Checking npm authentication
         run: set -e npm whoami || { echo "npm not authenticated — aborting"; exit 1; }
