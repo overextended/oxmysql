@@ -67,7 +67,7 @@ jobs:
           node-version: '24'
 
       - name: Publish package to npm registry
-        run: npm publish --access public
+        run: npm publish --provenance --access public
 
       - name: Create release
         uses: 'marvinpinto/action-automatic-releases@v1.2.1'
