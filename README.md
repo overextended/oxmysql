@@ -2,17 +2,17 @@
 
 A FiveM resource to communicate with a MySQL database using [node-mysql2](https://github.com/sidorares/node-mysql2).
 
-![](https://img.shields.io/github/downloads/overextended/oxmysql/total?logo=github)
-![](https://img.shields.io/github/downloads/overextended/oxmysql/latest/total?logo=github)
-![](https://img.shields.io/github/contributors/overextended/oxmysql?logo=github)
-![](https://img.shields.io/github/v/release/overextended/oxmysql?logo=github) 
+![](https://img.shields.io/github/downloads/communityox/oxmysql/total?logo=github)
+![](https://img.shields.io/github/downloads/communityox/oxmysql/latest/total?logo=github)
+![](https://img.shields.io/github/contributors/communityox/oxmysql?logo=github)
+![](https://img.shields.io/github/v/release/communityox/oxmysql?logo=github) 
 
 ## 🔗 Links
-- 💾 [Download](https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip)
+- 💾 [Download](https://github.com/communityox/oxmysql/releases/latest/download/oxmysql.zip)
   - Download the latest release directly.
-- 📚 [Documentation](https://overextended.dev/oxmysql)
+- 📚 [Documentation](https://coxdocs.dev/oxmysql)
   - For installation, setup, and everything else.
-- 📦 [npm](https://www.npmjs.com/package/@overextended/oxmysql)
+- 📦 [npm](https://www.npmjs.com/package/@communityox/oxmysql)
   - Use our npm package for enhanced functionality and TypeScript support.
 
 ## ✨ Features
@@ -31,4 +31,4 @@ We have included a module for submitting error logs to [Fivemanage](https://five
 ## Lua Language Server
 
 - Install [Lua Language Server](https://marketplace.visualstudio.com/items?itemName=sumneko.lua) to ease development with annotations, type checking, diagnostics, and more.
-- See [ox_types](https://github.com/overextended/ox_types) for our Lua type definitions.
+- See [ox_types](https://github.com/communityox/ox_types) for our Lua type definitions.

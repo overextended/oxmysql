@@ -1,5 +1,5 @@
 {
   "packages": ["web"],
-  "npmClient": "pnpm",
+  "npmClient": "bun",
   "version": "0.0.0"
 }
