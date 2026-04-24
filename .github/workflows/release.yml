@@ -68,6 +68,7 @@ jobs:
 
       - name: Publish package to npm registry
         run: npm publish --provenance --access public
+        working-directory: lib
 
       - name: Create release
         uses: 'marvinpinto/action-automatic-releases@v1.2.1'
