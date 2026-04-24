@@ -30,7 +30,7 @@ jobs:
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Get latest code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
@@ -61,6 +61,14 @@ jobs:
           cp -r ./web/build ./temp/oxmysql/web/
           cd ./temp && zip -r ../oxmysql.zip ./oxmysql
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Publish package to npm registry
+        run: npm publish --access public
+
       - name: Create release
         uses: 'marvinpinto/action-automatic-releases@v1.2.1'
         with:
@@ -72,11 +80,3 @@ jobs:
         uses: EndBug/latest-tag@v1
         with:
           ref: ${{ github.ref_name }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      - name: Publish package to npm registry
-        run: npm publish --access public
