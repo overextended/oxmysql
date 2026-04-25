@@ -54,6 +54,7 @@ jobs:
           npm version "$VER"
         env:
           TAG: ${{ github.ref_name }}
+        working-directory: lib
 
       - name: Push version bump change
         uses: EndBug/add-and-commit@v9
