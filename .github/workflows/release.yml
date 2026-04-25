@@ -51,7 +51,7 @@ jobs:
       - name: Push version bump change
         uses: EndBug/add-and-commit@v9
         with:
-          add: '["fxmanifest.lua", "package.json", "lib/package.json"]'
+          add: '["package.json", "lib/package.json"]'
           push: true
           default_author: github_actions
           message: 'chore: bump version to ${{ github.ref_name }}'
