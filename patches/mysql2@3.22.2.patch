@@ -1,0 +1,61 @@
+diff --git a/lib/packets/encode_parameter.js b/lib/packets/encode_parameter.js
+index 79bd8db184de130f3d451d0d3c300793799463b5..de29c64d0e978a92b846bb8ff7316a5002394b5a 100644
+--- a/lib/packets/encode_parameter.js
++++ b/lib/packets/encode_parameter.js
+@@ -21,7 +21,10 @@ function toParameter(value, encoding, timezone) {
+   if (value !== null) {
+     switch (typeof value) {
+       case 'undefined':
+-        throw new TypeError('Bind parameters must not contain undefined');
++        // throw new TypeError('Bind parameters must not contain undefined');
++        value = '';
++        type = Types.NULL;
++        break;
+ 
+       case 'number':
+         type = Types.DOUBLE;
+diff --git a/lib/parsers/binary_parser.js b/lib/parsers/binary_parser.js
+index b1872b60b14801646ed15661ce0223dc2d7caf05..91174a7c6306af039cafc59a6ee65ca42f953d54 100644
+--- a/lib/parsers/binary_parser.js
++++ b/lib/parsers/binary_parser.js
+@@ -79,7 +79,7 @@ function readCodeFor(field, config, options, fieldNum) {
+ 
+     default:
+       if (field.characterSet === Charsets.BINARY) {
+-        return 'packet.readLengthCodedBuffer();';
++        return '[...packet.readLengthCodedBuffer()];';
+       }
+       return `packet.readLengthCodedString(fields[${fieldNum}].encoding)`;
+   }
+@@ -96,6 +96,7 @@ function compile(fields, options, config) {
+       db: field.schema,
+       table: field.table,
+       name: field.name,
++      charset: field.characterSet,
+       string: function (encoding = field.encoding) {
+         if (field.columnType === Types.JSON && encoding === field.encoding) {
+           // Since for JSON columns mysql always returns charset 63 (BINARY),
+diff --git a/lib/parsers/text_parser.js b/lib/parsers/text_parser.js
+index 69b7e2133f56b11186c1edf1169e79c579e1f7c2..ef2677871652b39ea3b38b209214e2d5865d7ea6 100644
+--- a/lib/parsers/text_parser.js
++++ b/lib/parsers/text_parser.js
+@@ -92,6 +92,7 @@ function compile(fields, options, config) {
+       db: field.schema,
+       table: field.table,
+       name: field.name,
++      charset: field.characterSet,
+       string: function (encoding = field.encoding) {
+         if (field.columnType === Types.JSON && encoding === field.encoding) {
+           // Since for JSON columns mysql always returns charset 63 (BINARY),
+diff --git a/typings/mysql/lib/parsers/typeCast.d.ts b/typings/mysql/lib/parsers/typeCast.d.ts
+index 7d62b983adfeaba2a924716e4b3a3689d303d2a7..38c94ab3f294ab9bb3727d6044498c49988a53c5 100644
+--- a/typings/mysql/lib/parsers/typeCast.d.ts
++++ b/typings/mysql/lib/parsers/typeCast.d.ts
+@@ -44,6 +44,7 @@ export type Field = Type & {
+   db: string;
+   table: string;
+   name: string;
++  charset: number;
+   string: (encoding?: BufferEncoding | string | undefined) => string | null;
+   buffer: () => Buffer | null;
+   geometry: () => Geometry | Geometry[] | null;
