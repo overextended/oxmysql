@@ -48,6 +48,13 @@ jobs:
         env:
           TGT_RELEASE_VERSION: ${{ github.ref_name }}
 
+      - name: Set package version
+        run: |
+          VER=$(echo "$TAG" | sed -E 's/^[^0-9]*//')
+          npm version "$VER"
+        env:
+          TAG: ${{ github.ref_name }}
+
       - name: Push version bump change
         uses: EndBug/add-and-commit@v9
         with:
