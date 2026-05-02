@@ -23,7 +23,6 @@ writeFileSync(
   `fx_version 'cerulean'
 game 'common'
 use_experimental_fxv2_oal 'yes'
-lua54 'yes'
 node_version '22'
 
 name '${packageJson.name}'
