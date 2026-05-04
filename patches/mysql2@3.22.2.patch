@@ -1,3 +1,24 @@
+diff --git a/node_modules/mysql2/.bun-tag-d633edbe5a2af0f9 b/.bun-tag-d633edbe5a2af0f9
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/lib/base/connection.js b/lib/base/connection.js
+index 77da3d0f3738ef7caf6045d84cad51f9f3d70072..99a5c3654acac60d4cef80ee288549fb8dfa9e28 100644
+--- a/lib/base/connection.js
++++ b/lib/base/connection.js
+@@ -784,9 +784,10 @@ class BaseConnection extends EventEmitter {
+           );
+         }
+         if (val === undefined) {
+-          throw new TypeError(
+-            'Bind parameters must not contain undefined. To pass SQL NULL specify JS null'
+-          );
++          // throw new TypeError(
++          //   'Bind parameters must not contain undefined. To pass SQL NULL specify JS null'
++          // );
++          val = null;
+         }
+         if (typeof val === 'function') {
+           throw new TypeError(
 diff --git a/lib/packets/encode_parameter.js b/lib/packets/encode_parameter.js
 index 79bd8db184de130f3d451d0d3c300793799463b5..de29c64d0e978a92b846bb8ff7316a5002394b5a 100644
 --- a/lib/packets/encode_parameter.js
