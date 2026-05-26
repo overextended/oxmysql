@@ -1,4 +1,4 @@
-// https://fivemanage.com/?ref=overextended
+// https://refer.fivemanage.com/overextended
 
 const apiKey = GetConvar('FIVEMANAGE_LOGS_API_KEY', '');
 
