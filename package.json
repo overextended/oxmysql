@@ -1,6 +1,7 @@
 {
   "name": "oxmysql",
   "version": "2.14.1",
+  "workspaces": ["./web"],
   "description": "FXServer to MySQL communication via node-mysql2",
   "repository": {
     "type": "git",
@@ -17,12 +18,11 @@
     "lib/MySQL.d.ts"
   ],
   "scripts": {
-    "build": "bun build:root && lerna run build",
+    "build": "bun-tasks bun build:web ::: bun build:root",
+    "build:web": "bun --cwd web vite build",
     "build:root": "node build.js && cd lib && tsc",
-    "watch": "esbuild --watch --bundle --platform=node --target=node16.9.1 src/index.ts --outfile=dist/build.js",
-    "lib": "tsc --project lib/tsconfig.lib.json",
-    "bootstrap": "lerna bootstrap",
-    "postinstall": "bun bootstrap"
+    "watch": "esbuild --watch --bundle --platform=node --target=node22 src/index.ts --outfile=dist/build.js",
+    "lib": "tsc --project lib/tsconfig.lib.json"
   },
   "dependencies": {
     "mysql2": "^3.22.2",
@@ -32,8 +32,8 @@
   "devDependencies": {
     "@citizenfx/server": "2.0.5132-1",
     "@types/node": "^22.7.4",
+    "bun-tasks": "^0.1.2",
     "esbuild": "^0.21.5",
-    "lerna": "^4.0.0",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "^3.3.3",
     "pretty-quick": "^3.3.1",
