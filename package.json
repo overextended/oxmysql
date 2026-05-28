@@ -25,13 +25,13 @@
     "lib": "tsc --project lib/tsconfig.lib.json"
   },
   "dependencies": {
-    "mysql2": "^3.22.2",
+    "mysql2": "^3.22.4",
     "named-placeholders": "^1.1.6",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@citizenfx/server": "2.0.5132-1",
-    "@types/node": "^22.7.4",
+    "@citizenfx/server": "2.0.29753-1",
+    "@types/node": "^22.19.19",
     "bun-tasks": "^0.1.2",
     "esbuild": "^0.21.5",
     "postinstall-postinstall": "^2.1.0",
@@ -40,7 +40,7 @@
     "typescript": "^5.6.2"
   },
   "patchedDependencies": {
-    "mysql2@3.22.2": "patches/mysql2@3.22.2.patch",
+    "mysql2@3.22.4": "patches/mysql2@3.22.4.patch",
     "named-placeholders@1.1.6": "patches/named-placeholders@1.1.6.patch"
   }
 }
