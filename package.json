@@ -24,7 +24,10 @@
     "build:web": "bun --cwd web vite build",
     "build:root": "node build.js && cd lib && tsc",
     "watch": "esbuild --watch --bundle --platform=node --target=node22 src/index.ts --outfile=dist/build.js",
-    "lib": "tsc --project lib/tsconfig.lib.json"
+    "lib": "tsc --project lib/tsconfig.lib.json",
+    "test": "bun test tests/unit",
+    "test:coverage": "bun test tests/unit --coverage",
+    "test:integration": "bun test tests/integration"
   },
   "dependencies": {
     "mysql2": "^3.22.4",
