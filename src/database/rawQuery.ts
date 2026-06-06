@@ -26,7 +26,7 @@ export const rawQuery = async (
     return logError(invokingResource, cb, isPromise, err, query, parameters);
   }
 
-  using connection = await getConnection(connectionId);
+  await using connection = await getConnection(connectionId);
 
   if (!connection) return;
 

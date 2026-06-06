@@ -1,4 +1,4 @@
-import type { Connection, PoolConnection, TypeCast } from 'mysql2/promise';
+import type { Connection, PoolConnection } from 'mysql2/promise';
 import { scheduleTick } from '../utils/scheduleTick';
 import { sleep } from '../utils/sleep';
 import { pool } from './pool';
@@ -6,6 +6,7 @@ import type { CFXParameters } from 'types';
 import { typeCastExecute } from 'utils/typeCast';
 
 (Symbol as any).dispose ??= Symbol('Symbol.dispose');
+(Symbol as any).asyncDispose ??= Symbol('Symbol.asyncDispose');
 
 const activeConnections: Record<string, MySql> = {};
 
@@ -58,8 +59,9 @@ export class MySql {
     return this.connection.commit();
   }
 
-  [Symbol.dispose]() {
-    if (this.transaction) this.commit();
+  async [Symbol.asyncDispose]() {
+    // never silently commit a transaction the caller left open; roll it back
+    if (this.transaction) await this.rollback().catch(() => {});
 
     delete activeConnections[this.id];
     this.connection.release();
