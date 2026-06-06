@@ -7,7 +7,7 @@ import { performance } from 'perf_hooks';
 import { profileBatchStatements, runProfiler } from 'profiler';
 
 const transactionError = (queries: { query: string; params?: CFXParameters }[], parameters: CFXParameters) => {
-  `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
+  return `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
     parameters,
   )}`;
 };
