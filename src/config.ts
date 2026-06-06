@@ -43,8 +43,8 @@ export const mysql_transaction_isolation_level = (() => {
 function parseUri(connectionString: string) {
   const splitMatchGroups = connectionString.match(
     new RegExp(
-      '^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?$'
-    )
+      '^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?$',
+    ),
   ) as RegExpMatchArray;
 
   if (!splitMatchGroups) throw new Error(`mysql_connection_string structure was invalid (${connectionString})`);
@@ -139,5 +139,5 @@ RegisterCommand(
         return console.log(`^3Usage: oxmysql add|remove <resource>^0`);
     }
   },
-  true
+  true,
 );

@@ -4,10 +4,10 @@ about: Create a report to help us improve
 title: ''
 labels: bug
 assignees: ''
-
 ---
 
 ## Issue checklist
+
 > Please put `x` inside of the box that matches your issue.
 
 - [ ] I am using the latest release
@@ -22,6 +22,7 @@ A clear and concise description of what the bug is.
 If applicable, add screenshots to help explain your problem.
 
 **Code**
+
 ```lua
     -- If applicable, include the query and relevant code
 ```
@@ -33,9 +34,11 @@ A clear and concise description of what you expected to happen.
 Add any other context about the problem here.
 
 **Server details**
+
 - FXServer artifact
 - Operating system
 
 **Database details**
+
 - MariaDB or MySQL
 - Version

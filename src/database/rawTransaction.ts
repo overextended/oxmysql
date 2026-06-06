@@ -8,7 +8,7 @@ import { profileBatchStatements, runProfiler } from 'profiler';
 
 const transactionError = (queries: { query: string; params?: CFXParameters }[], parameters: CFXParameters) => {
   `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join('\n')}\n${JSON.stringify(
-    parameters
+    parameters,
   )}`;
 };
 
@@ -17,7 +17,7 @@ export const rawTransaction = async (
   queries: TransactionQuery,
   parameters: CFXParameters,
   cb?: CFXCallback,
-  isPromise?: boolean
+  isPromise?: boolean,
 ) => {
   let transactions;
   cb = setCallback(parameters, cb);

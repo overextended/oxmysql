@@ -16,7 +16,7 @@ export const rawExecute = async (
   cb?: CFXCallback,
   isPromise?: boolean,
   unpack?: boolean,
-  connectionId?: number
+  connectionId?: number,
 ) => {
   cb = setCallback(parameters, cb);
 

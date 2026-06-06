@@ -32,11 +32,11 @@ export async function profileBatchStatements(
   invokingResource: string,
   query: string | { query: string; params?: CFXParameters }[],
   parameters: CFXParameters | null,
-  offset: number
+  offset: number,
 ) {
   const profiler = <RowDataPacket[]>(
     await connection.query(
-      'SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID'
+      'SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID',
     )
   );
 

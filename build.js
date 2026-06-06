@@ -15,7 +15,7 @@ writeFileSync(
     timeZone: 'UTC',
     timeStyle: 'long',
     dateStyle: 'full',
-  })
+  }),
 );
 
 writeFileSync(
@@ -57,7 +57,7 @@ convar_category 'OxMySQL' {
 		{ 'Debug', 'mysql_debug', 'CV_BOOL', 'false' }
 	}
 }
-`
+`,
 );
 
 build({

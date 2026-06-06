@@ -19,7 +19,7 @@ export const filteredResources = derived(
     const query = $debouncedSearch.toLowerCase();
 
     return set($resources.filter((resource) => resource.toLowerCase().includes(query)));
-  }
+  },
 );
 
 export const generalData = writable({

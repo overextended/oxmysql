@@ -34,16 +34,21 @@ const { oxmysql } = require('@overextended/oxmysql');
 [View documentation](https://overextended.dev/oxmysql)
 
 ```js
-oxmysql.scalar('SELECT username FROM users', (result) => {
-    console.log(result)
-}).catch(console.error)
+oxmysql
+  .scalar('SELECT username FROM users', (result) => {
+    console.log(result);
+  })
+  .catch(console.error);
 
-oxmysql.scalar('SELECT username FROM users').then((result) => {
-    console.log(result)
-}).catch(console.error)
+oxmysql
+  .scalar('SELECT username FROM users')
+  .then((result) => {
+    console.log(result);
+  })
+  .catch(console.error);
 
-const result = await oxmysql.scalar('SELECT username FROM users').catch(console.error)
-console.log(result)
+const result = await oxmysql.scalar('SELECT username FROM users').catch(console.error);
+console.log(result);
 ```
 
 ## License

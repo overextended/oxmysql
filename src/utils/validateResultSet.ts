@@ -12,7 +12,7 @@ export default function (
     | RowDataPacket[]
     | RowDataPacket[][]
     | OkPacket[]
-    | ProcedureCallPacket
+    | ProcedureCallPacket,
 ) {
   const length = Array.isArray(rows) ? rows.length : 0;
 

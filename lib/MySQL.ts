@@ -30,12 +30,12 @@ interface OxMySQL {
   single: <T = Row | null>(
     query: Query,
     params?: Params | Callback<Exclude<T, []>>,
-    cb?: Callback<Exclude<T, []>>
+    cb?: Callback<Exclude<T, []>>,
   ) => Promise<Exclude<T, []>>;
   scalar: <T = unknown | null>(
     query: Query,
     params?: Params | Callback<Exclude<T, []>>,
-    cb?: Callback<Exclude<T, []>>
+    cb?: Callback<Exclude<T, []>>,
   ) => Promise<Exclude<T, []>>;
   update: <T = number | null>(query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>;
   insert: <T = number | null>(query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>;
@@ -45,7 +45,7 @@ interface OxMySQL {
   isReady: () => boolean;
   awaitConnection: () => Promise<true>;
   startTransaction: (
-    cb: (query: <T = Result | null>(statement: string, params?: Params) => Promise<T>) => Promise<boolean | void>
+    cb: (query: <T = Result | null>(statement: string, params?: Params) => Promise<T>) => Promise<boolean | void>,
   ) => Promise<boolean>;
 }
 
@@ -71,7 +71,7 @@ const safeArgs = (query: Query | Transaction, params?: any, cb?: Function, trans
     const paramType = typeof params;
     assert(
       paramType === 'object' || paramType === 'function',
-      `Second argument expected object or function, received ${paramType}`
+      `Second argument expected object or function, received ${paramType}`,
     );
 
     if (!cb && paramType === 'function') {
@@ -99,7 +99,7 @@ function execute(method: string, query: Query | Transaction, params?: Params) {
         resolve(result);
       },
       currentResourceName,
-      true
+      true,
     );
   }) as any;
 }

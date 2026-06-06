@@ -28,7 +28,7 @@ export function logError(
   err: any | string = '', // i cbf typing the error right now
   query?: string,
   parameters?: CFXParameters,
-  includeParameters?: boolean
+  includeParameters?: boolean,
 ) {
   const message = typeof err === 'object' ? err.message : err.replace(/SCRIPT ERROR: citizen:[\w\/\.]+:\d+[:\s]+/, '');
 
@@ -79,7 +79,7 @@ export const logQuery = (
   invokingResource: string,
   query: string,
   executionTime: number,
-  parameters?: CFXParameters
+  parameters?: CFXParameters,
 ) => {
   if (
     executionTime >= mysql_slow_query_warning ||
@@ -88,7 +88,7 @@ export const logQuery = (
     console.log(
       `${dbVersion} ^3${invokingResource} took ${executionTime.toFixed(4)}ms to execute a query!\n${query}${
         parameters ? ` ${JSON.stringify(parameters)}` : ''
-      }^0`
+      }^0`,
     );
   }
 
@@ -119,7 +119,10 @@ RegisterCommand(
     let totalQueries: number = 0;
     let totalTime = 0;
     let slowQueries = 0;
-    let chartData: { labels: string[]; data: { queries: number; time: number }[] } = { labels: [], data: [] };
+    let chartData: { labels: string[]; data: { queries: number; time: number }[] } = {
+      labels: [],
+      data: [],
+    };
 
     for (const resource in logStorage) {
       const queries = logStorage[resource];
@@ -141,7 +144,7 @@ RegisterCommand(
       chartData,
     });
   },
-  true
+  true,
 );
 
 const sortQueries = (queries: QueryData[], sort: { id: 'query' | 'executionTime'; desc: boolean }) => {
@@ -201,5 +204,5 @@ onNet(
       resourceSlowQueries,
       resourceTime,
     });
-  }
+  },
 );

@@ -28,7 +28,7 @@ import fetch from 'node-fetch';
       if (current !== latest) {
         if (current < latest)
           return console.log(
-            `^3An update is available for ${resourceName} (current version: ${currentVersion[0]})\r\n${release.html_url}^0`
+            `^3An update is available for ${resourceName} (current version: ${currentVersion[0]})\r\n${release.html_url}^0`,
           );
         else break;
       }

@@ -24,7 +24,7 @@ export const parseTransaction = (queries: TransactionQuery, parameters: CFXParam
   const transactions = queries.map((query) => {
     const [parsedQuery, parsedParameters] = parseArguments(
       isTransactionQuery(query) ? query.query : query,
-      isTransactionQuery(query) ? query.parameters || query.values : parameters
+      isTransactionQuery(query) ? query.parameters || query.values : parameters,
     );
 
     return { query: parsedQuery, params: parsedParameters };
