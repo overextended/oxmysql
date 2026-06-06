@@ -24,7 +24,7 @@ interface Row {
 }
 
 interface OxMySQL {
-  store: (query: string) => void;
+  store: (query: string) => number;
   ready: (callback: () => void) => void;
   query: <T = Result | null>(query: Query, params?: Params | Callback<T>, cb?: Callback<T>) => Promise<T>;
   single: <T = Row | null>(
@@ -106,9 +106,10 @@ function execute(method: string, query: Query | Transaction, params?: Params) {
 
 export const oxmysql: OxMySQL = {
   store(query) {
-    assert(typeof query !== 'string', `Query expects a string, received ${typeof query}`);
+    assert(typeof query === 'string', `Query expects a string, received ${typeof query}`);
 
-    return QueryStore.push(query);
+    // push() returns the new length; callers index QueryStore by position
+    return QueryStore.push(query) - 1;
   },
   ready(callback) {
     setImmediate(async () => {
