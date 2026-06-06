@@ -71,7 +71,17 @@ export class MySql {
 export async function getConnection(connectionId?: number) {
   while (!pool) await sleep(0);
 
-  return connectionId
-    ? activeConnections[connectionId]
-    : new MySql((await pool.getConnection()) as unknown as PromisePoolConnection);
+  if (connectionId) {
+    const existing = activeConnections[connectionId];
+    if (!existing) return;
+
+    // Borrowed connection: its owner is responsible for commit/rollback and
+    // release, so the borrow site must not dispose it. Hand back a non-owning
+    // view whose disposer is a no-op.
+    return Object.assign(Object.create(existing) as MySql, {
+      async [Symbol.asyncDispose]() {},
+    });
+  }
+
+  return new MySql((await pool.getConnection()) as unknown as PromisePoolConnection);
 }
