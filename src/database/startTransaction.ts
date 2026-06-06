@@ -27,7 +27,7 @@ export const startTransaction = async (
 
   if (!conn) return;
 
-  setTimeout(() => (closed = true), 30000);
+  const timeout = setTimeout(() => (closed = true), 30000);
 
   try {
     await conn.beginTransaction();
@@ -45,6 +45,7 @@ export const startTransaction = async (
     response = false;
     logError(invokingResource, cb, isPromise, err);
   } finally {
+    clearTimeout(timeout);
     closed = true;
   }
 
