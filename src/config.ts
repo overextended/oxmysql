@@ -1,7 +1,8 @@
 import type { ConnectionOptions } from 'mysql2';
 import { typeCast } from './utils/typeCast';
 
-export const mysql_connection_string = GetConvar('mysql_connection_string', '');
+export const mysql_connection_string =
+  GetConvar('mysql_connection_string', '') || process.env.DB_CONNECTION || 'mysql://root@localhost';
 export let mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
 export let mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
 export let mysql_debug: boolean | string[] = false;
