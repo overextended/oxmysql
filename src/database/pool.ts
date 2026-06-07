@@ -1,7 +1,6 @@
 import { getConnectionOptions, mysql_transaction_isolation_level } from 'config';
 import { createPool } from 'mysql2/promise';
 import type { Pool, RowDataPacket } from 'mysql2/promise';
-import { getConnection } from './connection';
 
 export let pool: Pool;
 export let dbVersion = '';

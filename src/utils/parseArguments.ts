@@ -23,15 +23,10 @@ export const parseArguments = (query: string, parameters?: CFXParameters): [stri
     parameters = arr;
   } else {
     if (placeholders) {
-      if (parameters.length === 0) {
-        for (let i = 0; i < placeholders; i++) parameters[i] = null;
-        return [query, parameters];
-      }
-
       const diff = placeholders - parameters.length;
 
       if (diff > 0) {
-        for (let i = 0; i < diff; i++) parameters[placeholders + i] = null;
+        parameters = [...parameters, ...new Array(diff).fill(null)];
       } else if (diff < 0) {
         throw new Error(`Expected ${placeholders} parameters, but received ${parameters.length}.`);
       }
