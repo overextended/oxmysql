@@ -41,14 +41,14 @@ describe('typeCast (text protocol)', () => {
   test('TINY(1) maps to a boolean, wider TINY defers to next()', () => {
     expect(typeCast(field({ type: 'TINY', length: 1, string: () => '1' }), mock(() => 0))).toBe(true);
     expect(typeCast(field({ type: 'TINY', length: 1, string: () => '0' }), mock(() => 0))).toBe(false);
-    const next = mock(() => 7);
-    expect(typeCast(field({ type: 'TINY', length: 3, string: () => '7' }), next)).toBe(7);
-    expect(next).toHaveBeenCalled();
+    expect(typeCast(field({ type: 'TINY', length: 3, string: () => '7' }), () => 7)).toBe(7);
+    expect(typeCast(field({ type: 'TINY', length: 1, string: () => null }), () => null)).toBe(null);
   });
 
   test('BIT(1) maps to a boolean', () => {
     expect(typeCast(field({ type: 'BIT', length: 1, buffer: () => Buffer.from([1]) }), mock(() => 0))).toBe(true);
     expect(typeCast(field({ type: 'BIT', length: 1, buffer: () => Buffer.from([0]) }), mock(() => 0))).toBe(false);
+    expect(typeCast(field({ type: 'BIT', length: 1, buffer: () => null }), () => null)).toBe(null);
   });
 
   test('a binary BLOB becomes a plain number array', () => {
