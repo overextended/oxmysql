@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@citizenfx/server": "2.0.29753-1",
+    "@types/bun": "^1.3.14",
     "@types/node": "^22.19.19",
     "bun-tasks": "^0.1.2",
     "esbuild": "^0.21.5",

@@ -11,7 +11,7 @@
       "database/*": ["database/*"],
       "utils/*": ["utils/*"]
     },
-    "types": ["@types/node", "@citizenfx/server"]
+    "types": ["@citizenfx/server", "bun"]
   },
   "include": ["src", "tests"]
 }
