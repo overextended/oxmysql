@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "noImplicitAny": true,
     "module": "es2022",
-    "target": "es2024",
+    "target": "es2022",
     "lib": ["es2024", "esnext.array", "esnext.collection", "esnext.iterator"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -14,6 +13,9 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "strict": true,
-    "types": ["@types/node", "@citizenfx/server"]
+    "types": ["@types/node", "@citizenfx/server"],
+    "paths": {
+      "*": ["./*"],
+    }
   }
 }
