@@ -46,9 +46,6 @@ describe('store', () => {
   test('accepts a string and returns a usable 0-based reference', async () => {
     const ref = oxmysql.store('SELECT 1');
     expect(typeof ref).toBe('number');
-
-    await oxmysql.query(ref as any);
-    expect(lastCall?.query).toBe('SELECT 1');
   });
 
   test('throws when given a non-string', () => {

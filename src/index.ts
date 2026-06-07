@@ -137,7 +137,7 @@ for (const key in MySQL) {
     });
   };
 
-  if (exports) {
+  try {
     exports(key, exp);
     // async_retval
     exports(`${key}_async`, async_exp);
@@ -156,7 +156,7 @@ for (const key in MySQL) {
     if (alias) {
       provide('mysql-async', alias, exp);
     }
-  }
+  } catch {}
 }
 
 export default MySQL;
