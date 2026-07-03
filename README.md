@@ -11,6 +11,9 @@ A FiveM resource to communicate with a MySQL database using [node-mysql2](https:
 [![](https://badges.5metrics.dev/oxmysql/servers.svg?style=for-the-badge)](https://5metrics.dev/resource/oxmysql)
 [![](https://badges.5metrics.dev/oxmysql/players.svg?style=for-the-badge)](https://5metrics.dev/resource/oxmysql)
 
+Refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines and to see our Contributor License Agreement.\
+Refer to [NOTICE.md](./NOTICE.md) for additional information and legal notices.
+
 </div>
 
 ## 🔗 Links
