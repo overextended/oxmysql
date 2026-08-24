@@ -45,6 +45,24 @@ describe('typeCast (text protocol)', () => {
     expect(typeCast(field({ type: 'TINY', length: 1, string: () => null }), () => null)).toBe(null);
   });
 
+  test('a consumed TINY/BIT field never falls through to next()', () => {
+    const tinyNull = mock(() => 'shifted');
+    typeCast(field({ type: 'TINY', length: 1, string: () => null }), tinyNull);
+    expect(tinyNull).not.toHaveBeenCalled();
+
+    const tinyOther = mock(() => 'shifted');
+    typeCast(field({ type: 'TINY', length: 1, string: () => '2' }), tinyOther);
+    expect(tinyOther).not.toHaveBeenCalled();
+
+    const bitNull = mock(() => 'shifted');
+    typeCast(field({ type: 'BIT', length: 1, buffer: () => null }), bitNull);
+    expect(bitNull).not.toHaveBeenCalled();
+
+    const bitWide = mock(() => 'shifted');
+    typeCast(field({ type: 'BIT', length: 2, buffer: () => Buffer.from([3, 0]) }), bitWide);
+    expect(bitWide).not.toHaveBeenCalled();
+  });
+
   test('BIT(1) maps to a boolean', () => {
     expect(typeCast(field({ type: 'BIT', length: 1, buffer: () => Buffer.from([1]) }), mock(() => 0))).toBe(true);
     expect(typeCast(field({ type: 'BIT', length: 1, buffer: () => Buffer.from([0]) }), mock(() => 0))).toBe(false);
