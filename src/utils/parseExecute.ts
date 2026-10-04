@@ -40,15 +40,17 @@ export const parseExecute = (placeholders: number, parameters: CFXParameters) =>
             arr[index][parseInt(entry[0]) - 1] = entry[1];
           });
         } else arr[index] = parameters[index];
-
-        for (let i = 0; i < placeholders; i++) {
-          if (arr[index][i] === undefined) arr[index][i] = null;
-        }
       });
 
       parameters = arr;
     } else parameters = [[...parameters]];
   }
+
+  parameters.forEach((values) => {
+    for (let i = 0; i < placeholders; i++) {
+      if (values[i] === undefined) values[i] = null;
+    }
+  });
 
   return parameters;
 };
