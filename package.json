@@ -30,7 +30,7 @@
     "test:integration": "bun test tests/integration"
   },
   "dependencies": {
-    "mysql2": "^3.22.4",
+    "mysql2": "3.24.5",
     "named-placeholders": "^1.1.6",
     "node-fetch": "^3.3.2"
   },
@@ -46,7 +46,7 @@
     "typescript": "^6.0.3"
   },
   "patchedDependencies": {
-    "mysql2@3.22.4": "patches/mysql2@3.22.4.patch",
-    "named-placeholders@1.1.6": "patches/named-placeholders@1.1.6.patch"
+    "named-placeholders@1.1.6": "patches/named-placeholders@1.1.6.patch",
+    "mysql2@3.24.5": "patches/mysql2@3.24.5.patch"
   }
 }

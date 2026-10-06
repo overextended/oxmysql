@@ -1,0 +1,61 @@
+diff --git a/lib/base/connection.js b/lib/base/connection.js
+index 4a02617f76648ebabfda755c5850b98a3d47bf25..c4f03d8edf6a04844765f6e96b9d6ff55236f75c 100644
+--- a/lib/base/connection.js
++++ b/lib/base/connection.js
+@@ -855,9 +855,7 @@ class BaseConnection extends EventEmitter {
+           );
+         }
+         if (val === undefined) {
+-          throw new TypeError(
+-            'Bind parameters must not contain undefined. To pass SQL NULL specify JS null'
+-          );
++          val = null
+         }
+         if (typeof val === 'function') {
+           throw new TypeError(
+diff --git a/lib/packets/encode_parameter.js b/lib/packets/encode_parameter.js
+index f3fc11506d9a4eca4fa6142808e1aa5c4b3464b4..e3b077a2434610193b201bcf9c578b37960a7f93 100644
+--- a/lib/packets/encode_parameter.js
++++ b/lib/packets/encode_parameter.js
+@@ -35,7 +35,7 @@ function toParameter(value, encoding, timezone, jsonAsString, hint) {
+   let type = Types.VAR_STRING;
+   let length;
+   let writer = Packet.prototype.writeLengthCodedBuffer;
+-  if (value !== null) {
++  if (value != null) {
+     switch (typeof value) {
+       case 'undefined':
+         throw new TypeError('Bind parameters must not contain undefined');
+diff --git a/lib/parsers/binary_parser.js b/lib/parsers/binary_parser.js
+index 9a867d96a15678230eb919a88dd8ce4f3d37b491..0f5cefb2a95f34cd409dbd67dd369549d99c985a 100644
+--- a/lib/parsers/binary_parser.js
++++ b/lib/parsers/binary_parser.js
+@@ -87,7 +87,7 @@ function readCodeFor(field, config, options, fieldNum) {
+ 
+     default:
+       if (field.characterSet === Charsets.BINARY) {
+-        return 'packet.readLengthCodedBuffer();';
++        return '[...packet.readLengthCodedBuffer()];';
+       }
+       return `packet.readLengthCodedString(fields[${fieldNum}].encoding)`;
+   }
+@@ -106,6 +106,7 @@ function compile(fields, options, config) {
+       db: field.schema,
+       table: field.table,
+       name: field.name,
++      charset: field.characterSet,
+     };
+   }
+ 
+diff --git a/lib/parsers/text_parser.js b/lib/parsers/text_parser.js
+index 1eb5efda88c4b010e61d48f0048a32b353fea369..8baadcb77ef3213698a41f345a9fcacd0b509b72 100644
+--- a/lib/parsers/text_parser.js
++++ b/lib/parsers/text_parser.js
+@@ -105,6 +105,7 @@ function compile(fields, options, config) {
+       db: field.schema,
+       table: field.table,
+       name: field.name,
++      charset: field.characterSet,
+       string: function (encoding = field.encoding) {
+         if (field.columnType === Types.JSON && encoding === field.encoding) {
+           // Since for JSON columns mysql always returns charset 63 (BINARY),
