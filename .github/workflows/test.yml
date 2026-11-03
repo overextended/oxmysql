@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
 
 jobs:
@@ -18,3 +18,5 @@ jobs:
         run: bun install
       - name: Run unit tests with coverage
         run: bun run test:coverage
+      - name: Build resource and TypeScript exports
+        run: bun run build

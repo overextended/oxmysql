@@ -11,6 +11,12 @@ describe('parseArguments', () => {
       expect(parseArguments('SELECT ?, ?', [1, 2])[1]).toEqual([1, 2]);
     });
 
+    test('ignores question marks in string literals and comments', () => {
+      const [query, params] = parseArguments("SELECT '?' AS literal, ? AS value -- ?", [9]);
+      expect(query).toBe("SELECT '?' AS literal, ? AS value -- ?");
+      expect(params).toEqual([9]);
+    });
+
     test('counts an identifier placeholder (??)', () => {
       // `??` is a single identifier placeholder consuming one parameter.
       const [, params] = parseArguments('SELECT * FROM ??', ['users']);

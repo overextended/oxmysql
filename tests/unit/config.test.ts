@@ -25,6 +25,9 @@ describe('getConnectionOptions', () => {
       max: 10,
     });
   });
+  test('rejects a MySQL URL with an actionable migration error', () => {
+    expect(() => config.getConnectionOptions('mysql://user:pass@host/db')).toThrow('requires a PostgreSQL URL');
+  });
   test('accepts postgres:// URIs', () => {
     const uri = 'postgres://localhost/mydb';
     expect(config.getConnectionOptions(uri).connectionString).toBe(uri);

@@ -4,7 +4,7 @@ export type PoolConfig = NativePoolConfig;
 export type RowDataPacket = Record<string, unknown>;
 export type DriverResult = RowDataPacket[] | Record<string, unknown>;
 
-function readInsertId(rows: RowDataPacket[]) {
+export function readInsertId(rows: RowDataPacket[]) {
   const row = rows[0];
   if (!row) return null;
   const preferred = Object.entries(row).find(([key, value]) => /^(id|.*_id)$/i.test(key) && value !== null);
@@ -18,7 +18,7 @@ function readInsertId(rows: RowDataPacket[]) {
   return typeof candidate === 'number' ? candidate : null;
 }
 
-function normalizeResult(result: QueryResult): DriverResult {
+export function normalizeResult(result: QueryResult): DriverResult {
   const command = result.command.toUpperCase();
   const rows = result.rows as RowDataPacket[];
 
