@@ -1,7 +1,7 @@
 import { Pool as NativePool, type PoolClient, type PoolConfig as NativePoolConfig, type QueryResult } from 'pg';
 
 export type PoolConfig = NativePoolConfig;
-export type RowDataPacket = Record<string, unknown>;
+export type RowDataPacket = Record<string, any>;
 export type DriverResult = RowDataPacket[] | Record<string, unknown>;
 
 export function readInsertId(rows: RowDataPacket[]) {
