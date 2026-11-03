@@ -15,7 +15,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: oxpg-release-${{ inputs.release_tag || github.ref }}
+  group: oxpg-release-${{ inputs.release_tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -78,7 +78,7 @@ jobs:
       - name: Build resource
         run: bun run build
         env:
-          TGT_RELEASE_VERSION: ${{ env.RELEASE_TAG }}
+          TGT_RELEASE_VERSION: ${{ inputs.release_tag || github.ref_name }}
 
       - name: Package FiveM resource
         shell: bash
@@ -108,7 +108,7 @@ jobs:
           )
 
           test -s "$archive"
-          sha256sum "$archive" > "$archive.sha256"
+          (cd "$GITHUB_WORKSPACE" && sha256sum oxmysql.zip > oxmysql.zip.sha256)
 
       - name: Verify release archive layout
         shell: bash
@@ -148,8 +148,8 @@ jobs:
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          name: oxpg ${{ env.RELEASE_TAG }}
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
+          name: oxpg ${{ inputs.release_tag || github.ref_name }}
           files: |
             oxmysql.zip
             oxmysql.zip.sha256
