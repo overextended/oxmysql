@@ -1,13 +1,7 @@
-import type { OkPacket, ResultSetHeader, RowDataPacket, ProcedureCallPacket } from 'mysql2';
-
 export type QueryResponse =
-  | OkPacket
-  | ResultSetHeader
-  | ResultSetHeader[]
-  | RowDataPacket[]
-  | RowDataPacket[][]
-  | OkPacket[]
-  | ProcedureCallPacket;
+  | Record<string, any>
+  | Record<string, any>[]
+  | Record<string, any>[][];
 
 export type QueryType = 'execute' | 'insert' | 'update' | 'scalar' | 'single' | null;
 
@@ -17,7 +11,5 @@ export type TransactionQuery = {
   values?: CFXParameters;
 };
 
-// working with this type is impossible but at least we can pretend to be strictly typed
 export type CFXParameters = any[];
-
 export type CFXCallback = (result: unknown, err?: string) => void;

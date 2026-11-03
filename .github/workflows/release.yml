@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 permissions:
-  id-token: write # Required for OIDC
+  id-token: write
   contents: write
 
 jobs:
@@ -16,38 +16,32 @@ jobs:
     steps:
       - name: Install zip
         run: sudo apt install zip
-
       - name: Generate GitHub App token
         id: app_token
         uses: actions/create-github-app-token@v3
         with:
           client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
       - name: Get latest code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
           token: ${{ steps.app_token.outputs.token }}
-
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
       - name: Build
         run: |
-          bun install --frozen-lockfile
+          bun install
           bun run build
         env:
           TGT_RELEASE_VERSION: ${{ github.ref_name }}
-
       - name: Set package version
         run: |
           VER=$(echo "$TAG" | sed -E 's/^[^0-9]*//')
@@ -55,7 +49,6 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
         working-directory: lib
-
       - name: Push version bump change
         uses: EndBug/add-and-commit@v9
         with:
@@ -65,7 +58,6 @@ jobs:
           message: 'chore: bump version to ${{ github.ref_name }}'
         env:
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-
       - name: Bundle files
         run: |
           mkdir -p ./temp/oxmysql/{web,lib}
@@ -74,18 +66,15 @@ jobs:
           cp -r ./dist ./logger ./temp/oxmysql
           cp -r ./web/build ./temp/oxmysql/web/
           cd ./temp && zip -r ../oxmysql.zip ./oxmysql
-
       - name: Publish package to npm registry
         run: npm publish --provenance --access public
         working-directory: lib
-
       - name: Create release
-        uses: 'marvinpinto/action-automatic-releases@v1.2.1'
+        uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
           files: oxmysql.zip
-
       - name: Update tag
         uses: EndBug/latest-tag@v1
         with:

@@ -2,10 +2,8 @@ import { parseArguments } from '../utils/parseArguments';
 import { setCallback } from '../utils/setCallback';
 import { parseResponse } from '../utils/parseResponse';
 import { logQuery, logError } from '../logger';
-import type { CFXCallback, CFXParameters } from '../types';
-import type { QueryType } from '../types';
+import type { CFXCallback, CFXParameters, QueryType } from '../types';
 import { getConnection } from './connection';
-import { RowDataPacket } from 'mysql2';
 import { performance } from 'perf_hooks';
 import validateResultSet from 'utils/validateResultSet';
 import { markProfilerUnsupported, runProfiler } from 'profiler';
@@ -20,6 +18,7 @@ export const rawQuery = async (
   connectionId?: number,
 ) => {
   cb = setCallback(parameters, cb);
+
   try {
     [query, parameters] = parseArguments(query, parameters);
   } catch (err: any) {
@@ -27,7 +26,6 @@ export const rawQuery = async (
   }
 
   await using connection = await getConnection(connectionId);
-
   if (!connection) return;
 
   try {
@@ -36,19 +34,7 @@ export const rawQuery = async (
     const result = await connection.query(query, parameters);
 
     if (hasProfiler) {
-      try {
-        const profiler = <RowDataPacket[]>(
-          await connection.query(
-            'SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING',
-          )
-        );
-
-        if (profiler[0]) logQuery(invokingResource, query, parseFloat(profiler[0].duration), parameters);
-      } catch {
-        // Database doesn't actually support INFORMATION_SCHEMA.PROFILING (e.g. TiDB) even though
-        // the SET profiling statements succeeded; stop trying and skip logging this duration.
-        markProfilerUnsupported();
-      }
+      markProfilerUnsupported();
     } else if (startTime) {
       logQuery(invokingResource, query, performance.now() - startTime, parameters);
     }
@@ -62,7 +48,7 @@ export const rawQuery = async (
     } catch (err) {
       if (typeof err === 'string') {
         if (err.includes('SCRIPT ERROR:')) return console.log(err);
-        console.log(`^1SCRIPT ERROR in invoking resource ${invokingResource}: ${err}^0`);
+        console.log('^1SCRIPT ERROR in invoking resource ' + invokingResource + ': ' + err + '^0');
       }
     }
   } catch (err: any) {

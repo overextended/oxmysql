@@ -1,13 +1,13 @@
 {
   "name": "oxmysql",
   "version": "2.14.3",
-  "description": "FXServer to MySQL communication via node-mysql2",
-  "bugs": "https://github.com/overextended/oxmysql/issues",
+  "description": "FXServer to PostgreSQL communication via node-postgres",
+  "bugs": "https://github.com/x8fool/oxpg/issues",
   "license": "LGPL-3.0-or-later",
   "author": "Overextended",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/overextended/oxmysql.git"
+    "url": "git+https://github.com/x8fool/oxpg.git"
   },
   "workspaces": [
     "./web"
@@ -30,7 +30,7 @@
     "test:integration": "bun test tests/integration"
   },
   "dependencies": {
-    "mysql2": "3.24.5",
+    "pg": "8.23.1",
     "named-placeholders": "^1.1.6",
     "node-fetch": "^3.3.2"
   },
@@ -38,6 +38,7 @@
     "@citizenfx/server": "2.0.29753-1",
     "@types/bun": "^1.3.14",
     "@types/node": "^22.19.19",
+    "@types/pg": "8.23.1",
     "bun-tasks": "^0.1.2",
     "esbuild": "^0.21.5",
     "oxfmt": "^0.53.0",
@@ -46,7 +47,6 @@
     "typescript": "^6.0.3"
   },
   "patchedDependencies": {
-    "named-placeholders@1.1.6": "patches/named-placeholders@1.1.6.patch",
-    "mysql2@3.24.5": "patches/mysql2@3.24.5.patch"
+    "named-placeholders@1.1.6": "patches/named-placeholders@1.1.6.patch"
   }
 }

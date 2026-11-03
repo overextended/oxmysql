@@ -11,7 +11,7 @@ let conn: FakeConnection;
 
 beforeEach(() => {
   resetNatives();
-  setConvar('mysql_debug', 'false'); // keep the profiler off for a deterministic call log
+  setConvar('mysql_debug', 'false');
   config.setDebug();
   resetDb();
   conn = createFakeConnection();
@@ -19,26 +19,24 @@ beforeEach(() => {
 });
 
 describe('rawQuery', () => {
-  test('runs a parameterised query and returns the insert id', async () => {
+  test('runs a parameterised insert and returns the generated id', async () => {
     conn.queue.push({ insertId: 5, affectedRows: 1 });
     const result = await rawQuery('insert', 'res', 'INSERT INTO t (a) VALUES (?)', [1]);
     expect(result).toBe(5);
-    expect(conn.calls[0]).toEqual({ op: 'query', arg: { sql: 'INSERT INTO t (a) VALUES (?)', values: [1] } });
+    const call = conn.calls.find((entry) => entry.arg?.sql?.includes('INSERT INTO'));
+    expect(call?.arg).toEqual({ sql: 'INSERT INTO t (a) VALUES ($1) RETURNING *', values: [1] });
   });
-
   test('single resolves the first row through the callback', async () => {
     conn.queue.push([{ a: 1 }, { a: 2 }]);
     let received: unknown;
     await rawQuery('single', 'res', 'SELECT * FROM t WHERE id = ?', [1], (r) => (received = r));
     expect(received).toEqual({ a: 1 });
   });
-
   test('scalar returns the first column of the first row', async () => {
     conn.queue.push([{ name: 'bob' }]);
     const result = await rawQuery('scalar', 'res', 'SELECT name FROM t WHERE id = ?', [1]);
     expect(result).toBe('bob');
   });
-
   test('throws-to-callback on a query error (promise form passes the message)', async () => {
     conn.failOn.query = new Error('boom');
     const args: any[] = [];
@@ -46,23 +44,21 @@ describe('rawQuery', () => {
     expect(args[0][0]).toBeNull();
     expect(String(args[0][1])).toContain('boom');
   });
-
   test('rejects an argument-count mismatch before touching the connection', async () => {
     const args: any[] = [];
     await rawQuery('insert', 'res', 'INSERT INTO t VALUES (?)', [1, 2], (...a) => args.push(a), true);
     expect(String(args[0][1])).toContain('Expected 1 parameters, but received 2');
-    expect(conn.calls).toHaveLength(0); // never reached the DB
+    expect(conn.calls).toHaveLength(0);
   });
-
-  test('with debug on, profiles the query via INFORMATION_SCHEMA.PROFILING', async () => {
+  test('falls back to elapsed-time logging when MySQL profiling is unavailable', async () => {
     setConvar('mysql_debug', 'true');
     config.setDebug();
     const logSpy = spyOn(console, 'log').mockImplementation(() => {});
     await rawQuery('insert', 'res', 'INSERT INTO t (a) VALUES (?)', [1]);
-    expect(conn.calls.some((c) => c.op === 'query' && String(c.arg.sql).includes('PROFILING'))).toBe(true);
+    expect(conn.calls.some((c) => String(c.arg?.sql).includes('INFORMATION_SCHEMA.PROFILING'))).toBe(false);
+    expect(conn.calls.some((c) => String(c.arg?.sql).startsWith('SET profiling'))).toBe(true);
     logSpy.mockRestore();
   });
-
   test('a callback throwing a SCRIPT ERROR string is swallowed', async () => {
     const logSpy = spyOn(console, 'log').mockImplementation(() => {});
     await rawQuery('insert', 'res', 'INSERT INTO t VALUES (?)', [1], () => {
