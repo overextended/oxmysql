@@ -4,6 +4,13 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing version tag to package and publish (for example v1.0.0)
+        required: true
+        default: v1.0.0
+        type: string
 
 permissions:
   contents: write
@@ -17,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install zip
-        run: sudo apt-get update && sudo apt-get install -y zip
+        run: sudo apt-get update && sudo apt-get install -y zip unzip
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -27,17 +34,28 @@ jobs:
       - name: Build resource
         run: bun run build
         env:
-          TGT_RELEASE_VERSION: ${{ github.ref_name }}
+          TGT_RELEASE_VERSION: ${{ inputs.release_tag || github.ref_name }}
       - name: Bundle FXServer resource
         run: |
-          mkdir -p ./temp/oxmysql/{web,lib}
+          mkdir -p ./temp/oxmysql/web ./temp/oxmysql/lib
           cp ./{LICENSE,README.md,fxmanifest.lua,ui.lua} ./temp/oxmysql/
           cp ./lib/MySQL.lua ./temp/oxmysql/lib/
           cp -r ./dist ./logger ./temp/oxmysql/
           cp -r ./web/build ./temp/oxmysql/web/
-          cd ./temp && zip -r ../oxmysql.zip ./oxmysql
+          # Archive the contents, not the enclosing oxmysql directory.
+          (cd ./temp/oxmysql && zip -r ../../oxmysql.zip .)
+      - name: Verify resource ZIP layout
+        run: |
+          set -e
+          for path in fxmanifest.lua dist/build.js lib/MySQL.lua logger/fivemanage.js ui.lua web/build/index.html; do
+            unzip -Z1 ./oxmysql.zip | sed 's#^\./##' | grep -Fxq "$path" || {
+              echo "Missing expected ZIP-root entry: $path"
+              exit 1
+            }
+          done
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
           files: oxmysql.zip
           generate_release_notes: true
