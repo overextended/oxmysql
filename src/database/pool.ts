@@ -1,13 +1,14 @@
 import { getConnectionOptions, mysql_transaction_isolation_level } from 'config';
-import { createPool, type Pool, type RowDataPacket } from './driver';
+import { createPool, type Pool, type PoolConfig, type RowDataPacket } from './driver';
 
 export let pool: Pool;
 export let dbVersion = '';
 
 export async function createConnectionPool() {
-  const config = getConnectionOptions();
+  let config: PoolConfig | undefined;
 
   try {
+    config = getConnectionOptions();
     const dbPool = createPool(config);
 
     dbPool.on('connection', (connection) => {
@@ -33,11 +34,13 @@ export async function createConnectionPool() {
     );
 
     // Never print a raw connection string: it may contain the database password.
-    const safeConfig: Record<string, unknown> = { ...config };
-    if (typeof safeConfig.password === 'string') safeConfig.password = '******';
-    if (typeof safeConfig.connectionString === 'string') {
-      safeConfig.connectionString = safeConfig.connectionString.replace(/(postgres(?:ql)?:\/\/[^:/@]+:)[^@]+@/i, '$1******@');
+    if (config) {
+      const safeConfig: Record<string, unknown> = { ...config };
+      if (typeof safeConfig.password === 'string') safeConfig.password = '******';
+      if (typeof safeConfig.connectionString === 'string') {
+        safeConfig.connectionString = safeConfig.connectionString.replace(/(postgres(?:ql)?:\/\/[^:/@]+:)[^@]+@/i, '$1******@');
+      }
+      console.log(safeConfig);
     }
-    console.log(safeConfig);
   }
 }
