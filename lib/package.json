@@ -1,21 +1,23 @@
 {
-  "name": "@overextended/oxmysql",
+  "name": "oxpg",
   "version": "2.14.3",
-  "description": "Exports wrapper for oxmysql",
+  "description": "FiveM PostgreSQL adapter with oxmysql-compatible exports",
   "keywords": [
     "fivem",
+    "postgresql",
+    "neon",
     "oxmysql",
     "sql"
   ],
-  "homepage": "https://github.com/overextended/oxmysql#readme",
+  "homepage": "https://github.com/x8fool/oxpg#readme",
   "bugs": {
-    "url": "https://github.com/overextended/oxmysql/issues"
+    "url": "https://github.com/x8fool/oxpg/issues"
   },
   "license": "LGPL-3.0",
   "author": "Overextended",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/overextended/oxmysql.git"
+    "url": "git+https://github.com/x8fool/oxpg.git"
   },
   "main": "MySQL.js",
   "types": "MySQL.d.ts",

@@ -1,10 +1,18 @@
-import type { TypeCastField, TypeCastNext } from 'mysql2/promise';
+/**
+ * Legacy MySQL value-casting helpers retained for compatibility with code that imports
+ * this internal utility. The PostgreSQL driver does not use mysql2 field type callbacks.
+ */
+type TypeCastField = {
+  type: string;
+  length: number;
+  charset: number;
+  string: () => string | null;
+  buffer: () => Buffer | null;
+};
+type TypeCastNext = () => unknown;
 
 const BINARY_CHARSET = 63;
 
-/**
- * node-mysql2 v3.9.0 introduced (breaking) typecasting for execute methods.
- */
 export function typeCastExecute(field: TypeCastField, next: TypeCastNext) {
   switch (field.type) {
     case 'DATETIME':
@@ -24,9 +32,7 @@ export function typeCastExecute(field: TypeCastField, next: TypeCastNext) {
   }
 }
 
-/**
- * mysql-async compatible typecasting.
- */
+/** mysql-async-compatible legacy type conversion. */
 export function typeCast(field: TypeCastField, next: TypeCastNext) {
   switch (field.type) {
     case 'DATETIME':
@@ -43,16 +49,12 @@ export function typeCast(field: TypeCastField, next: TypeCastNext) {
     }
     case 'TINY': {
       if (field.length !== 1) return next();
-
       const value = field.string();
-
       return value === null ? null : value === '1';
     }
     case 'BIT': {
       const buffer = field.buffer();
-
       if (!buffer) return null;
-
       return buffer.length === 1 ? buffer[0] === 1 : buffer[0];
     }
     case 'TINY_BLOB':
