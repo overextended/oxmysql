@@ -1,44 +1,47 @@
 <div align="center">
 
-# oxmysql
+# oxpg
 
-A FiveM resource to communicate with a MySQL database using [node-mysql2](https://github.com/sidorares/node-mysql2).
-
-[![](https://img.shields.io/github/downloads/overextended/oxmysql/total?style=for-the-badge&logo=github)](https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip)
-[![](https://img.shields.io/github/downloads/overextended/oxmysql/latest/total?style=for-the-badge&logo=github)](https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip)
-[![](https://img.shields.io/github/v/release/overextended/oxmysql?style=for-the-badge&logo=github)](https://github.com/overextended/oxmysql/releases/latest/)\
-[![](https://badges.5metrics.dev/oxmysql/serverRank.svg?style=for-the-badge)](https://5metrics.dev/resource/oxmysql)
-[![](https://badges.5metrics.dev/oxmysql/servers.svg?style=for-the-badge)](https://5metrics.dev/resource/oxmysql)
-[![](https://badges.5metrics.dev/oxmysql/players.svg?style=for-the-badge)](https://5metrics.dev/resource/oxmysql)
-
-Refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines and to see our Contributor License Agreement.\
-Refer to [NOTICE.md](./NOTICE.md) for additional information and legal notices.
+A PostgreSQL-backed FiveM database resource based on the oxmysql API.
 
 </div>
 
-## 🔗 Links
+## Purpose
 
-- 💾 [Download](https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip)
-  - Download the latest release directly.
-- 📚 [Documentation](https://overextended.dev/oxmysql)
-  - For installation, setup, and everything else.
-- 📦 [npm](https://www.npmjs.com/package/@overextended/oxmysql)
-  - Use our npm package for enhanced functionality and TypeScript support.
+oxpg uses PostgreSQL through node-postgres while retaining the oxmysql-compatible Lua exports and MySQL wrapper. It is intended for FiveM servers migrating to PostgreSQL providers such as Neon.
 
-## ✨ Features
+Keep the extracted resource directory named **oxmysql** when replacing an existing oxmysql installation. Existing resources commonly call exports.oxmysql and depend on that resource name.
 
-- Support for mysql-async and ghmattimysql syntax.
-- Promises / async query handling allowing for non-blocking and awaitable responses.
-- Improved performance and stability compared to other options.
-- Support for named and unnamed placeholders, improving performance and security.
-- Support for URI connection strings and semicolon separated values.
-- Improved parameter checking and error handling.
+## Installation
 
-## 🧾 Logging
+1. Build or download the resource and place it in your FiveM resources directory as oxmysql.
+2. Configure a PostgreSQL URL in server.cfg:
 
-We have included a module for submitting error logs to [Fivemanage](https://refer.fivemanage.com/overextended), a cloud management service tailored for game servers. Additional logging options and support for other services will be available in the future.
+   ~~~cfg
+   set mysql_connection_string "postgresql://USER:PASSWORD@HOST/DB?sslmode=require"
+   ensure oxmysql
+   ~~~
 
-## Lua Language Server
+3. Start oxmysql before resources that use its exports.
 
-- Install [Lua Language Server](https://marketplace.visualstudio.com/items?itemName=sumneko.lua) to ease development with annotations, type checking, diagnostics, and more.
-- See [ox_types](https://github.com/overextended/ox_types) for our Lua type definitions.
+The resource also reads DATABASE_URL and DB_CONNECTION when the FiveM convar is not set. Do not commit database URLs, passwords, or .env files.
+
+For Neon, copy the pooled or direct connection string from the Neon dashboard. Use sslmode=require. A pooled Neon endpoint is normally the better default for serverless connection limits; use the direct endpoint for operations that require a persistent session or unsupported pooler behaviour.
+
+## Compatibility
+
+The public Lua/API surface is retained: query, single, scalar, insert, update, prepare, rawExecute, transaction, startTransaction, async exports, and the mysql-async / ghmattimysql compatibility exports.
+
+The database engine is PostgreSQL, not MySQL. Positional placeholders ? and named placeholders are converted to PostgreSQL $1, $2, and so on. MySQL backtick identifier quotes are converted to PostgreSQL double quotes. INSERT IGNORE is mapped to ON CONFLICT DO NOTHING; ordinary INSERT statements automatically use RETURNING * so the adapter can populate insertId from an id or *_id value.
+
+This is a compatibility adapter, not a complete MySQL-to-PostgreSQL SQL transpiler. Resource SQL using ON DUPLICATE KEY UPDATE, REPLACE INTO, MySQL-specific functions, UNSIGNED, engine/charset clauses, or MySQL-specific schema migrations must be ported to PostgreSQL syntax. PostgreSQL JSONB `?`, `?|`, and `?&` operators conflict with oxmysql's positional `?` convention; use `jsonb_exists()` or `jsonb_exists_any()` instead. For upserts, use ON CONFLICT (your_unique_key) DO UPDATE SET .... PostgreSQL identifiers are case-sensitive when quoted; prefer lowercase snake_case names.
+
+READ UNCOMMITTED is mapped to PostgreSQL READ COMMITTED, because PostgreSQL does not implement dirty reads. Query profiling through MySQL INFORMATION_SCHEMA.PROFILING is unavailable; mysql_debug uses ordinary elapsed-time logging instead.
+
+## Development
+
+- bun install
+- bun run test
+- bun run build
+
+Use postgres:// or postgresql:// URLs. The mysql_connection_string convar name is intentionally retained for compatibility with existing server.cfg files, but its value must be a PostgreSQL connection string.

@@ -20,22 +20,20 @@ beforeEach(() => {
 
 describe('rawExecute', () => {
   test('executes once per parameter set in a batch', async () => {
-    conn.queue.push({ affectedRows: 1, insertId: 1 }, { affectedRows: 1, insertId: 2 });
+    conn.queue.push({ insertId: 1, affectedRows: 1 }, { insertId: 2, affectedRows: 1 });
     await rawExecute('res', 'INSERT INTO t (a) VALUES (?)', [[1], [2]]);
-
-    const executes = conn.calls.filter((c) => c.op === 'execute');
+    const executes = conn.calls.filter((c) => c.arg?.sql?.includes('INSERT INTO'));
     expect(executes).toHaveLength(2);
-    expect(executes[0].arg.sql).toBe('INSERT INTO t (a) VALUES (?)');
+    expect(executes[0].arg.sql).toBe('INSERT INTO t (a) VALUES ($1) RETURNING *');
   });
 
   test('pads a short value row with null up to the placeholder count', async () => {
     await rawExecute('res', 'INSERT INTO t (a, b) VALUES (?, ?)', [[1]]);
-    const exec = conn.calls.find((c) => c.op === 'execute');
+    const exec = conn.calls.find((c) => c.arg?.sql?.includes('INSERT INTO'));
     expect(exec!.arg.values).toEqual([1, null]);
   });
 
   test('prepare (unpack) returns a single scalar for a one-column row', async () => {
-    // The scalar/row unwrap happens in the callback branch (how `prepare` runs).
     conn.queue.push([{ id: 7 }]);
     let received: unknown;
     await rawExecute('res', 'SELECT id FROM t WHERE a = ?', [[1]], (r) => (received = r), true, true);
@@ -43,7 +41,7 @@ describe('rawExecute', () => {
   });
 
   test('surfaces an execute error through the callback', async () => {
-    conn.failOn.execute = new Error('exec failed');
+    conn.failOn.query = new Error('exec failed');
     const args: any[] = [];
     await rawExecute('res', 'INSERT INTO t VALUES (?)', [[1]], (...a) => args.push(a), true);
     expect(String(args[0][1])).toContain('exec failed');
@@ -56,10 +54,10 @@ describe('rawExecute', () => {
     expect(conn.calls).toHaveLength(0);
   });
 
-  test('spreads a multi-result-set response into separate entries', async () => {
-    conn.queue.push([{ a: 1 }, { b: 2 }]);
-    const result = await rawExecute('res', 'SELECT a; SELECT b', [[1]]);
-    expect(result).toEqual([{ a: 1 }, { b: 2 }]);
+  test('executes a parameterised select with a single result set', async () => {
+    conn.queue.push([{ a: 1 }]);
+    const result = await rawExecute('res', 'SELECT a FROM t WHERE id = ?', [[1]]);
+    expect(result).toEqual([{ a: 1 }]);
   });
 
   test('prepare (unpack) returns a whole row when it has multiple columns', async () => {
@@ -71,15 +69,9 @@ describe('rawExecute', () => {
 
   test('a callback that throws a SCRIPT ERROR string is swallowed', async () => {
     const logSpy = spyOn(console, 'log').mockImplementation(() => {});
-    await rawExecute(
-      'res',
-      'INSERT INTO t VALUES (?)',
-      [[1]],
-      () => {
-        throw 'SCRIPT ERROR: boom';
-      },
-      true
-    );
+    await rawExecute('res', 'INSERT INTO t VALUES (?)', [[1]], () => {
+      throw 'SCRIPT ERROR: boom';
+    }, true);
     expect(logSpy).toHaveBeenCalled();
     logSpy.mockRestore();
   });

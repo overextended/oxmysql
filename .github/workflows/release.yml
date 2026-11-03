@@ -1,92 +1,159 @@
-name: Create release
+name: Release oxpg (FiveM resource)
 
 on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing version tag to build and publish (for example v1.0.0)
+        required: true
+        default: v1.0.0
+        type: string
 
-permissions:
-  id-token: write # Required for OIDC
-  contents: write
+permissions: {}
+
+concurrency:
+  group: oxpg-release-${{ inputs.release_tag || github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
-  create-release:
-    if: github.actor_id != 278903378
+  release:
+    name: Build and publish FiveM resource
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
+
     steps:
-      - name: Install zip
-        run: sudo apt install zip
-
-      - name: Generate GitHub App token
-        id: app_token
-        uses: actions/create-github-app-token@v3
+      - name: Checkout release source
+        uses: actions/checkout@v7
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          ref: ${{ inputs.release_tag || github.ref }}
+          fetch-depth: 1
+          persist-credentials: false
 
-      - name: Get latest code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.repository.default_branch }}
-          token: ${{ steps.app_token.outputs.token }}
+      - name: Validate release tag and source commit
+        shell: bash
+        run: |
+          set -euo pipefail
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid release tag '$RELEASE_TAG'. Expected vX.Y.Z."
+            exit 1
+          fi
 
-      - name: Install Bun
+          tag_commit="$(git rev-parse --verify "refs/tags/${RELEASE_TAG}^{commit}")"
+          checked_out_commit="$(git rev-parse HEAD)"
+
+          if [[ "$tag_commit" != "$checked_out_commit" ]]; then
+            echo "::error::Checked out commit does not match $RELEASE_TAG."
+            exit 1
+          fi
+
+          echo "Preparing $RELEASE_TAG from $checked_out_commit"
+
+      - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.4.4"
 
-      - name: Build
-        run: |
-          bun install --frozen-lockfile
-          bun run build
-        env:
-          TGT_RELEASE_VERSION: ${{ github.ref_name }}
-
-      - name: Set package version
-        run: |
-          VER=$(echo "$TAG" | sed -E 's/^[^0-9]*//')
-          npm version "$VER"
-        env:
-          TAG: ${{ github.ref_name }}
-        working-directory: lib
-
-      - name: Push version bump change
-        uses: EndBug/add-and-commit@v9
+      - name: Cache Bun package downloads
+        uses: actions/cache@v6
         with:
-          add: '["package.json", "lib/package.json"]'
-          push: true
-          default_author: github_actions
-          message: 'chore: bump version to ${{ github.ref_name }}'
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-${{ runner.arch }}-bun-1.4.4-${{ hashFiles('package.json', 'bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-bun-1.4.4-
+
+      - name: Install dependencies
+        run: bun install --no-save
+
+      - name: Run unit tests
+        run: bun run test
+
+      - name: Build resource
+        run: bun run build
         env:
-          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
+          TGT_RELEASE_VERSION: ${{ inputs.release_tag || github.ref_name }}
 
-      - name: Bundle files
+      - name: Package FiveM resource
+        shell: bash
         run: |
-          mkdir -p ./temp/oxmysql/{web,lib}
-          cp ./{LICENSE,README.md,fxmanifest.lua,ui.lua} ./temp/oxmysql
-          cp ./lib/MySQL.lua ./temp/oxmysql/lib
-          cp -r ./dist ./logger ./temp/oxmysql
-          cp -r ./web/build ./temp/oxmysql/web/
-          cd ./temp && zip -r ../oxmysql.zip ./oxmysql
+          set -euo pipefail
 
-      - name: Publish package to npm registry
-        run: npm publish --provenance --access public
-        working-directory: lib
+          package_dir="$RUNNER_TEMP/oxpg-release/oxmysql"
+          archive="$GITHUB_WORKSPACE/oxmysql.zip"
 
-      - name: Create release
-        uses: 'marvinpinto/action-automatic-releases@v1.2.1'
+          rm -rf "$RUNNER_TEMP/oxpg-release" "$archive"
+          mkdir -p "$package_dir/lib" "$package_dir/web"
+
+          cp LICENSE README.md fxmanifest.lua ui.lua "$package_dir/"
+          cp -a dist logger "$package_dir/"
+          cp -a lib/MySQL.lua "$package_dir/lib/"
+          cp -a web/build "$package_dir/web/"
+
+          command -v zip >/dev/null
+          command -v unzip >/dev/null
+
+          # Run zip from inside the resource folder so every entry is rooted at
+          # fxmanifest.lua, not inside an extra oxmysql/ parent directory.
+          (
+            cd "$package_dir"
+            zip -q -r -X "$archive" \
+              fxmanifest.lua LICENSE README.md ui.lua dist lib logger web
+          )
+
+          test -s "$archive"
+          (cd "$GITHUB_WORKSPACE" && sha256sum oxmysql.zip > oxmysql.zip.sha256)
+
+      - name: Verify release archive layout
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          entries="$(unzip -Z1 oxmysql.zip)"
+
+          for required in \
+            fxmanifest.lua \
+            LICENSE \
+            README.md \
+            ui.lua \
+            dist/build.js \
+            lib/MySQL.lua \
+            logger/fivemanage.js \
+            web/build/index.html; do
+            if ! grep -Fxq "$required" <<< "$entries"; then
+              echo "::error::Release archive is missing root entry: $required"
+              exit 1
+            fi
+          done
+
+          if grep -Eq '^(\./)?oxmysql/' <<< "$entries"; then
+            echo "::error::Release archive contains an unwanted oxmysql/ parent directory."
+            exit 1
+          fi
+
+          if ! grep -Eq '^web/build/assets/[^/]+$' <<< "$entries"; then
+            echo "::error::Release archive is missing built web assets."
+            exit 1
+          fi
+
+          echo "Verified root-level FiveM resource layout:"
+          printf '%s\n' "$entries" | head -40
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v3
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: false
-          files: oxmysql.zip
-
-      - name: Update tag
-        uses: EndBug/latest-tag@v1
-        with:
-          ref: ${{ github.ref_name }}
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
+          name: oxpg ${{ inputs.release_tag || github.ref_name }}
+          files: |
+            oxmysql.zip
+            oxmysql.zip.sha256
+          fail_on_unmatched_files: true
+          overwrite_files: true
+          generate_release_notes: true
+          make_latest: true

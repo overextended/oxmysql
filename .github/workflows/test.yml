@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
 
 jobs:
@@ -10,14 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
       - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run unit tests with coverage (enforces 85% minimum)
+        run: bun install
+      - name: Run unit tests with coverage
         run: bun run test:coverage
+      - name: Build resource and TypeScript exports
+        run: bun run build
