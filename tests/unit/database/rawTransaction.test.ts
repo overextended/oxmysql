@@ -61,4 +61,14 @@ describe('rawTransaction', () => {
     expect(typeof event.payload.query).toBe('string');
     expect(event.payload.query).toContain('INSERT INTO t (a) VALUES (?)');
   });
+
+  test('passes a failed connection checkout to the callback instead of rejecting', async () => {
+    setConnectionFactory(() => {
+      throw new Error('connect ECONNREFUSED 127.0.0.1:3306');
+    });
+    const args: any[] = [];
+    await rawTransaction('res', ['INSERT INTO t VALUES (1)'], [], (...a) => args.push(a), true);
+    expect(args[0][0]).toBeNull();
+    expect(String(args[0][1])).toContain('ECONNREFUSED');
+  });
 });

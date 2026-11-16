@@ -28,7 +28,11 @@ export const rawTransaction = async (
     return logError(invokingResource, cb, isPromise, err);
   }
 
-  await using connection = await getConnection();
+  // See rawQuery: a failed checkout must reach the caller.
+  await using connection = await getConnection().catch((err) => {
+    logError(invokingResource, cb, isPromise, err);
+    return undefined;
+  });
 
   if (!connection) return;
 
