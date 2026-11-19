@@ -68,8 +68,6 @@ local count = MySQL.scalar.await('SELECT COUNT(*) FROM users')
 
 Existing builder calls must change from `MySQL.table` / `MySQL.op` to `Builder.table` / `Builder.op` and load `@oxmysql/lib/Builder.lua`.
 
-See the [query builder plan](./docs/query-builder-poc-plan.md) for the currently supported operations.
-
 For coding agents, the [oxmysql query builder skill](./skills/oxmysql-query-builder/SKILL.md) covers imports, supported queries, execution behavior, and migration from the earlier `MySQL` builder namespace.
 
 ## 🧾 Logging

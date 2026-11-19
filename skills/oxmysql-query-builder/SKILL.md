@@ -101,8 +101,8 @@ local removed = MySQL.update.await(
 
 ## Working in the oxmysql source checkout
 
-Treat `lib/Builder.lua` and `src/query-builder/` as the implementation authority. The [POC plan](../../docs/query-builder-poc-plan.md) describes the implemented subset; the [full specification](../../docs/query-builder-spec.md) also describes future features.
+Treat `lib/Builder.lua` and `src/query-builder/` as the implementation authority.
 
 When extending the implementation, keep Lua builders and operators local to the consuming resource. Only plain query specifications cross the dedicated `queryBuilder` export. The TypeScript adapter validates specifications and uses a shared compile-only Knex MySQL client to produce SQL and bindings; execution uses the existing raw-query path. Keep Knex types out of the Lua/specification contract, and let Knex handle SQL rendering. Preserve existing `MySQL` signatures, compatibility aliases, parameter binding, invoking-resource attribution, and callback/promise error behavior.
 
-Relevant checks are `tests/lua/query-builder.test.lua` for the Lua facade and `tests/unit/query-builder/` for compilation and execution. The POC plan documents the available validation tasks. Distinguish mocked contract checks from live FiveM/MySQL validation when reporting results.
+Distinguish mocked contract checks from live FiveM/MySQL validation when reporting results.
