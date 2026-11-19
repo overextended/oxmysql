@@ -172,11 +172,15 @@ onNet(
   }) => {
     if (typeof data.resource !== 'string' || !IsPlayerAceAllowed(source as unknown as string, 'command.mysql')) return;
 
+    const storedQueries = logStorage[data.resource];
+
+    if (!storedQueries) return;
+
     if (data.search) data.search = data.search.toLowerCase();
 
     const resourceLog = data.search
-      ? logStorage[data.resource].filter((q) => q.query.toLowerCase().includes(data.search))
-      : logStorage[data.resource];
+      ? storedQueries.filter((q) => q.query.toLowerCase().includes(data.search))
+      : storedQueries;
 
     const sort = data.sortBy && data.sortBy.length > 0 ? data.sortBy[0] : false;
     const startRow = data.pageIndex * 10;

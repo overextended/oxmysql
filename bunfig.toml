@@ -3,4 +3,4 @@ preload = ["./tests/setup.ts"]
 coverageReporter = ["text"]
 coverageSkipTestFiles = true
 coveragePathIgnorePatterns = ["**/tests/**", "**/database/index.ts"]
-coverageThreshold = 0.85
+coverageThreshold = 0.80

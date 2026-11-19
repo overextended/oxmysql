@@ -11,17 +11,50 @@ const profilerStatements = [
   'SET profiling = 1',
 ];
 
+// MySQL/MariaDB support the legacy `SET profiling` / `INFORMATION_SCHEMA.PROFILING`
+// query profiler used below. Other MySQL-protocol-compatible databases (e.g. TiDB)
+// don't implement it, so once it errors we stop attempting it for the remainder of
+// the process rather than failing every subsequent query made while debug logging
+// is enabled.
+let profilerSupported: boolean | undefined;
+
+/**
+ * Marks the profiler as unsupported by the connected database so subsequent calls skip
+ * straight to the fallback timing path instead of re-attempting the MySQL-only statements.
+ */
+export function markProfilerUnsupported() {
+  profilerSupported = false;
+}
+
 /**
  * Executes MySQL queries to enable accurate query profiling results when `mysql_debug` is enabled.
+ * Returns `false` (instead of throwing) if the connected database doesn't support the profiler,
+ * so callers can fall back to plain timing instead of failing the query itself.
  */
 export async function runProfiler(connection: MySql, invokingResource: string) {
   if (!mysql_debug) return;
 
   if (Array.isArray(mysql_debug) && !mysql_debug.includes(invokingResource)) return;
 
-  for (const statement of profilerStatements) await connection.query(statement);
+  if (profilerSupported === false) return false;
 
-  return true;
+  try {
+    for (const statement of profilerStatements) await connection.query(statement);
+
+    profilerSupported = true;
+
+    return true;
+  } catch (err) {
+    if (profilerSupported === undefined) {
+      console.warn(
+        `^3Query profiling is unavailable on this database server (${err instanceof Error ? err.message : err}). Falling back to basic query timing.^0`,
+      );
+    }
+
+    profilerSupported = false;
+
+    return false;
+  }
 }
 
 /**
@@ -34,13 +67,20 @@ export async function profileBatchStatements(
   parameters: CFXParameters | null,
   offset: number,
 ) {
-  const profiler = <RowDataPacket[]>(
-    await connection.query(
-      'SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID',
-    )
-  );
+  let profiler: RowDataPacket[];
 
-  for (const statement of profilerStatements) await connection.query(statement);
+  try {
+    profiler = <RowDataPacket[]>(
+      await connection.query(
+        'SELECT FORMAT(SUM(DURATION) * 1000, 4) AS `duration` FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID',
+      )
+    );
+
+    for (const statement of profilerStatements) await connection.query(statement);
+  } catch {
+    profilerSupported = false;
+    return;
+  }
 
   if (profiler.length === 0) return;
 

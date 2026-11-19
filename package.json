@@ -1,6 +1,6 @@
 {
   "name": "oxmysql",
-  "version": "2.14.1",
+  "version": "2.14.3",
   "description": "FXServer to MySQL communication via node-mysql2",
   "bugs": "https://github.com/overextended/oxmysql/issues",
   "license": "LGPL-3.0-or-later",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "knex": "3.3.0",
-    "mysql2": "^3.22.4",
+    "mysql2": "3.24.5",
     "named-placeholders": "^1.1.6",
     "node-fetch": "^3.3.2"
   },
@@ -47,7 +47,7 @@
     "typescript": "^6.0.3"
   },
   "patchedDependencies": {
-    "mysql2@3.22.4": "patches/mysql2@3.22.4.patch",
-    "named-placeholders@1.1.6": "patches/named-placeholders@1.1.6.patch"
+    "named-placeholders@1.1.6": "patches/named-placeholders@1.1.6.patch",
+    "mysql2@3.24.5": "patches/mysql2@3.24.5.patch"
   }
 }

@@ -46,16 +46,14 @@ export function typeCast(field: TypeCastField, next: TypeCastNext) {
 
       const value = field.string();
 
-      return value === '0' ? false : value === '1' ? true : next();
+      return value === null ? null : value === '1';
     }
     case 'BIT': {
       const buffer = field.buffer();
 
-      if (!buffer || buffer.length !== 1) return next();
+      if (!buffer) return null;
 
-      const value = buffer[0];
-
-      return value === 0 ? false : value === 1 ? true : next();
+      return buffer.length === 1 ? buffer[0] === 1 : buffer[0];
     }
     case 'TINY_BLOB':
     case 'MEDIUM_BLOB':

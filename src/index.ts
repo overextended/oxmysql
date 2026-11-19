@@ -80,7 +80,6 @@ const MySQL = {
   },
 
   startTransaction: (transactions: () => Promise<boolean>, invokingResource = GetInvokingResource()) => {
-    console.warn(`startTransaction is "experimental" and may receive breaking changes.`);
     return startTransaction(invokingResource, transactions, undefined, true);
   },
 
