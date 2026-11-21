@@ -220,22 +220,32 @@ export function compileQuery(input: unknown): CompiledQuery {
       }));
       break;
     }
-    case 'update': {
-      record(spec, ['kind', 'table', 'values', 'where', 'allowAll'], 'update');
-      if (Object.hasOwn(spec, 'allowAll') && typeof spec.allowAll !== 'boolean')
+    case 'update':
+    case 'delete': {
+      const kind = spec.kind;
+      const fields = ['kind', 'table', 'where', 'allowAll'];
+      if (kind === 'update') fields.push('values');
+      record(spec, fields, kind);
+      const allowAll = Object.hasOwn(spec, 'allowAll') ? spec.allowAll : false;
+      if (typeof allowAll !== 'boolean')
         throw new Error('queryBuilder: allowAll must be a boolean.');
-      if (!Object.hasOwn(spec, 'where') && spec.allowAll !== true)
-        throw new Error('queryBuilder: update requires a predicate or allowAll().');
-      const table = identifier(spec.table);
-      const { values, keys } = valuesMap(spec.values);
-      const updates: Record<string, unknown> = {};
-      for (const key of keys) updates[part(key)] = scalar(values[key]);
-      query.table(table).update(updates);
-      if (Object.hasOwn(spec, 'where')) predicate(query, spec.where);
+      const hasWhere = Object.hasOwn(spec, 'where');
+      if (!hasWhere && !allowAll)
+        throw new Error(`queryBuilder: ${kind} requires a predicate or allowAll().`);
+      query.table(identifier(spec.table));
+      if (kind === 'update') {
+        const { values, keys } = valuesMap(spec.values);
+        const updates: Record<string, unknown> = {};
+        for (const key of keys) updates[part(key)] = scalar(values[key]);
+        query.update(updates);
+      } else {
+        query.delete();
+      }
+      if (hasWhere) predicate(query, spec.where);
       break;
     }
     default:
-      throw new Error('queryBuilder: unsupported statement kind; expected select, insert, or update.');
+      throw new Error('queryBuilder: unsupported statement kind; expected select, insert, update, or delete.');
   }
 
   const { sql, bindings } = query.toSQL();

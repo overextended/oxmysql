@@ -292,7 +292,7 @@ end
 
 local function selectSpec(builder, first)
 	local spec = copyState(builder)
-	assert(spec.allowAll == nil, 'queryBuilder: allowAll() is only supported for update')
+	assert(spec.allowAll == nil, 'queryBuilder: allowAll() is only supported for update and delete')
 	spec.from = copyIdentifier(spec.from)
 	if spec.columns ~= '*' then
 		spec.columns = builderArray(spec.columns, 'select columns', copySelection)
@@ -317,8 +317,8 @@ end
 
 local function mutationState(builder)
 	local spec = copyState(builder)
-	assert(spec.columns == '*' and spec.limit == nil, 'queryBuilder: insert/update do not support select() or limit()')
-	assert(spec.orderBy == nil, 'queryBuilder: insert/update do not support orderBy()')
+	assert(spec.columns == '*' and spec.limit == nil, 'queryBuilder: insert/update/delete do not support select() or limit()')
+	assert(spec.orderBy == nil, 'queryBuilder: insert/update/delete do not support orderBy()')
 	return spec
 end
 
@@ -343,13 +343,22 @@ function builderMethods:insert(values, cb)
 	return executeBuilder({ kind = 'insert', into = copyIdentifier(state.from), rows = rows }, 'insert', cb)
 end
 
-function builderMethods:update(values, cb)
-	local state = mutationState(self)
-	assert(state.where ~= nil or state.allowAll == true, 'queryBuilder: update requires a predicate or allowAll()')
-	local spec = { kind = 'update', table = copyIdentifier(state.from), values = builderValues(values) }
+local function filteredMutationSpec(builder, kind)
+	local state = mutationState(builder)
+	assert(state.where ~= nil or state.allowAll == true, 'queryBuilder: ' .. kind .. ' requires a predicate or allowAll()')
+	local spec = { kind = kind, table = copyIdentifier(state.from), allowAll = state.allowAll }
 	if state.where then spec.where = copyPredicate(state.where) end
-	if state.allowAll then spec.allowAll = true end
+	return spec
+end
+
+function builderMethods:update(values, cb)
+	local spec = filteredMutationSpec(self, 'update')
+	spec.values = builderValues(values)
 	return executeBuilder(spec, 'update', cb)
+end
+
+function builderMethods:delete(cb)
+	return executeBuilder(filteredMutationSpec(self, 'delete'), 'delete', cb)
 end
 
 _ENV.Builder = Builder

@@ -18,10 +18,11 @@ export async function executeBuilderQuery(
   try {
     compiled = compileQuery(spec);
     if (spec.kind === 'select' ? mode !== 'query' && mode !== 'single' : mode !== spec.kind)
-      throw new Error('queryBuilder: result mode must match the statement (select: query or single; insert: insert; update: update).');
+      throw new Error('queryBuilder: result mode must match the statement (select: query or single; insert: insert; update: update; delete: delete).');
   } catch (err) {
     return logError(invokingResource, cb, isPromise, err);
   }
 
-  return rawQuery(mode === 'query' ? null : mode, invokingResource, compiled.sql, compiled.parameters, cb, isPromise);
+  const resultMode = mode === 'delete' ? 'update' : mode;
+  return rawQuery(resultMode === 'query' ? null : resultMode, invokingResource, compiled.sql, compiled.parameters, cb, isPromise);
 }

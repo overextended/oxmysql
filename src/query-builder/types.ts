@@ -56,8 +56,15 @@ export interface UpdateSpec {
   readonly allowAll?: boolean;
 }
 
-export type QuerySpec = SelectSpec | InsertSpec | UpdateSpec;
-export type BuilderResultMode = 'query' | 'single' | 'insert' | 'update';
+export interface DeleteSpec {
+  readonly kind: 'delete';
+  readonly table: Identifier;
+  readonly where?: Predicate;
+  readonly allowAll?: boolean;
+}
+
+export type QuerySpec = SelectSpec | InsertSpec | UpdateSpec | DeleteSpec;
+export type BuilderResultMode = 'query' | 'single' | 'insert' | 'update' | 'delete';
 
 export interface CompiledQuery {
   sql: string;
