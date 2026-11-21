@@ -2,6 +2,8 @@ import type { CFXCallback, CFXParameters, TransactionQuery } from './types';
 import { rawQuery, rawExecute, rawTransaction, pool } from './database';
 import { startTransaction } from 'database/startTransaction';
 import { sleep } from 'utils/sleep';
+import { executeBuilderQuery } from './query-builder/execute';
+import type { BuilderResultMode, QuerySpec } from './query-builder/types';
 import ghmatti from './compatibility/ghmattimysql';
 import mysqlAsync from './compatibility/mysql-async';
 import('./update');
@@ -117,6 +119,16 @@ function provide(resourceName: string, method: string, cb: Function) {
 }
 
 const exports = global.exports;
+
+exports('queryBuilder', (
+  spec: QuerySpec,
+  mode: BuilderResultMode,
+  cb?: CFXCallback,
+  invokingResource = GetInvokingResource(),
+  isPromise?: boolean,
+) => {
+  executeBuilderQuery(spec, mode, invokingResource, cb, isPromise);
+});
 
 for (const key in MySQL) {
   const exp = (MySQL as any)[key];

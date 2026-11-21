@@ -23,13 +23,14 @@
     "build": "bun-tasks bun build:web ::: bun build:root",
     "build:web": "bun --cwd web vite build",
     "build:root": "node build.js && cd lib && tsc",
-    "watch": "esbuild --watch --bundle --platform=node --target=node22 src/index.ts --outfile=dist/build.js",
+    "watch": "esbuild --watch --bundle --platform=node --target=node22 --external:mysql src/index.ts --outfile=dist/build.js",
     "lib": "tsc --project lib/tsconfig.lib.json",
     "test": "bun test tests/unit",
     "test:coverage": "bun test tests/unit --coverage",
     "test:integration": "bun test tests/integration"
   },
   "dependencies": {
+    "knex": "3.3.0",
     "mysql2": "3.24.5",
     "named-placeholders": "^1.1.6",
     "node-fetch": "^3.3.2"
