@@ -113,9 +113,24 @@ local function columnExpression(value)
 	return copyIdentifier(value)
 end
 
+local function aggregateColumn(sql, column)
+	builderIdentifier(column)
+	return Builder.raw(sql, { column })
+end
+
 Builder.fn = {
 	unixTimestamp = function(column)
 		return { kind = 'function', name = 'unixTimestamp', column = builderIdentifier(column) }
+	end,
+	count = function(column)
+		if column == nil then return Builder.raw('count(*)') end
+		return aggregateColumn('count(??)', column)
+	end,
+	sum = function(column)
+		return aggregateColumn('sum(??)', column)
+	end,
+	max = function(column)
+		return aggregateColumn('max(??)', column)
 	end,
 }
 
@@ -256,6 +271,20 @@ function builderMethods:where(predicate)
 	return newBuilder(spec)
 end
 
+function builderMethods:groupBy(...)
+	local count = select('#', ...)
+	assert(count > 0, 'queryBuilder: groupBy requires at least one column')
+
+	local spec = copyState(self)
+	local columns = {}
+	for index, column in ipairs(spec.groupBy or {}) do columns[index] = column end
+	for index = 1, count do
+		columns[#columns + 1] = builderIdentifier(select(index, ...))
+	end
+	spec.groupBy = columns
+	return newBuilder(spec)
+end
+
 function builderMethods:orderBy(column, direction)
 	if direction == nil then direction = 'asc' end
 	assert(direction == 'asc' or direction == 'desc', 'queryBuilder: order direction must be asc or desc')
@@ -298,6 +327,7 @@ local function selectSpec(builder, first)
 		spec.columns = builderArray(spec.columns, 'select columns', copySelection)
 	end
 	if spec.where then spec.where = copyPredicate(spec.where) end
+	if spec.groupBy then spec.groupBy = builderArray(spec.groupBy, 'groupBy columns', copyIdentifier) end
 	if spec.orderBy then
 		spec.orderBy = builderArray(spec.orderBy, 'orderBy', function(entry)
 			return { column = copyIdentifier(entry.column), direction = entry.direction }
@@ -318,6 +348,7 @@ end
 local function mutationState(builder)
 	local spec = copyState(builder)
 	assert(spec.columns == '*' and spec.limit == nil, 'queryBuilder: insert/update/delete do not support select() or limit()')
+	assert(spec.groupBy == nil, 'queryBuilder: insert/update/delete do not support groupBy()')
 	assert(spec.orderBy == nil, 'queryBuilder: insert/update/delete do not support orderBy()')
 	return spec
 end

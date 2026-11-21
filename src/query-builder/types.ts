@@ -38,6 +38,7 @@ export interface SelectSpec {
   readonly from: Identifier;
   readonly columns: readonly Selection[] | '*';
   readonly where?: Predicate;
+  readonly groupBy?: readonly Identifier[];
   readonly orderBy?: readonly OrderSpec[];
   readonly limit?: number;
 }

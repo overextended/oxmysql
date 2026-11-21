@@ -186,10 +186,11 @@ export function compileQuery(input: unknown): CompiledQuery {
   const query = client.queryBuilder().queryContext(identifiers);
   switch (spec.kind) {
     case 'select': {
-      record(spec, ['kind', 'from', 'columns', 'where', 'orderBy', 'limit'], 'select');
+      record(spec, ['kind', 'from', 'columns', 'where', 'groupBy', 'orderBy', 'limit'], 'select');
       const columns = spec.columns === '*' ? '*' : array(spec.columns, 'select columns').map(selection);
       query.select(columns).from(identifier(spec.from));
       if (Object.hasOwn(spec, 'where')) predicate(query, spec.where);
+      if (Object.hasOwn(spec, 'groupBy')) query.groupBy(array(spec.groupBy, 'groupBy columns').map(identifier));
       if (Object.hasOwn(spec, 'orderBy')) {
         for (const input of array(spec.orderBy, 'orderBy')) {
           const order = record(input, ['column', 'direction'], 'orderBy entry');
