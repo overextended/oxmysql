@@ -1,5 +1,5 @@
 import type { Knex } from 'knex';
-import type { CompiledQuery } from './types';
+import type { ComparisonOperator, CompiledQuery } from './types';
 
 // Bypass Knex's dialect resolver; only MySQL compilation is needed here.
 const MySQLClient: typeof Knex.Client = require('knex/lib/dialects/mysql');
@@ -8,6 +8,16 @@ const client = new MySQLClient({
   // Tokens preserve literal identifier parts, including whitespace and " as ".
   wrapIdentifier: (name, quote, identifiers) => quote(identifiers?.[name] ?? name),
 });
+
+const comparisonOperators = {
+  eq: '=',
+  ne: '!=',
+  gt: '>',
+  gte: '>=',
+  lt: '<',
+  lte: '<=',
+  like: 'like',
+} as const satisfies Record<ComparisonOperator, string>;
 
 function record(value: unknown, fields: readonly string[] | null, label: string): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -78,15 +88,20 @@ export function compileQuery(input: unknown): CompiledQuery {
     return client.raw('unix_timestamp(??) as ??', [identifier(expression.column), alias]);
   };
 
-  const predicate = (query: Knex.QueryBuilder, input: unknown, depth = 0): void => {
+  const predicate = (query: Knex.QueryBuilder, input: unknown, depth = 0, disjunction = false): void => {
     if (depth >= 64) throw new Error('queryBuilder: predicate nesting exceeds 64 levels.');
     const value = record(input, ['kind', 'operator', 'column', 'value', 'values', 'predicates'], 'predicate');
+    const where = disjunction ? 'orWhere' : 'where';
 
     switch (value.kind) {
       case 'comparison': {
         record(value, ['kind', 'operator', 'column', 'value'], 'comparison');
-        if (value.operator !== 'eq') throw new Error('queryBuilder: unsupported comparison operator.');
-        query.where(identifier(value.column), '=', scalar(value.value));
+        const { operator } = value;
+        if (typeof operator !== 'string' || !Object.hasOwn(comparisonOperators, operator))
+          throw new Error('queryBuilder: unsupported comparison operator.');
+        if (operator === 'like' && typeof value.value !== 'string')
+          throw new Error('queryBuilder: like pattern must be a string.');
+        query[where](identifier(value.column), comparisonOperators[operator as ComparisonOperator], scalar(value.value));
         break;
       }
       case 'collection': {
@@ -94,17 +109,27 @@ export function compileQuery(input: unknown): CompiledQuery {
         if (value.operator !== 'inArray') throw new Error('queryBuilder: unsupported collection operator.');
         const column = identifier(value.column);
         const values = array(value.values, 'inArray values', true).map(scalar);
-        if (values.length) query.whereIn(column, values);
-        else query.whereRaw('1 = 0');
+        if (values.length) query[`${where}In`](column, values);
+        else query[`${where}Raw`]('1 = 0');
+        break;
+      }
+      case 'null': {
+        record(value, ['kind', 'operator', 'column'], 'null predicate');
+        if (value.operator !== 'isNull' && value.operator !== 'isNotNull')
+          throw new Error('queryBuilder: unsupported null operator.');
+        const column = identifier(value.column);
+        if (value.operator === 'isNull') query[`${where}Null`](column);
+        else query[`${where}NotNull`](column);
         break;
       }
       case 'group': {
         record(value, ['kind', 'operator', 'predicates'], 'group');
-        if (value.operator !== 'allOf') throw new Error('queryBuilder: unsupported group operator.');
-        const children = array(value.predicates, 'allOf predicates');
-        query.where((group) => {
+        if (value.operator !== 'allOf' && value.operator !== 'anyOf') throw new Error('queryBuilder: unsupported group operator.');
+        const children = array(value.predicates, `${value.operator} predicates`);
+        const useOr = value.operator === 'anyOf';
+        query[where]((group) => {
           group.queryContext(identifiers);
-          for (const child of children) predicate(group, child, depth + 1);
+          for (const child of children) predicate(group, child, depth + 1, useOr);
         });
         break;
       }

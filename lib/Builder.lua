@@ -119,42 +119,70 @@ function Builder.as(expression, alias)
 	return copyAliasedSelection({ kind = 'alias', expression = expression, alias = alias })
 end
 
+local comparisonOperators = { eq = true, ne = true, gt = true, gte = true, lt = true, lte = true, like = true }
+
+local function comparisonPredicate(operator, column, value)
+	assert(operator ~= 'like' or type(value) == 'string', 'queryBuilder: like pattern must be a string')
+	return { kind = 'comparison', operator = operator, column = column, value = builderValue(value) }
+end
+
 local function copyPredicate(value, depth)
 	depth = depth or 0
 	assert(depth < 64, 'queryBuilder: predicate nesting exceeds 64 levels')
 	builderRecord(value, { kind = true, operator = true, column = true, value = true, values = true, predicates = true }, 'predicate')
 	if value.kind == 'comparison' then
 		builderRecord(value, { kind = true, operator = true, column = true, value = true }, 'comparison')
-		assert(value.operator == 'eq', 'queryBuilder: unsupported comparison operator')
-		return { kind = 'comparison', operator = 'eq', column = copyIdentifier(value.column), value = builderValue(value.value) }
+		assert(comparisonOperators[value.operator], 'queryBuilder: unsupported comparison operator')
+		return comparisonPredicate(value.operator, copyIdentifier(value.column), value.value)
 	elseif value.kind == 'collection' then
 		builderRecord(value, { kind = true, operator = true, column = true, values = true }, 'collection')
 		assert(value.operator == 'inArray', 'queryBuilder: unsupported collection operator')
 		return { kind = 'collection', operator = 'inArray', column = copyIdentifier(value.column), values = builderArray(value.values, 'inArray values', builderValue, true) }
+	elseif value.kind == 'null' then
+		builderRecord(value, { kind = true, operator = true, column = true }, 'null predicate')
+		assert(value.operator == 'isNull' or value.operator == 'isNotNull', 'queryBuilder: unsupported null operator')
+		return { kind = 'null', operator = value.operator, column = copyIdentifier(value.column) }
 	elseif value.kind == 'group' then
 		builderRecord(value, { kind = true, operator = true, predicates = true }, 'group')
-		assert(value.operator == 'allOf', 'queryBuilder: unsupported group operator')
-		return { kind = 'group', operator = 'allOf', predicates = builderArray(value.predicates, 'allOf predicates', function(child)
+		assert(value.operator == 'allOf' or value.operator == 'anyOf', 'queryBuilder: unsupported group operator')
+		local predicates = builderArray(value.predicates, value.operator .. ' predicates', function(child)
 			return copyPredicate(child, depth + 1)
-		end) }
+		end)
+		return { kind = 'group', operator = value.operator, predicates = predicates }
 	end
 
 	error('queryBuilder: unsupported predicate kind')
 end
 
+local function groupPredicate(operator, ...)
+	local predicates = { ... }
+	assert(select('#', ...) == #predicates, 'queryBuilder: ' .. operator .. ' requires non-nil predicates')
+	return { kind = 'group', operator = operator, predicates = builderArray(predicates, operator .. ' predicates', copyPredicate) }
+end
+
 Builder.op = {
-	eq = function(column, value)
-		return { kind = 'comparison', operator = 'eq', column = builderIdentifier(column), value = builderValue(value) }
-	end,
 	inArray = function(column, values)
 		return { kind = 'collection', operator = 'inArray', column = builderIdentifier(column), values = builderArray(values, 'inArray values', builderValue, true) }
 	end,
+	isNull = function(column)
+		return { kind = 'null', operator = 'isNull', column = builderIdentifier(column) }
+	end,
+	isNotNull = function(column)
+		return { kind = 'null', operator = 'isNotNull', column = builderIdentifier(column) }
+	end,
 	allOf = function(...)
-		local predicates = { ... }
-		assert(select('#', ...) == #predicates, 'queryBuilder: allOf requires non-nil predicates')
-		return { kind = 'group', operator = 'allOf', predicates = builderArray(predicates, 'allOf predicates', copyPredicate) }
+		return groupPredicate('allOf', ...)
+	end,
+	anyOf = function(...)
+		return groupPredicate('anyOf', ...)
 	end,
 }
+
+for operator in pairs(comparisonOperators) do
+	Builder.op[operator] = function(column, value)
+		return comparisonPredicate(operator, builderIdentifier(column), value)
+	end
+end
 
 local builderStates = setmetatable({}, { __mode = 'k' })
 local builderMethods = {}
@@ -198,7 +226,7 @@ function builderMethods:where(predicate)
 	predicate = copyPredicate(predicate)
 	if spec.where then
 		local predicates = {}
-		if spec.where.kind == 'group' then
+		if spec.where.kind == 'group' and spec.where.operator == 'allOf' then
 			for index, child in ipairs(spec.where.predicates) do predicates[index] = child end
 		else
 			predicates[1] = spec.where

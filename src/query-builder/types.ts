@@ -16,10 +16,13 @@ export interface OrderSpec {
   readonly direction: 'asc' | 'desc';
 }
 
+export type ComparisonOperator = 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'like';
+
 export type Predicate =
-  | { readonly kind: 'comparison'; readonly operator: 'eq'; readonly column: Identifier; readonly value: unknown }
+  | { readonly kind: 'comparison'; readonly operator: ComparisonOperator; readonly column: Identifier; readonly value: unknown }
   | { readonly kind: 'collection'; readonly operator: 'inArray'; readonly column: Identifier; readonly values: readonly unknown[] }
-  | { readonly kind: 'group'; readonly operator: 'allOf'; readonly predicates: readonly Predicate[] };
+  | { readonly kind: 'null'; readonly operator: 'isNull' | 'isNotNull'; readonly column: Identifier }
+  | { readonly kind: 'group'; readonly operator: 'allOf' | 'anyOf'; readonly predicates: readonly Predicate[] };
 
 export interface SelectSpec {
   readonly kind: 'select';
