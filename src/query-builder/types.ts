@@ -3,6 +3,19 @@ export interface Identifier {
   readonly parts: readonly string[];
 }
 
+export type SelectionExpression =
+  | Identifier
+  | { readonly kind: 'function'; readonly name: 'unixTimestamp'; readonly column: Identifier };
+
+export type Selection =
+  | Identifier
+  | { readonly kind: 'alias'; readonly expression: SelectionExpression; readonly alias: string };
+
+export interface OrderSpec {
+  readonly column: Identifier;
+  readonly direction: 'asc' | 'desc';
+}
+
 export type Predicate =
   | { readonly kind: 'comparison'; readonly operator: 'eq'; readonly column: Identifier; readonly value: unknown }
   | { readonly kind: 'collection'; readonly operator: 'inArray'; readonly column: Identifier; readonly values: readonly unknown[] }
@@ -11,8 +24,9 @@ export type Predicate =
 export interface SelectSpec {
   readonly kind: 'select';
   readonly from: Identifier;
-  readonly columns: readonly Identifier[] | '*';
+  readonly columns: readonly Selection[] | '*';
   readonly where?: Predicate;
+  readonly orderBy?: readonly OrderSpec[];
   readonly limit?: number;
 }
 

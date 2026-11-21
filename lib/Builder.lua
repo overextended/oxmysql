@@ -93,6 +93,32 @@ local function copyIdentifier(value)
 	return { kind = 'identifier', parts = builderArray(value.parts, 'identifier parts', identifierPart) }
 end
 
+local function copySelectionExpression(value)
+	builderRecord(value, { kind = true, parts = true, name = true, column = true }, 'selection expression')
+	if value.kind == 'identifier' then return copyIdentifier(value) end
+
+	builderRecord(value, { kind = true, name = true, column = true }, 'selection function')
+	assert(value.kind == 'function' and value.name == 'unixTimestamp', 'queryBuilder: unsupported selection function')
+	return { kind = 'function', name = 'unixTimestamp', column = copyIdentifier(value.column) }
+end
+
+local function copyAliasedSelection(value)
+	builderRecord(value, { kind = true, expression = true, alias = true }, 'aliased selection')
+	assert(value.kind == 'alias', 'queryBuilder: unsupported selection kind')
+	return { kind = 'alias', expression = copySelectionExpression(value.expression), alias = identifierPart(value.alias) }
+end
+
+Builder.fn = {
+	unixTimestamp = function(column)
+		return { kind = 'function', name = 'unixTimestamp', column = builderIdentifier(column) }
+	end,
+}
+
+function Builder.as(expression, alias)
+	if type(expression) == 'string' then expression = builderIdentifier(expression) end
+	return copyAliasedSelection({ kind = 'alias', expression = expression, alias = alias })
+end
+
 local function copyPredicate(value, depth)
 	depth = depth or 0
 	assert(depth < 64, 'queryBuilder: predicate nesting exceeds 64 levels')
@@ -160,7 +186,10 @@ end
 
 function builderMethods:select(columns)
 	local spec = copyState(self)
-	spec.columns = builderArray(columns, 'select columns', builderIdentifier)
+	spec.columns = builderArray(columns, 'select columns', function(value)
+		if type(value) == 'string' then return builderIdentifier(value) end
+		return copyAliasedSelection(value)
+	end)
 	return newBuilder(spec)
 end
 
@@ -179,6 +208,18 @@ function builderMethods:where(predicate)
 	else
 		spec.where = predicate
 	end
+	return newBuilder(spec)
+end
+
+function builderMethods:orderBy(column, direction)
+	if direction == nil then direction = 'asc' end
+	assert(direction == 'asc' or direction == 'desc', 'queryBuilder: order direction must be asc or desc')
+
+	local spec = copyState(self)
+	local order = {}
+	for index, entry in ipairs(spec.orderBy or {}) do order[index] = entry end
+	order[#order + 1] = { column = builderIdentifier(column), direction = direction }
+	spec.orderBy = order
 	return newBuilder(spec)
 end
 
@@ -208,8 +249,18 @@ local function selectSpec(builder, first)
 	local spec = copyState(builder)
 	assert(spec.allowAll == nil, 'queryBuilder: allowAll() is only supported for update')
 	spec.from = copyIdentifier(spec.from)
-	if spec.columns ~= '*' then spec.columns = builderArray(spec.columns, 'select columns', copyIdentifier) end
+	if spec.columns ~= '*' then
+		spec.columns = builderArray(spec.columns, 'select columns', function(value)
+			if value.kind == 'identifier' then return copyIdentifier(value) end
+			return copyAliasedSelection(value)
+		end)
+	end
 	if spec.where then spec.where = copyPredicate(spec.where) end
+	if spec.orderBy then
+		spec.orderBy = builderArray(spec.orderBy, 'orderBy', function(entry)
+			return { column = copyIdentifier(entry.column), direction = entry.direction }
+		end)
+	end
 	if first then spec.limit = math.min(spec.limit or 1, 1) end
 	return spec
 end
@@ -225,6 +276,7 @@ end
 local function mutationState(builder)
 	local spec = copyState(builder)
 	assert(spec.columns == '*' and spec.limit == nil, 'queryBuilder: insert/update do not support select() or limit()')
+	assert(spec.orderBy == nil, 'queryBuilder: insert/update do not support orderBy()')
 	return spec
 end
 
