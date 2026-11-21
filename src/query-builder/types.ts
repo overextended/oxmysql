@@ -3,12 +3,20 @@ export interface Identifier {
   readonly parts: readonly string[];
 }
 
+export interface RawExpression {
+  readonly kind: 'raw';
+  readonly sql: string;
+  readonly bindings?: readonly (string | number | boolean)[];
+}
+
+export type ColumnExpression = Identifier | RawExpression;
+
 export type SelectionExpression =
-  | Identifier
+  | ColumnExpression
   | { readonly kind: 'function'; readonly name: 'unixTimestamp'; readonly column: Identifier };
 
 export type Selection =
-  | Identifier
+  | ColumnExpression
   | { readonly kind: 'alias'; readonly expression: SelectionExpression; readonly alias: string };
 
 export interface OrderSpec {
@@ -19,9 +27,10 @@ export interface OrderSpec {
 export type ComparisonOperator = 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'like';
 
 export type Predicate =
-  | { readonly kind: 'comparison'; readonly operator: ComparisonOperator; readonly column: Identifier; readonly value: unknown }
-  | { readonly kind: 'collection'; readonly operator: 'inArray'; readonly column: Identifier; readonly values: readonly unknown[] }
-  | { readonly kind: 'null'; readonly operator: 'isNull' | 'isNotNull'; readonly column: Identifier }
+  | RawExpression
+  | { readonly kind: 'comparison'; readonly operator: ComparisonOperator; readonly column: ColumnExpression; readonly value: unknown }
+  | { readonly kind: 'collection'; readonly operator: 'inArray'; readonly column: ColumnExpression; readonly values: readonly unknown[] }
+  | { readonly kind: 'null'; readonly operator: 'isNull' | 'isNotNull'; readonly column: ColumnExpression }
   | { readonly kind: 'group'; readonly operator: 'allOf' | 'anyOf'; readonly predicates: readonly Predicate[] };
 
 export interface SelectSpec {

@@ -19,6 +19,14 @@ const comparisonOperators = {
   like: 'like',
 } as const satisfies Record<ComparisonOperator, string>;
 
+// mysql2 also substitutes question marks inside quoted text and comments.
+const rawSqlTokens = new RegExp([
+  /'(?:\\.|[^'\\])*(?:'|$)|"(?:\\.|[^"\\])*(?:"|$)/.source, // strings
+  /`[^`]*(?:`|$)/.source, // quoted identifiers
+  /\/\*.*?(?:\*\/|$)|(?:#|--(?=\s))[^\r\n]*/.source, // comments
+  /\\?\?+/.source, // placeholders
+].join('|'), 'gs');
+
 function record(value: unknown, fields: readonly string[] | null, label: string): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error(`queryBuilder: ${label} must be a plain object.`);
@@ -70,16 +78,44 @@ export function compileQuery(input: unknown): CompiledQuery {
     return array(value.parts, 'identifier parts').map(part).join('.');
   };
 
+  const raw = (value: Record<string, unknown>): Knex.Raw => {
+    record(value, ['kind', 'sql', 'bindings'], 'raw expression');
+    if (typeof value.sql !== 'string' || !value.sql.trim())
+      throw new Error('queryBuilder: raw SQL must be a non-empty string.');
+
+    const bindings = Object.hasOwn(value, 'bindings') ? array(value.bindings, 'raw bindings', true) : [];
+    const placeholders = (value.sql.match(rawSqlTokens) ?? []).filter((token) => token.includes('?'));
+    if (placeholders.some((token) => token !== '?' && token !== '??'))
+      throw new Error('queryBuilder: raw placeholders must be unquoted ? or ??. Bind literal question marks as values.');
+    if (placeholders.length !== bindings.length)
+      throw new Error(`queryBuilder: raw SQL expects ${placeholders.length} bindings, received ${bindings.length}.`);
+
+    const parameters = placeholders.map((placeholder, index) => {
+      const binding = bindings[index];
+      if (placeholder === '?') return scalar(binding);
+      if (typeof binding !== 'string') throw new Error('queryBuilder: ?? requires a column identifier string.');
+      return binding.split('.').map(part).join('.');
+    });
+    return client.raw(value.sql, parameters).queryContext(identifiers);
+  };
+
+  const predicateColumn = (input: unknown): Knex.Raw => {
+    const value = record(input, null, 'predicate column');
+    return value.kind === 'raw' ? raw(value).wrap('(', ')') : client.ref(identifier(value));
+  };
+
   const selection = (input: unknown): string | Knex.Raw => {
-    const value = record(input, ['kind', 'parts', 'expression', 'alias'], 'selection');
+    const value = record(input, null, 'selection');
     if (value.kind === 'identifier') return identifier(value);
+    if (value.kind === 'raw') return raw(value);
 
     record(value, ['kind', 'expression', 'alias'], 'aliased selection');
     if (value.kind !== 'alias') throw new Error('queryBuilder: unsupported selection kind.');
 
     const alias = part(value.alias);
-    const expression = record(value.expression, ['kind', 'parts', 'name', 'column'], 'selection expression');
+    const expression = record(value.expression, null, 'selection expression');
     if (expression.kind === 'identifier') return client.raw('?? as ??', [identifier(expression), alias]);
+    if (expression.kind === 'raw') return client.raw('?? as ??', [raw(expression), alias]);
 
     record(expression, ['kind', 'name', 'column'], 'selection function');
     if (expression.kind !== 'function' || expression.name !== 'unixTimestamp')
@@ -90,10 +126,13 @@ export function compileQuery(input: unknown): CompiledQuery {
 
   const predicate = (query: Knex.QueryBuilder, input: unknown, depth = 0, disjunction = false): void => {
     if (depth >= 64) throw new Error('queryBuilder: predicate nesting exceeds 64 levels.');
-    const value = record(input, ['kind', 'operator', 'column', 'value', 'values', 'predicates'], 'predicate');
+    const value = record(input, null, 'predicate');
     const where = disjunction ? 'orWhere' : 'where';
 
     switch (value.kind) {
+      case 'raw':
+        query[where](raw(value).wrap('(', ')'));
+        break;
       case 'comparison': {
         record(value, ['kind', 'operator', 'column', 'value'], 'comparison');
         const { operator } = value;
@@ -101,15 +140,15 @@ export function compileQuery(input: unknown): CompiledQuery {
           throw new Error('queryBuilder: unsupported comparison operator.');
         if (operator === 'like' && typeof value.value !== 'string')
           throw new Error('queryBuilder: like pattern must be a string.');
-        query[where](identifier(value.column), comparisonOperators[operator as ComparisonOperator], scalar(value.value));
+        query[where](predicateColumn(value.column), comparisonOperators[operator as ComparisonOperator], scalar(value.value));
         break;
       }
       case 'collection': {
         record(value, ['kind', 'operator', 'column', 'values'], 'collection');
         if (value.operator !== 'inArray') throw new Error('queryBuilder: unsupported collection operator.');
-        const column = identifier(value.column);
+        const column = predicateColumn(value.column);
         const values = array(value.values, 'inArray values', true).map(scalar);
-        if (values.length) query[`${where}In`](column, values);
+        if (values.length) query[where](column, 'in', values as Knex.Value);
         else query[`${where}Raw`]('1 = 0');
         break;
       }
@@ -117,9 +156,7 @@ export function compileQuery(input: unknown): CompiledQuery {
         record(value, ['kind', 'operator', 'column'], 'null predicate');
         if (value.operator !== 'isNull' && value.operator !== 'isNotNull')
           throw new Error('queryBuilder: unsupported null operator.');
-        const column = identifier(value.column);
-        if (value.operator === 'isNull') query[`${where}Null`](column);
-        else query[`${where}NotNull`](column);
+        query[where](predicateColumn(value.column), value.operator === 'isNull' ? 'is' : 'is not', null);
         break;
       }
       case 'group': {
