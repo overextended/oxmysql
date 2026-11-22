@@ -45,6 +45,23 @@ export const mysql_transaction_isolation_level = getIsolationLevelStatement(
   GetConvarInt('mysql_transaction_isolation_level', 2),
 );
 
+// split on the first separator only, so values (e.g. passwords) may contain it
+function splitOnce(str: string, separator: string): [string, string | undefined] {
+  const index = str.indexOf(separator);
+  return index === -1 ? [str, undefined] : [str.slice(0, index), str.slice(index + 1)];
+}
+
+function decodeUriComponent(str?: string) {
+  if (!str) return str;
+
+  try {
+    return decodeURIComponent(str);
+  } catch {
+    // not valid percent-encoding (e.g. a literal '%'); keep the raw value
+    return str;
+  }
+}
+
 function parseUri(connectionString: string) {
   const splitMatchGroups = connectionString.match(
     new RegExp(
@@ -54,18 +71,18 @@ function parseUri(connectionString: string) {
 
   if (!splitMatchGroups) throw new Error(`mysql_connection_string structure was invalid (${connectionString})`);
 
-  const authTarget = splitMatchGroups[2] ? splitMatchGroups[2].split(':') : [];
+  const [user, password] = splitMatchGroups[2] ? splitOnce(splitMatchGroups[2], ':') : [];
 
   const options = {
-    user: authTarget[0] || undefined,
-    password: authTarget[1] || undefined,
+    user: decodeUriComponent(user) || undefined,
+    password: decodeUriComponent(password) || undefined,
     host: splitMatchGroups[3],
     port: parseInt(splitMatchGroups[4]),
     database: splitMatchGroups[5]?.replace(/^\/+/, ''),
     ...(splitMatchGroups[6] &&
       splitMatchGroups[6].split('&').reduce<Record<string, string>>((connectionInfo, parameter) => {
-        const [key, value] = parameter.split('=');
-        connectionInfo[key] = value;
+        const [key, value] = splitOnce(parameter, '=');
+        connectionInfo[key] = value as string;
         return connectionInfo;
       }, {})),
   };
@@ -85,8 +102,8 @@ export function getConnectionOptions(connectionString: string = mysql_connection
         .replace(/(?:db)=/gi, 'database=')
         .split(';')
         .reduce<Record<string, string>>((connectionInfo, parameter) => {
-          const [key, value] = parameter.split('=');
-          if (key) connectionInfo[key] = value;
+          const [key, value] = splitOnce(parameter, '=');
+          if (key) connectionInfo[key] = value as string;
           return connectionInfo;
         }, {});
 

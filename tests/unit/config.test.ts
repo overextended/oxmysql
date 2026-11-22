@@ -38,6 +38,31 @@ describe('getConnectionOptions', () => {
     expect(opts.database).toBe('mydb');
   });
 
+  test('keeps colons in a URI password', () => {
+    const opts = config.getConnectionOptions('mysql://root:pa:ss@localhost/mydb') as any;
+    expect(opts).toMatchObject({ user: 'root', password: 'pa:ss', host: 'localhost', database: 'mydb' });
+  });
+
+  test('decodes percent-encoded URI credentials', () => {
+    const opts = config.getConnectionOptions('mysql://us%40er:p%40ss%23w%2Frd%3F@localhost/mydb') as any;
+    expect(opts).toMatchObject({ user: 'us@er', password: 'p@ss#w/rd?', host: 'localhost', database: 'mydb' });
+  });
+
+  test('keeps URI credentials that are not valid percent-encoding as-is', () => {
+    const opts = config.getConnectionOptions('mysql://root:100%@localhost/mydb') as any;
+    expect(opts.password).toBe('100%');
+  });
+
+  test('keeps equals signs in URI query parameter values', () => {
+    const opts = config.getConnectionOptions('mysql://localhost/mydb?charset=utf8mb4&foo=a=b') as any;
+    expect(opts).toMatchObject({ charset: 'utf8mb4', foo: 'a=b' });
+  });
+
+  test('keeps equals signs in a key-value password', () => {
+    const opts = config.getConnectionOptions('host=localhost;user=root;password=ab=cd==;database=app') as any;
+    expect(opts).toMatchObject({ host: 'localhost', user: 'root', password: 'ab=cd==', database: 'app' });
+  });
+
   test('normalises key-value aliases (server/uid/pwd/db) to canonical keys', () => {
     const opts = config.getConnectionOptions('server=127.0.0.1;uid=root;pwd=secret;db=app') as any;
     expect(opts).toMatchObject({ host: '127.0.0.1', user: 'root', password: 'secret', database: 'app' });
