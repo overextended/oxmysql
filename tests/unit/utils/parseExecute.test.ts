@@ -13,8 +13,10 @@ describe('executeType', () => {
     expect(executeType('REPLACE INTO t VALUES (?)')).toBeNull();
   });
 
-  test('is case-sensitive (lowercase verbs are not recognised)', () => {
-    expect(executeType('insert into t values (?)')).toBeNull();
+  test('is case-insensitive and allows leading whitespace or newlines', () => {
+    expect(executeType('insert into t values (?)')).toBe('insert');
+    expect(executeType('\n  Update t set a = ?')).toBe('update');
+    expect(executeType('DELETE\nFROM t WHERE id = ?')).toBe('update');
   });
 
   test('does not crash on a single-word query with no space', () => {
