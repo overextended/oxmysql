@@ -2,7 +2,7 @@
 
 const apiKey = GetConvar('FIVEMANAGE_LOGS_API_KEY', '');
 
-if (!apiKey) return console.warning(`convar "FIVEMANAGE_LOGS_API_KEY" has not been set`);
+if (!apiKey) return console.warn(`convar "FIVEMANAGE_LOGS_API_KEY" has not been set`);
 
 const batchedLogs = [];
 const endpoint = 'https://api.fivemanage.com/api/logs/batch';
