@@ -69,6 +69,13 @@ describe('typeCast (text protocol)', () => {
     expect(typeCast(field({ type: 'BIT', length: 1, buffer: () => null }), () => null)).toBe(null);
   });
 
+  test.each(['TINY_BLOB', 'MEDIUM_BLOB', 'LONG_BLOB'])('%s preserves binary bytes and text values', (type) => {
+    expect(
+      typeCast(field({ type, charset: BINARY_CHARSET, buffer: () => Buffer.from([0, 255]) }), () => 'unused'),
+    ).toEqual([0, 255]);
+    expect(typeCast(field({ type, string: () => 'text' }), () => 'unused')).toBe('text');
+  });
+
   test('a binary BLOB becomes a plain number array', () => {
     const result = typeCast(
       field({ type: 'BLOB', charset: BINARY_CHARSET, buffer: () => Buffer.from([1, 2, 3]) }),
@@ -99,6 +106,13 @@ describe('typeCastExecute (binary protocol)', () => {
   test('handles dates like the text caster', () => {
     const result = typeCastExecute(field({ type: 'DATETIME', string: () => '2024-01-02 03:04:05' }), mock(() => 0));
     expect(result).toBe(new Date('2024-01-02 03:04:05').getTime());
+  });
+
+  test('DATE becomes local midnight and preserves SQL NULL', () => {
+    expect(typeCastExecute(field({ type: 'DATE', string: () => '2024-01-02' }), () => 'unused')).toBe(
+      new Date(2024, 0, 2).getTime(),
+    );
+    expect(typeCastExecute(field({ type: 'DATE' }), () => 'unused')).toBeNull();
   });
 
   test('defers everything else to next() (does not touch BLOBs)', () => {
