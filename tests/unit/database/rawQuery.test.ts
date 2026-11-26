@@ -54,6 +54,16 @@ describe('rawQuery', () => {
     expect(conn.calls).toHaveLength(0); // never reached the DB
   });
 
+  test('passes a failed connection checkout to the callback instead of rejecting', async () => {
+    setConnectionFactory(() => {
+      throw new Error('connect ECONNREFUSED 127.0.0.1:3306');
+    });
+    const args: any[] = [];
+    await rawQuery(null, 'res', 'SELECT 1', [], (...a) => args.push(a), true);
+    expect(args[0][0]).toBeNull();
+    expect(String(args[0][1])).toContain('ECONNREFUSED');
+  });
+
   test('with debug on, profiles the query via INFORMATION_SCHEMA.PROFILING', async () => {
     setConvar('mysql_debug', 'true');
     config.setDebug();

@@ -31,7 +31,11 @@ export const rawExecute = async (
     return logError(invokingResource, cb, isPromise, err, query, parameters);
   }
 
-  await using connection = await getConnection(connectionId);
+  // See rawQuery: a failed checkout must reach the caller.
+  await using connection = await getConnection(connectionId).catch((err) => {
+    logError(invokingResource, cb, isPromise, err, query, parameters);
+    return undefined;
+  });
 
   if (!connection) return;
 

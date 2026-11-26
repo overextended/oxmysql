@@ -26,7 +26,12 @@ export const rawQuery = async (
     return logError(invokingResource, cb, isPromise, err, query, parameters);
   }
 
-  await using connection = await getConnection(connectionId);
+  // Nothing awaits rawQuery, so a failed checkout (e.g. the database is unreachable) has to be
+  // reported here or the caller never hears back.
+  await using connection = await getConnection(connectionId).catch((err) => {
+    logError(invokingResource, cb, isPromise, err, query, parameters);
+    return undefined;
+  });
 
   if (!connection) return;
 
