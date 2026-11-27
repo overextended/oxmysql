@@ -1,3 +1,4 @@
+import { mysql_builder_debug } from '../config';
 import { rawQuery } from '../database/rawQuery';
 import { logError } from '../logger';
 import { setCallback } from '../utils/setCallback';
@@ -32,5 +33,14 @@ export async function executeBuilderQuery(
     return logError(invokingResource, cb, isPromise, err);
   }
 
-  return rawQuery(queryTypes[mode], invokingResource, compiled.sql, compiled.parameters, cb, isPromise);
+  return rawQuery(
+    queryTypes[mode],
+    invokingResource,
+    compiled.sql,
+    compiled.parameters,
+    cb,
+    isPromise,
+    undefined,
+    mysql_builder_debug,
+  );
 }
