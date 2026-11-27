@@ -34,6 +34,42 @@ Refer to [NOTICE.md](./NOTICE.md) for additional information and legal notices.
 - Support for URI connection strings and semicolon separated values.
 - Improved parameter checking and error handling.
 
+## Lua query builder
+
+Load the imports you need in your resource's `fxmanifest.lua`:
+
+```lua
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    '@oxmysql/lib/Builder.lua',
+    'server.lua',
+}
+```
+
+`Builder` provides SELECT, INSERT, and UPDATE queries and predicate operators. `MySQL` provides the existing raw SQL functions. The imports work independently and can be loaded in either order.
+
+```lua
+local users = Builder.table('users')
+    :select({ 'id', 'name' })
+    :where(Builder.op.eq('active', true))
+    :limit(10)
+    :get()
+
+local insertId = Builder.table('users'):insert({ name = 'Avery', active = true })
+
+local affectedRows = Builder.table('users')
+    :where(Builder.op.eq('id', insertId))
+    :update({ active = false })
+
+local count = MySQL.scalar.await('SELECT COUNT(*) FROM users')
+```
+
+`insert(rowOrRows, callback?)` accepts a non-empty row map or a dense array of rows with identical column names. `update(values, callback?)` requires a `where` predicate; use `:allowAll():update(values)` to deliberately update every row. Without callbacks, both terminals await internally. Mutation values use the same scalar rules as predicates. Column map keys must be unqualified names. `select()` and `limit()` are unsupported on mutations; `where()` and `allowAll()` are unsupported on inserts.
+
+Existing builder calls must change from `MySQL.table` / `MySQL.op` to `Builder.table` / `Builder.op` and load `@oxmysql/lib/Builder.lua`.
+
+For coding agents, the [oxmysql query builder skill](./skills/oxmysql-query-builder/SKILL.md) covers imports, supported queries, execution behavior, and migration from the earlier `MySQL` builder namespace.
+
 ## 🧾 Logging
 
 We have included a module for submitting error logs to [Fivemanage](https://refer.fivemanage.com/overextended), a cloud management service tailored for game servers. Additional logging options and support for other services will be available in the future.

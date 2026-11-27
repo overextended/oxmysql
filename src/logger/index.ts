@@ -75,13 +75,22 @@ type QueryLog = Record<string, QueryData[]>;
 
 const logStorage: QueryLog = {};
 
+export function logBuilderTiming(invokingResource: string, query: string, executionTime: number, failed = false) {
+  console.log(
+    `${dbVersion} ^3[queryBuilder] ${invokingResource} ${failed ? 'failed after' : 'took'} ${executionTime.toFixed(4)}ms\n${query}^0`,
+  );
+}
+
 export const logQuery = (
   invokingResource: string,
   query: string,
   executionTime: number,
   parameters?: CFXParameters,
+  builderExecutionTime?: number,
 ) => {
-  if (
+  if (builderExecutionTime !== undefined) {
+    logBuilderTiming(invokingResource, query, builderExecutionTime);
+  } else if (
     executionTime >= mysql_slow_query_warning ||
     (mysql_debug && (!Array.isArray(mysql_debug) || mysql_debug.includes(invokingResource)))
   ) {

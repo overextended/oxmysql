@@ -6,6 +6,7 @@ export const mysql_connection_string =
 export let mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
 export let mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
 export let mysql_debug: boolean | string[] = false;
+export let mysql_builder_debug = GetConvar('mysql_builder_debug', 'false') === 'true';
 
 // max array size of individual resource query logs
 // prevent excessive memory use when people use debug/ui in production
@@ -14,6 +15,7 @@ export let mysql_log_size = 0;
 export function setDebug() {
   mysql_ui = GetConvar('mysql_ui', 'false') === 'true';
   mysql_slow_query_warning = GetConvarInt('mysql_slow_query_warning', 200);
+  mysql_builder_debug = GetConvar('mysql_builder_debug', 'false') === 'true';
 
   try {
     const debug = GetConvar('mysql_debug', 'false');

@@ -68,6 +68,8 @@ build({
   dropLabels: ['DEV'],
   legalComments: 'inline',
   platform: 'node',
+  // Knex compiles SQL only; its MySQL driver is never loaded or connected.
+  external: ['mysql'],
   target: ['node22'],
   format: 'cjs',
   logLevel: 'info',
