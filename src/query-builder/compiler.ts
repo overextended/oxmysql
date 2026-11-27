@@ -206,10 +206,12 @@ export function compileQuery(input: unknown): CompiledQuery {
       }
       break;
     }
-    case 'insert': {
-      record(spec, ['kind', 'into', 'rows'], 'insert');
+    case 'insert':
+    case 'upsert': {
+      const isUpsert = spec.kind === 'upsert';
+      record(spec, isUpsert ? ['kind', 'into', 'row', 'updateColumns'] : ['kind', 'into', 'rows'], spec.kind);
       const table = identifier(spec.into);
-      const rows = array(spec.rows, 'insert rows').map(valuesMap);
+      const rows = isUpsert ? [valuesMap(spec.row)] : array(spec.rows, 'insert rows').map(valuesMap);
       const { keys } = rows[0];
       const columns = keys.map(part);
       query.table(table).insert(rows.map((row) => {
@@ -219,6 +221,16 @@ export function compileQuery(input: unknown): CompiledQuery {
         for (let i = 0; i < keys.length; i++) values[columns[i]] = scalar(row.values[keys[i]]);
         return values;
       }));
+      if (isUpsert) {
+        const updates = array(spec.updateColumns, 'upsert update columns').map((column) => {
+          if (typeof column !== 'string' || !Object.hasOwn(rows[0].values, column))
+            throw new Error('queryBuilder: upsert update columns must be present in the row.');
+          return column;
+        });
+        if (new Set(updates).size !== updates.length)
+          throw new Error('queryBuilder: upsert update columns must be unique.');
+        query.onConflict().merge(updates.map(part));
+      }
       break;
     }
     case 'update':
@@ -246,7 +258,7 @@ export function compileQuery(input: unknown): CompiledQuery {
       break;
     }
     default:
-      throw new Error('queryBuilder: unsupported statement kind; expected select, insert, update, or delete.');
+      throw new Error('queryBuilder: unsupported statement kind. Expected select, insert, upsert, update, or delete.');
   }
 
   const { sql, bindings } = query.toSQL();

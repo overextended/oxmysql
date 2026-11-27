@@ -49,6 +49,13 @@ export interface InsertSpec {
   readonly rows: readonly Readonly<Record<string, unknown>>[];
 }
 
+export interface UpsertSpec {
+  readonly kind: 'upsert';
+  readonly into: Identifier;
+  readonly row: Readonly<Record<string, unknown>>;
+  readonly updateColumns: readonly string[];
+}
+
 export interface UpdateSpec {
   readonly kind: 'update';
   readonly table: Identifier;
@@ -64,8 +71,8 @@ export interface DeleteSpec {
   readonly allowAll?: boolean;
 }
 
-export type QuerySpec = SelectSpec | InsertSpec | UpdateSpec | DeleteSpec;
-export type BuilderResultMode = 'query' | 'single' | 'insert' | 'update' | 'delete';
+export type QuerySpec = SelectSpec | InsertSpec | UpsertSpec | UpdateSpec | DeleteSpec;
+export type BuilderResultMode = 'query' | 'single' | 'insert' | 'upsert' | 'update' | 'delete';
 
 export interface CompiledQuery {
   sql: string;

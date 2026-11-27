@@ -5,6 +5,7 @@ export type {
   Predicate,
   SelectSpec,
   InsertSpec,
+  UpsertSpec,
   UpdateSpec,
   DeleteSpec,
   QuerySpec,

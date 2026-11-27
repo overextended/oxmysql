@@ -347,9 +347,9 @@ end
 
 local function mutationState(builder)
 	local spec = copyState(builder)
-	assert(spec.columns == '*' and spec.limit == nil, 'queryBuilder: insert/update/delete do not support select() or limit()')
-	assert(spec.groupBy == nil, 'queryBuilder: insert/update/delete do not support groupBy()')
-	assert(spec.orderBy == nil, 'queryBuilder: insert/update/delete do not support orderBy()')
+	assert(spec.columns == '*' and spec.limit == nil, 'queryBuilder: mutations do not support select() or limit()')
+	assert(spec.groupBy == nil, 'queryBuilder: mutations do not support groupBy()')
+	assert(spec.orderBy == nil, 'queryBuilder: mutations do not support orderBy()')
 	return spec
 end
 
@@ -372,6 +372,24 @@ function builderMethods:insert(values, cb)
 		end
 	end
 	return executeBuilder({ kind = 'insert', into = copyIdentifier(state.from), rows = rows }, 'insert', cb)
+end
+
+function builderMethods:upsert(row, updateColumns, cb)
+	local state = mutationState(self)
+	assert(state.where == nil and state.allowAll == nil, 'queryBuilder: upsert does not support where() or allowAll()')
+
+	local values = builderValues(row)
+	local seen = {}
+	local columns = builderArray(updateColumns, 'upsert update columns', function(column)
+		column = identifierPart(column)
+		assert(values[column] ~= nil, 'queryBuilder: upsert update columns must be present in the row')
+		assert(not seen[column], 'queryBuilder: upsert update columns must be unique')
+		seen[column] = true
+		return column
+	end)
+
+	local spec = { kind = 'upsert', into = copyIdentifier(state.from), row = values, updateColumns = columns }
+	return executeBuilder(spec, 'upsert', cb)
 end
 
 local function filteredMutationSpec(builder, kind)
