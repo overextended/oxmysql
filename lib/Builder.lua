@@ -27,7 +27,8 @@ end
 
 local type = type
 local oxmysql = exports.oxmysql
-local Builder = {}
+local null = {}
+local Builder = { NULL = null }
 
 local function builderRecord(value, fields, label)
 	assert(type(value) == 'table' and getmetatable(value) == nil, 'queryBuilder: ' .. label .. ' must be a plain table')
@@ -69,10 +70,15 @@ end
 
 local function builderValues(values)
 	assert(type(values) == 'table' and getmetatable(values) == nil and next(values) ~= nil,
-		'queryBuilder: values must be a non-empty plain table of column names and scalar values')
+		'queryBuilder: values must be a non-empty plain table of column names and values')
 	local result = {}
 	for column, value in pairs(values) do
-		result[identifierPart(column)] = builderValue(value)
+		local key = identifierPart(column)
+		if rawequal(value, null) then
+			result[key] = { kind = 'null' }
+		else
+			result[key] = builderValue(value)
+		end
 	end
 	return result
 end

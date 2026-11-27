@@ -71,6 +71,14 @@ export function compileQuery(input: unknown): CompiledQuery {
     return value;
   };
 
+  const writeValue = (value: unknown): string | boolean | number | null => {
+    if (value && typeof value === 'object') {
+      const marker = record(value, ['kind'], 'write value');
+      if (Object.hasOwn(marker, 'kind') && marker.kind === 'null') return null;
+    }
+    return scalar(value);
+  };
+
   const identifier = (input: unknown): string => {
     const value = record(input, ['kind', 'parts'], 'identifier');
     if (value.kind !== 'identifier') throw new Error('queryBuilder: expected identifier kind.');
@@ -218,7 +226,7 @@ export function compileQuery(input: unknown): CompiledQuery {
         if (row.keys.length !== keys.length || row.keys.some((key, index) => key !== keys[index]))
           throw new Error('queryBuilder: insert rows must have the same column names.');
         const values: Record<string, unknown> = {};
-        for (let i = 0; i < keys.length; i++) values[columns[i]] = scalar(row.values[keys[i]]);
+        for (let i = 0; i < keys.length; i++) values[columns[i]] = writeValue(row.values[keys[i]]);
         return values;
       }));
       if (isUpsert) {
@@ -249,7 +257,7 @@ export function compileQuery(input: unknown): CompiledQuery {
       if (kind === 'update') {
         const { values, keys } = valuesMap(spec.values);
         const updates: Record<string, unknown> = {};
-        for (const key of keys) updates[part(key)] = scalar(values[key]);
+        for (const key of keys) updates[part(key)] = writeValue(values[key]);
         query.update(updates);
       } else {
         query.delete();
